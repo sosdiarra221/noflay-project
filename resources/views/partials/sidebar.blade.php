@@ -316,6 +316,21 @@
                 </ul>
             </li>
             <li class="pe-menu-title">
+                Administration
+            </li>
+            <li class="pe-slide pe-has-sub">
+                <a href="departements" class="pe-nav-link">
+                    <i class="bi bi-diagram-3 pe-nav-icon"></i>
+                    <span class="pe-nav-content">Départements</span>
+                </a>
+            </li>
+            <li class="pe-slide pe-has-sub">
+                <a href="reglages" class="pe-nav-link">
+                    <i class="bi bi-gear pe-nav-icon"></i>
+                    <span class="pe-nav-content">Réglages</span>
+                </a>
+            </li>
+            <li class="pe-menu-title">
                 Pages
             </li>
             <li class="pe-slide pe-has-sub">
