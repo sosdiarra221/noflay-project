@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'UI Scrollspy | FabKin Admin & Dashboards Template')
+@section('title', 'UI Scrollspy | Takha CRM Admin & Dashboards Template')
 
 @section('title-sub', 'Base UI')
 @section('pagetitle', 'Scrollspy')

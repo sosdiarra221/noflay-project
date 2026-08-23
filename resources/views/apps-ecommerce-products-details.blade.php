@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'Product Details | FabKin Admin & Dashboards Template')
+@section('title', 'Product Details | Takha CRM Admin & Dashboards Template')
 @section('title-sub', 'Product Details')
 @section('pagetitle', 'Calendar')
 

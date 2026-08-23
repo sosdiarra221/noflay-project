@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'UI Checkbox & Radio | FabKin Admin & Dashboards Template')
+@section('title', 'UI Checkbox & Radio | Takha CRM Admin & Dashboards Template')
 
 @section('title-sub', 'Base UI')
 @section('pagetitle', 'Checkbox & Radio')

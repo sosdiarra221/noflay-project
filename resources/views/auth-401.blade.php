@@ -1,6 +1,6 @@
 @extends('partials.layouts.master_auth')
 
-@section('title', 'Auth 401 | FabKin Admin & Dashboards Template')
+@section('title', 'Auth 401 | Takha CRM Admin & Dashboards Template')
 
 @section('content')
 

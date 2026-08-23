@@ -1,6 +1,6 @@
 @extends('partials.layouts.master2')
 
-@section('title', 'Echart Chart | FabKin Admin & Dashboards Template')
+@section('title', 'Echart Chart | Takha CRM Admin & Dashboards Template')
 
 @section('title-sub', 'Base UI')
 @section('pagetitle', 'Echart Chart')

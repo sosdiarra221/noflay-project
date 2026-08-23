@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'Leaflet Maps | FabKin Admin & Dashboards Template')
+@section('title', 'Leaflet Maps | Takha CRM Admin & Dashboards Template')
 @section('title-sub', 'Base UI')
 @section('pagetitle', 'Leaflet Maps')
 @section('css')

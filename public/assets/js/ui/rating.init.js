@@ -1,6 +1,6 @@
 /*
-Template Name: Fabkin - Admin & Dashboard Template
-Author: Pixeleyez
+Template Name: Takha CRM - Admin & Dashboard Template
+Author: Pene Technologies Service (PTS)
 Website: https://pixeleyez.com/
 Contact: pixeleyez@gmail.com
 File: Rating init js

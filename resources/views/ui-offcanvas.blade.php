@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'UI Off-Canvas | FabKin Admin & Dashboards Template')
+@section('title', 'UI Off-Canvas | Takha CRM Admin & Dashboards Template')
 
 @section('title-sub', 'Base UI')
 @section('pagetitle', 'Off-Canvas')

@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'UI Separator | FabKin Admin & Dashboards Template')
+@section('title', 'UI Separator | Takha CRM Admin & Dashboards Template')
 
 @section('title-sub', 'Base UI')
 @section('pagetitle', 'Separator')
@@ -35,7 +35,7 @@
                             <div class="tab-pane fade show active" id="html-basic-horizontal-row" role="tabpanel"
                                 aria-labelledby="html-basic-horizontal-row-tab" tabindex="0">
                                 <div>
-                                    <p>Welcome to FabKin! Here, you'll find a wealth of information and resources designed
+                                    <p>Welcome to Takha CRM! Here, you'll find a wealth of information and resources designed
                                         to enhance your experience.</p>
                                     <hr>
                                     <p>Explore our latest updates and discover exciting opportunities that await you.</p>
@@ -44,7 +44,7 @@
                             <div class="tab-pane fade" id="preview-basic-horizontal-row" role="tabpanel"
                                 aria-labelledby="preview-basic-horizontal-row-tab" tabindex="0">
                                 <pre class="language-html"><code>&lt;div&gt;
-    &lt;p&gt;Welcome to FabKin! Here, you'll find a wealth of information and resources designed to enhance your experience.&lt;/p&gt;
+    &lt;p&gt;Welcome to Takha CRM! Here, you'll find a wealth of information and resources designed to enhance your experience.&lt;/p&gt;
     &lt;hr&gt;
     &lt;p&gt;Explore our latest updates and discover exciting opportunities that await you.&lt;/p&gt;
 &lt;/div&gt;</code></pre>
@@ -200,15 +200,15 @@
                         <div class="tab-content" id="content-horizontal-rowContent">
                             <div class="tab-pane fade show active" id="html-content-horizontal-row" role="tabpanel"
                                 aria-labelledby="html-content-horizontal-row-tab" tabindex="0">
-                                <div class="center-hr my-5">FabKin</div>
-                                <div class="center-hr mb-5 hr-secondary"><span class="h1 m-0">FabKin</span></div>
+                                <div class="center-hr my-5">Takha CRM</div>
+                                <div class="center-hr mb-5 hr-secondary"><span class="h1 m-0">Takha CRM</span></div>
                                 <div class="center-hr mb-5 hr-primary border-dashed"><span
                                         class="min-w-256px fw-bold">Long separator title label</span></div>
                             </div>
                             <div class="tab-pane fade" id="preview-content-horizontal-row" role="tabpanel"
                                 aria-labelledby="preview-content-horizontal-row-tab" tabindex="0">
-                                <pre class="language-html"><code>&lt;div class=&quot;center-hr my-5&quot;&gt;FabKin&lt;/div&gt;
-&lt;div class=&quot;center-hr mb-5 hr-secondary&quot;&gt;&lt;span class=&quot;h1 m-0&quot;&gt;FabKin&lt;/span&gt;&lt;/div&gt;
+                                <pre class="language-html"><code>&lt;div class=&quot;center-hr my-5&quot;&gt;Takha CRM&lt;/div&gt;
+&lt;div class=&quot;center-hr mb-5 hr-secondary&quot;&gt;&lt;span class=&quot;h1 m-0&quot;&gt;Takha CRM&lt;/span&gt;&lt;/div&gt;
 &lt;div class=&quot;center-hr mb-5 hr-primary border-dashed&quot;&gt;&lt;span class=&quot;min-w-256px fw-bold&quot;&gt;Long separator title label&lt;/span&gt;&lt;/div&gt;</code></pre>
                             </div>
                         </div>

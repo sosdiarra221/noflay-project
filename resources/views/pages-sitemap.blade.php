@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'Sitemap | FabKin Admin & Dashboards Template')
+@section('title', 'Sitemap | Takha CRM Admin & Dashboards Template')
 
 @section('title-sub', 'Pages')
 @section('pagetitle', 'Sitemap')
@@ -17,7 +17,7 @@
                     </div>
                     <div class="card-body">
                         <div class="sitemap-wrapper">
-                            <h6 class="sitemap-wrapper-main-title mb-0">Fabkin - Admin & Dashboards Templates</h6>
+                            <h6 class="sitemap-wrapper-main-title mb-0">Takha CRM - Admin & Dashboards Templates</h6>
                             <ul class="sitemap-wrapper-ul list-unstyled">
                                 <li>
                                     <h6 class="main-title mb-0">Dashboards</h6>
@@ -134,7 +134,7 @@
                     </div>
                     <div class="card-body">
                         <div class="sitemap-wrapper">
-                            <h6 class="sitemap-wrapper-main-title bg-primary border-primary mb-0">Fabkin - Admin &
+                            <h6 class="sitemap-wrapper-main-title bg-primary border-primary mb-0">Takha CRM - Admin &
                                 Dashboards Templates</h6>
                             <ul class="sitemap-wrapper-ul list-unstyled">
                                 <li>

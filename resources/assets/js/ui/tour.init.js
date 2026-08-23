@@ -1,6 +1,6 @@
 /*
-Template Name: Fabkin - Admin & Dashboard Template
-Author: Pixeleyez
+Template Name: Takha CRM - Admin & Dashboard Template
+Author: Pene Technologies Service (PTS)
 Website: https://pixeleyez.com/
 Contact: pixeleyez@gmail.com
 File: Tour init js
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     tour.addStep({
         id: 'welcome',
-        text: 'Welcome to Fabkin! This template offers advanced features for your admin dashboard.',
+        text: 'Welcome to Takha CRM! This template offers advanced features for your admin dashboard.',
         attachTo: { element: 'h2', on: 'bottom' },
         buttons: [{ text: 'Next', action: tour.next }]
     });

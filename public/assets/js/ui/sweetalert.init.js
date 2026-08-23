@@ -1,6 +1,6 @@
 /*
-Template Name: Fabkin - Admin & Dashboard Template
-Author: Pixeleyez
+Template Name: Takha CRM - Admin & Dashboard Template
+Author: Pene Technologies Service (PTS)
 Website: https://pixeleyez.com/
 Contact: pixeleyez@gmail.com
 File: sweetalert.init.js
@@ -75,7 +75,7 @@ const alerts = {
     }),
 
     customImage: () => Swal.fire({
-        title: "Fabkin!",
+        title: "Takha CRM!",
         text: "Modal with a Brand Logo.",
         imageUrl: "assets/images/logo-md.png",
         imageWidth: 80,
@@ -184,7 +184,7 @@ const alerts = {
     }).then(result => {
         if (result.isConfirmed) {
             Swal.fire({
-                title: `${result.value.login}'s Fabkin`,
+                title: `${result.value.login}'s Takha CRM`,
                 imageUrl: result.value.avatar_url,
                 ...commonAlertOptions
             });

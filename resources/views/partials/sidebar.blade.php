@@ -6,7 +6,7 @@
             <img height="30" class="pe-app-sidebar-logo-light d-none" alt="Logo" src="assets/images/logo-light.png">
             <img height="30" class="pe-app-sidebar-logo-minimize d-none" alt="Logo" src="assets/images/logo-md.png">
             <img height="30" class="pe-app-sidebar-logo-minimize-light d-none" alt="Logo" src="assets/images/logo-md-light.png">
-            <!-- FabKin -->
+            <!-- Takha CRM -->
         </a>
         <!--end::Brand Image-->
     </div> 

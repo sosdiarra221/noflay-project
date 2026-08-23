@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'Form Wizards | FabKin Admin & Dashboards Template')
+@section('title', 'Form Wizards | Takha CRM Admin & Dashboards Template')
 
 @section('title-sub', 'Base UI')
 @section('pagetitle', 'Wizards')

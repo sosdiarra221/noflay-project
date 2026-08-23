@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'UI File Upload | FabKin Admin & Dashboards Template')
+@section('title', 'UI File Upload | Takha CRM Admin & Dashboards Template')
 
 @section('title-sub', 'Base UI')
 @section('pagetitle', 'File Upload')

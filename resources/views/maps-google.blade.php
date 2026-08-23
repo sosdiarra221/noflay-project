@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'Google Maps | FabKin Admin & Dashboards Template')
+@section('title', 'Google Maps | Takha CRM Admin & Dashboards Template')
 @section('title-sub', 'Base UI')
 @section('pagetitle', 'Google Maps')
 @section('content')

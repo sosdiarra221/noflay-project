@@ -1,6 +1,6 @@
 /*
-Template Name: FabKin - Admin & Dashboard Template
-Author: Pixeleyez
+Template Name: Takha CRM - Admin & Dashboard Template
+Author: Pene Technologies Service (PTS)
 File: Air Datapickr js
 */
 const localeEn = {
