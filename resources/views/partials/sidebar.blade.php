@@ -316,6 +316,15 @@
                 </ul>
             </li>
             <li class="pe-menu-title">
+                Métier
+            </li>
+            <li class="pe-slide pe-has-sub">
+                <a href="{{ route('locative.dashboard') }}" class="pe-nav-link">
+                    <i class="bi bi-building pe-nav-icon"></i>
+                    <span class="pe-nav-content">Gestion Locative</span>
+                </a>
+            </li>
+            <li class="pe-menu-title">
                 Administration
             </li>
             <li class="pe-slide pe-has-sub">

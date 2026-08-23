@@ -78,50 +78,6 @@
                                                 </div>
                                             </td>
                                         </tr>
-
-                                        <!-- Edit Departement Modal -->
-                                        <div class="modal fade" id="editDepartementModal{{ $departement->id }}"
-                                            tabindex="-1" aria-labelledby="editDepartementModalLabel{{ $departement->id }}"
-                                            aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered" role="document">
-                                                <div class="modal-content">
-                                                    <form action="{{ route('departements.update', $departement) }}"
-                                                        method="POST">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title"
-                                                                id="editDepartementModalLabel{{ $departement->id }}">
-                                                                Modifier le Département</h5>
-                                                            <button type="button" class="btn-close icon-btn-sm"
-                                                                data-bs-dismiss="modal" aria-label="Close">
-                                                                <i class="ri-close-large-line fw-semibold"></i>
-                                                            </button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="row g-3">
-                                                                <div class="col-12">
-                                                                    <label class="form-label">Nom</label>
-                                                                    <input type="text" class="form-control" name="nom"
-                                                                        value="{{ $departement->nom }}" required>
-                                                                </div>
-                                                                <div class="col-12">
-                                                                    <label class="form-label">Description</label>
-                                                                    <input type="text" class="form-control"
-                                                                        name="description"
-                                                                        value="{{ $departement->description }}">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-light"
-                                                                data-bs-dismiss="modal">Fermer</button>
-                                                            <button type="submit" class="btn btn-primary">Enregistrer</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
                                     @empty
                                         <tr>
                                             <td colspan="4" class="text-center text-muted py-5">Aucun département pour le
@@ -135,6 +91,52 @@
                 </div>
             </div>
         </div>
+
+        @foreach ($departements as $departement)
+            <!-- Edit Departement Modal -->
+            <div class="modal fade" id="editDepartementModal{{ $departement->id }}"
+                tabindex="-1" aria-labelledby="editDepartementModalLabel{{ $departement->id }}"
+                aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <form action="{{ route('departements.update', $departement) }}"
+                            method="POST">
+                            @csrf
+                            @method('PUT')
+                            <div class="modal-header">
+                                <h5 class="modal-title"
+                                    id="editDepartementModalLabel{{ $departement->id }}">
+                                    Modifier le Département</h5>
+                                <button type="button" class="btn-close icon-btn-sm"
+                                    data-bs-dismiss="modal" aria-label="Close">
+                                    <i class="ri-close-large-line fw-semibold"></i>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label">Nom</label>
+                                        <input type="text" class="form-control" name="nom"
+                                            value="{{ $departement->nom }}" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Description</label>
+                                        <input type="text" class="form-control"
+                                            name="description"
+                                            value="{{ $departement->description }}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light"
+                                    data-bs-dismiss="modal">Fermer</button>
+                                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @endforeach
 
         <!-- Create Departement Modal -->
         <div class="modal fade" id="createDepartementModal" data-bs-keyboard="false" tabindex="-1"

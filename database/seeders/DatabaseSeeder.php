@@ -24,6 +24,8 @@ class DatabaseSeeder extends Seeder
             DeviseSeeder::class,
             DepartementSeeder::class,
             ReglageSeeder::class,
+            CategorieBienSeeder::class,
+            ModePaiementSeeder::class,
         ]);
     }
 }

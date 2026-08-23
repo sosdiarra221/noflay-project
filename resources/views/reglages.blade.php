@@ -237,70 +237,6 @@
                                                         </div>
                                                     </td>
                                                 </tr>
-
-                                                <!-- Edit Devise Modal -->
-                                                <div class="modal fade" id="editDeviseModal{{ $devise->id }}"
-                                                    tabindex="-1" aria-labelledby="editDeviseModalLabel{{ $devise->id }}"
-                                                    aria-hidden="true">
-                                                    <div class="modal-dialog modal-dialog-centered" role="document">
-                                                        <div class="modal-content">
-                                                            <form action="{{ route('devises.update', $devise) }}"
-                                                                method="POST">
-                                                                @csrf
-                                                                @method('PUT')
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title"
-                                                                        id="editDeviseModalLabel{{ $devise->id }}">
-                                                                        Modifier la Devise</h5>
-                                                                    <button type="button" class="btn-close icon-btn-sm"
-                                                                        data-bs-dismiss="modal" aria-label="Close">
-                                                                        <i class="ri-close-large-line fw-semibold"></i>
-                                                                    </button>
-                                                                </div>
-                                                                <div class="modal-body">
-                                                                    <div class="row g-3">
-                                                                        <div class="col-12">
-                                                                            <label class="form-label">Code</label>
-                                                                            <input type="text" class="form-control"
-                                                                                name="code" value="{{ $devise->code }}"
-                                                                                required>
-                                                                        </div>
-                                                                        <div class="col-12">
-                                                                            <label class="form-label">Nom</label>
-                                                                            <input type="text" class="form-control"
-                                                                                name="nom" value="{{ $devise->nom }}"
-                                                                                required>
-                                                                        </div>
-                                                                        <div class="col-12">
-                                                                            <label class="form-label">Symbole</label>
-                                                                            <input type="text" class="form-control"
-                                                                                name="symbole"
-                                                                                value="{{ $devise->symbole }}" required>
-                                                                        </div>
-                                                                        <div class="col-12">
-                                                                            <div class="form-check">
-                                                                                <input class="form-check-input"
-                                                                                    type="checkbox" value="1"
-                                                                                    name="est_defaut" id="estDefaut{{ $devise->id }}"
-                                                                                    @checked($devise->est_defaut)>
-                                                                                <label class="form-check-label"
-                                                                                    for="estDefaut{{ $devise->id }}">
-                                                                                    Définir comme devise par défaut
-                                                                                </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-light"
-                                                                        data-bs-dismiss="modal">Fermer</button>
-                                                                    <button type="submit"
-                                                                        class="btn btn-primary">Enregistrer</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
                                             @empty
                                                 <tr>
                                                     <td colspan="5" class="text-center text-muted py-5">Aucune devise
@@ -312,6 +248,71 @@
                                 </div>
                             </div>
                         </div>
+                        @foreach ($devises as $devise)
+                            <!-- Edit Devise Modal -->
+                            <div class="modal fade" id="editDeviseModal{{ $devise->id }}"
+                                tabindex="-1" aria-labelledby="editDeviseModalLabel{{ $devise->id }}"
+                                aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <form action="{{ route('devises.update', $devise) }}"
+                                            method="POST">
+                                            @csrf
+                                            @method('PUT')
+                                            <div class="modal-header">
+                                                <h5 class="modal-title"
+                                                    id="editDeviseModalLabel{{ $devise->id }}">
+                                                    Modifier la Devise</h5>
+                                                <button type="button" class="btn-close icon-btn-sm"
+                                                    data-bs-dismiss="modal" aria-label="Close">
+                                                    <i class="ri-close-large-line fw-semibold"></i>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row g-3">
+                                                    <div class="col-12">
+                                                        <label class="form-label">Code</label>
+                                                        <input type="text" class="form-control"
+                                                            name="code" value="{{ $devise->code }}"
+                                                            required>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label class="form-label">Nom</label>
+                                                        <input type="text" class="form-control"
+                                                            name="nom" value="{{ $devise->nom }}"
+                                                            required>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label class="form-label">Symbole</label>
+                                                        <input type="text" class="form-control"
+                                                            name="symbole"
+                                                            value="{{ $devise->symbole }}" required>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input"
+                                                                type="checkbox" value="1"
+                                                                name="est_defaut" id="estDefaut{{ $devise->id }}"
+                                                                @checked($devise->est_defaut)>
+                                                            <label class="form-check-label"
+                                                                for="estDefaut{{ $devise->id }}">
+                                                                Définir comme devise par défaut
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-light"
+                                                    data-bs-dismiss="modal">Fermer</button>
+                                                <button type="submit"
+                                                    class="btn btn-primary">Enregistrer</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
 
                     {{-- Onglet SMTP --}}
