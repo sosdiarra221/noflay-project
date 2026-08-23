@@ -324,6 +324,12 @@
                     <span class="pe-nav-content">Gestion Locative</span>
                 </a>
             </li>
+            <li class="pe-slide pe-has-sub">
+                <a href="{{ route('commercial.dashboard') }}" class="pe-nav-link">
+                    <i class="bi bi-bullseye pe-nav-icon"></i>
+                    <span class="pe-nav-content">Gestion Commercial</span>
+                </a>
+            </li>
             <li class="pe-menu-title">
                 Administration
             </li>

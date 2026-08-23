@@ -18,6 +18,23 @@ use App\Http\Controllers\Locative\ContratLocationController;
 use App\Http\Controllers\Locative\EcheanceLoyerController;
 use App\Http\Controllers\Locative\PaiementController;
 use App\Http\Controllers\Locative\ReversementController;
+use App\Http\Controllers\Locative\CorbeilleController;
+use App\Http\Controllers\Locative\JournalActiviteController;
+use App\Http\Controllers\Locative\DocumentController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Commercial\CommercialDashboardController;
+use App\Http\Controllers\Commercial\ProspectController;
+use App\Http\Controllers\Commercial\ActiviteController;
+use App\Http\Controllers\Commercial\ParametreCommercialController;
+use App\Http\Controllers\Commercial\SourceController;
+use App\Http\Controllers\Commercial\TypeDemandeController;
+
+Route::get('connexion', [AuthController::class, 'showLogin'])->name('login');
+Route::post('connexion', [AuthController::class, 'login'])->name('login.store');
+
+Route::middleware('auth')->group(function () {
+
+Route::post('deconnexion', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/', function () {
     return view('index');
@@ -87,8 +104,48 @@ Route::prefix('locative')->name('locative.')->group(function () {
     Route::post('echeances/{echeance}/encaisser', [EcheanceLoyerController::class, 'encaisser'])->name('echeances.encaisser');
 
     Route::get('paiements/{paiement}/recu', [PaiementController::class, 'pdf'])->name('paiements.recu');
+    Route::post('paiements/{paiement}/annuler', [PaiementController::class, 'annuler'])->name('paiements.annuler');
 
     Route::get('reversements', [ReversementController::class, 'index'])->name('reversements.index');
+
+    Route::get('corbeille', [CorbeilleController::class, 'index'])->name('corbeille.index');
+    Route::post('corbeille/{type}/{id}/restaurer', [CorbeilleController::class, 'restaurer'])->name('corbeille.restaurer');
+    Route::delete('corbeille/{type}/{id}', [CorbeilleController::class, 'supprimerDefinitivement'])->name('corbeille.supprimer-definitivement');
+
+    Route::get('journal', [JournalActiviteController::class, 'index'])->name('journal.index');
+
+    Route::post('documents/{type}/{id}', [DocumentController::class, 'store'])->name('documents.store');
+    Route::get('documents/{document}/telecharger', [DocumentController::class, 'telecharger'])->name('documents.telecharger');
+    Route::delete('documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
+});
+
+// Module Commercial — CRM léger avec son propre dashboard (dashboard-project) et son propre menu.
+Route::get('dashboard-project', [CommercialDashboardController::class, 'index'])->name('commercial.dashboard');
+
+Route::prefix('commercial')->name('commercial.')->group(function () {
+    Route::get('prospects', [ProspectController::class, 'index'])->name('prospects.index');
+    Route::get('prospects/{prospect}', [ProspectController::class, 'show'])->name('prospects.show');
+    Route::post('prospects', [ProspectController::class, 'store'])->name('prospects.store');
+    Route::put('prospects/{prospect}', [ProspectController::class, 'update'])->name('prospects.update');
+    Route::delete('prospects/{prospect}', [ProspectController::class, 'destroy'])->name('prospects.destroy');
+    Route::post('prospects/{prospect}/statut', [ProspectController::class, 'changerStatut'])->name('prospects.changer-statut');
+    Route::post('prospects/{prospect}/convertir-location', [ProspectController::class, 'convertirEnLocation'])->name('prospects.convertir-location');
+
+    Route::post('prospects/{prospect}/activites', [ActiviteController::class, 'store'])->name('activites.store');
+
+    Route::get('parametres', [ParametreCommercialController::class, 'index'])->name('parametres.index');
+    Route::post('sources', [SourceController::class, 'store'])->name('sources.store');
+    Route::put('sources/{source}', [SourceController::class, 'update'])->name('sources.update');
+    Route::delete('sources/{source}', [SourceController::class, 'destroy'])->name('sources.destroy');
+    Route::post('types-demande', [TypeDemandeController::class, 'store'])->name('types-demande.store');
+    Route::put('types-demande/{type}', [TypeDemandeController::class, 'update'])->name('types-demande.update');
+    Route::delete('types-demande/{type}', [TypeDemandeController::class, 'destroy'])->name('types-demande.destroy');
+
+    Route::get('partenaires', fn () => view('commercial.bientot', ['titre' => 'Partenaires']))->name('partenaires');
+    Route::get('agenda', fn () => view('commercial.bientot', ['titre' => 'Agenda']))->name('agenda');
+    Route::get('rapports', fn () => view('commercial.bientot', ['titre' => 'Rapports']))->name('rapports');
 });
 
 Route::get('{any}', [DashboardController::class, 'index'])->where('any', '.*'); // Catch-all route for the dashboard.
+
+}); // fin Route::middleware('auth')
