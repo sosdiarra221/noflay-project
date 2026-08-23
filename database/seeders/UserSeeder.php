@@ -36,6 +36,7 @@ class UserSeeder extends Seeder
                     'name' => $departement->nom,
                     'password' => self::MOT_DE_PASSE_PAR_DEFAUT,
                     'role_id' => $roleId,
+                    'departement_id' => $departement->id,
                 ]
             );
         }

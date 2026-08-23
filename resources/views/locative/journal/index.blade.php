@@ -57,10 +57,17 @@
                                         @endphp
                                         <tr>
                                             <td>{{ $entree->created_at->format('d/m/Y H:i') }}</td>
-                                            <td>{{ $entree->utilisateur->name ?? 'Système' }}</td>
+                                            <td>
+                                                @if ($entree->utilisateur)
+                                                    {{ $entree->utilisateur->name }}
+                                                    <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $entree->utilisateur->departement->nom ?? '—' }}</span>
+                                                @else
+                                                    Système
+                                                @endif
+                                            </td>
                                             <td><span class="badge bg-{{ $classes[$entree->action] ?? 'secondary' }}-subtle text-{{ $classes[$entree->action] ?? 'secondary' }} text-capitalize">{{ $entree->action }}</span></td>
                                             <td>{{ $entree->entity_type }} #{{ $entree->entity_id }}</td>
-                                            <td>{{ $entree->motif ?: '—' }}</td>
+                                            <td>{{ $entree->motifAffiche() }}</td>
                                         </tr>
                                     @empty
                                         <tr><td colspan="5" class="text-center text-muted py-5">Aucune activité enregistrée pour ces filtres.</td></tr>

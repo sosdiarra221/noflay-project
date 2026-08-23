@@ -41,41 +41,32 @@
                         </h2>
                         <div id="filtres_loyers_body" class="accordion-collapse collapse show" data-bs-parent="#filtres_loyers">
                             <div class="accordion-body py-5">
-                                <form method="GET" class="row g-4">
-                                    <div class="col-md-3">
-                                        <select class="form-select" name="locataire_id">
+                                <form method="GET" class="row g-4" id="formFiltresLoyers">
+                                    <div class="col-md-4">
+                                        <select class="form-select" name="locataire_id" id="filtreLocataireSelect">
                                             <option value="">Tous les locataires</option>
                                             @foreach ($locataires as $locataire)
                                                 <option value="{{ $locataire->id }}" @selected(request('locataire_id') == $locataire->id)>{{ $locataire->nom_complet }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-md-3">
-                                        <select class="form-select" name="statut">
+                                    <div class="col-md-4">
+                                        <select class="form-select" name="statut" onchange="this.form.submit()">
                                             <option value="">Tous statuts</option>
                                             @foreach (['a_venir', 'echu', 'partiellement_paye', 'paye', 'en_retard', 'annule'] as $statutOption)
                                                 <option value="{{ $statutOption }}" @selected(request('statut') === $statutOption)>{{ str_replace('_', ' ', ucfirst($statutOption)) }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-md-3">
-                                        <select class="form-select" name="mois">
+                                    <div class="col-md-4">
+                                        <select class="form-select" name="mois_annee" id="filtreMoisAnneeSelect">
                                             <option value="">Tous les mois</option>
-                                            @for ($mois = 1; $mois <= 12; $mois++)
-                                                <option value="{{ $mois }}" @selected((string) request('mois') === (string) $mois)>{{ ucfirst(\Carbon\Carbon::createFromDate(2026, $mois, 1)->translatedFormat('F')) }}</option>
-                                            @endfor
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <select class="form-select" name="annee">
-                                            <option value="">Toutes années</option>
-                                            @for ($annee = now()->year - 1; $annee <= now()->year + 1; $annee++)
-                                                <option value="{{ $annee }}" @selected((string) request('annee') === (string) $annee)>{{ $annee }}</option>
-                                            @endfor
+                                            @foreach ($periodesDisponibles as $periode)
+                                                <option value="{{ $periode['valeur'] }}" @selected(request('mois_annee') === $periode['valeur'])>{{ $periode['libelle'] }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
                                     <div class="col-12 d-flex justify-content-end gap-2">
-                                        <button class="btn btn-light-primary" type="submit"><i class="ri-equalizer-line me-2"></i>Filtrer</button>
                                         <a href="{{ route('locative.echeances.index') }}" class="btn btn-light-danger">Réinitialiser</a>
                                     </div>
                                 </form>
@@ -353,6 +344,24 @@
                     searchPlaceholderValue: 'Rechercher...',
                 });
             }
+
+            const form = document.getElementById('formFiltresLoyers');
+
+            const locataireSelect = new Choices(document.getElementById('filtreLocataireSelect'), {
+                searchEnabled: true,
+                itemSelectText: '',
+                placeholderValue: 'Rechercher un locataire...',
+                searchPlaceholderValue: 'Rechercher...',
+            });
+            document.getElementById('filtreLocataireSelect').addEventListener('change', () => form.submit());
+
+            const moisAnneeSelect = new Choices(document.getElementById('filtreMoisAnneeSelect'), {
+                searchEnabled: true,
+                itemSelectText: '',
+                placeholderValue: 'Rechercher un mois...',
+                searchPlaceholderValue: 'Rechercher...',
+            });
+            document.getElementById('filtreMoisAnneeSelect').addEventListener('change', () => form.submit());
         });
     </script>
 @endsection

@@ -14,7 +14,7 @@ class JournalActiviteController extends Controller
     {
         Gate::authorize('locative.journal');
 
-        $entrees = JournalActivite::with('utilisateur')
+        $entrees = JournalActivite::with(['utilisateur.departement'])
             ->when($request->filled('user_id'), fn ($q) => $q->where('user_id', $request->user_id))
             ->when($request->filled('action'), fn ($q) => $q->where('action', $request->action))
             ->when($request->filled('entity_type'), fn ($q) => $q->where('entity_type', $request->entity_type))

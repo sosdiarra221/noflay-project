@@ -20,8 +20,10 @@ class EcheanceLoyerController extends Controller
     {
         $echeances = EcheanceLoyer::with(['contratLocation.bien', 'contratLocation.location.locataire', 'paiements.modePaiement'])
             ->when($request->filled('statut'), fn ($q) => $q->where('statut', $request->statut))
-            ->when($request->filled('annee'), fn ($q) => $q->where('annee', $request->annee))
-            ->when($request->filled('mois'), fn ($q) => $q->where('mois', $request->mois))
+            ->when($request->filled('mois_annee'), function ($q) use ($request) {
+                [$annee, $mois] = explode('-', $request->mois_annee);
+                $q->where('annee', $annee)->where('mois', $mois);
+            })
             ->when($request->filled('locataire_id'), function ($q) use ($request) {
                 $q->whereHas('contratLocation.location', fn ($q2) => $q2->where('locataire_id', $request->locataire_id));
             })
@@ -34,7 +36,17 @@ class EcheanceLoyerController extends Controller
             ->where('statut', 'actif')
             ->get();
 
-        return view('locative.echeances.index', compact('echeances', 'locataires', 'contrats'));
+        $periodesDisponibles = EcheanceLoyer::selectRaw('annee, mois')
+            ->distinct()
+            ->orderByDesc('annee')
+            ->orderByDesc('mois')
+            ->get()
+            ->map(fn ($ligne) => [
+                'valeur' => sprintf('%d-%02d', $ligne->annee, $ligne->mois),
+                'libelle' => ucfirst(\Carbon\Carbon::createFromDate($ligne->annee, $ligne->mois, 1)->translatedFormat('F Y')),
+            ]);
+
+        return view('locative.echeances.index', compact('echeances', 'locataires', 'contrats', 'periodesDisponibles'));
     }
 
     public function encaisser(Request $request, EcheanceLoyer $echeance)
