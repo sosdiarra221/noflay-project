@@ -15,17 +15,59 @@
         @endif
 
         <div class="row">
+            <div class="col-12 mb-4">
+                <div class="accordion accordion-icon accordion-primary accordion-border-box" id="filtres_gerances">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#filtres_gerances_body" aria-expanded="true">
+                                <i class="bi bi-funnel-fill me-2"></i> Filtres
+                            </button>
+                        </h2>
+                        <div id="filtres_gerances_body" class="accordion-collapse collapse show" data-bs-parent="#filtres_gerances">
+                            <div class="accordion-body py-5">
+                                <form method="GET" class="row g-4">
+                                    <div class="col-md-4">
+                                        <select class="form-select" name="bailleur_id">
+                                            <option value="">Tous les bailleurs</option>
+                                            @foreach ($bailleurs as $bailleur)
+                                                <option value="{{ $bailleur->id }}" @selected(request('bailleur_id') == $bailleur->id)>{{ $bailleur->nom_complet }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-select" name="type_gerance">
+                                            <option value="">Tous types</option>
+                                            <option value="gestion_locative" @selected(request('type_gerance') === 'gestion_locative')>Gestion locative</option>
+                                            <option value="gestion_vente" @selected(request('type_gerance') === 'gestion_vente')>Gestion vente</option>
+                                            <option value="gestion_locative_vente" @selected(request('type_gerance') === 'gestion_locative_vente')>Gestion locative + vente</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-select" name="statut">
+                                            <option value="">Tous statuts</option>
+                                            @foreach (['brouillon', 'en_attente_signature', 'actif', 'suspendu', 'expire', 'resilie', 'archive'] as $statutOption)
+                                                <option value="{{ $statutOption }}" @selected(request('statut') === $statutOption)>{{ str_replace('_', ' ', ucfirst($statutOption)) }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-12 d-flex justify-content-end gap-2">
+                                        <button class="btn btn-light-primary" type="submit"><i class="ri-equalizer-line me-2"></i>Filtrer</button>
+                                        <a href="{{ route('locative.gerances.index') }}" class="btn btn-light-danger">Réinitialiser</a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center">
-                            <h6 class="card-title mb-0 fw-semibold">
-                                Gérances <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $gerances->count() }}</span>
-                            </h6>
-                            <a href="{{ route('locative.gerances.create') }}" class="btn btn-light-primary">
-                                <i class="bi bi-plus-lg me-1"></i>Nouvelle gérance
-                            </a>
-                        </div>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">Gérances <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $gerances->count() }}</span></h6>
+                        <a href="{{ route('locative.gerances.create') }}" class="btn btn-primary">
+                            <i class="bi bi-plus-lg me-1"></i>Nouvelle gérance
+                        </a>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-box table-responsive">
@@ -57,14 +99,15 @@
                                             </td>
                                             <td>
                                                 <div class="hstack gap-2">
-                                                    <a href="{{ route('locative.gerances.show', $gerance) }}" class="btn btn-light-success icon-btn-sm"><i class="bi bi-eye"></i></a>
+                                                    <button type="button" class="btn btn-light-info icon-btn-sm" data-bs-toggle="modal" data-bs-target="#apercuGeranceModal{{ $gerance->id }}"><i class="bi bi-eye"></i></button>
+                                                    <a href="{{ route('locative.gerances.show', $gerance) }}" class="btn btn-light-success icon-btn-sm"><i class="bi bi-arrow-up-right-circle"></i></a>
                                                     <a href="{{ route('locative.gerances.pdf', $gerance) }}" class="btn btn-light-info icon-btn-sm"><i class="bi bi-file-earmark-pdf"></i></a>
                                                 </div>
                                             </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="7" class="text-center text-muted py-5">Aucun contrat de gérance pour le moment.</td>
+                                            <td colspan="7" class="text-center text-muted py-5">Aucun contrat de gérance ne correspond à ces filtres.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -74,6 +117,57 @@
                 </div>
             </div>
         </div>
+
+        @php
+            $classesPopover = ['actif' => 'success', 'brouillon' => 'secondary', 'en_attente_signature' => 'warning', 'suspendu' => 'warning', 'expire' => 'dark', 'resilie' => 'danger', 'archive' => 'dark'];
+        @endphp
+        @foreach ($gerances as $gerance)
+            {{-- Aperçu rapide --}}
+            <div class="modal fade" id="apercuGeranceModal{{ $gerance->id }}" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content rounded-4 shadow">
+                        <div class="modal-header bg-gradient text-white bg-{{ $classesPopover[$gerance->statut] ?? 'primary' }}">
+                            <h5 class="modal-title">{{ $gerance->numero }}</h5>
+                            <button type="button" class="btn-close icon-btn-sm btn-close-white" data-bs-dismiss="modal" aria-label="Close">
+                                <i class="ri-close-large-line fw-semibold"></i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="d-flex gap-2"><i class="bi bi-person-badge fs-16"></i><p class="text-muted mb-2">Bailleur</p></div>
+                                    <h6 class="mb-0">{{ $gerance->bailleur->nom_complet }}</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex gap-2"><i class="bi bi-tag fs-16"></i><p class="text-muted mb-2">Type</p></div>
+                                    <h6 class="mb-0 text-capitalize">{{ str_replace('_', ' ', $gerance->type_gerance) }}</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex gap-2"><i class="bi bi-calendar-range fs-16"></i><p class="text-muted mb-2">Période</p></div>
+                                    <h6 class="mb-0">{{ $gerance->date_debut->format('d/m/Y') }} @if ($gerance->date_fin) → {{ $gerance->date_fin->format('d/m/Y') }} @endif</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex gap-2"><i class="bi bi-toggle-on fs-16"></i><p class="text-muted mb-2">Statut</p></div>
+                                    <h6 class="mb-0 text-capitalize">{{ str_replace('_', ' ', $gerance->statut) }}</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex gap-2"><i class="bi bi-percent fs-16"></i><p class="text-muted mb-2">Frais de gestion</p></div>
+                                    <h6 class="mb-0">{{ $gerance->frais_gestion_valeur }}{{ $gerance->frais_gestion_mode === 'pourcentage' ? ' %' : ' FCFA' }}</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex gap-2"><i class="bi bi-building fs-16"></i><p class="text-muted mb-2">Biens</p></div>
+                                    <h6 class="mb-0">{{ $gerance->biens_count }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
+                            <a href="{{ route('locative.gerances.show', $gerance) }}" class="btn btn-primary">Ouvrir la fiche</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
 
     </div>
     </main>

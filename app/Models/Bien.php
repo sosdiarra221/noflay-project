@@ -70,6 +70,11 @@ class Bien extends Model
         return $this->type_exploitation === 'vente' ? $this->prix_vente : $this->loyer_mensuel;
     }
 
+    public function estDisponible(): bool
+    {
+        return in_array($this->statut, ['disponible', 'a_vendre'], true);
+    }
+
     public function fraisGestionCalcules(): float
     {
         $montant = $this->montantExploitation() ?? 0;

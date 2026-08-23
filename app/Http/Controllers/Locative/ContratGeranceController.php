@@ -13,11 +13,18 @@ use Illuminate\Support\Facades\Gate;
 
 class ContratGeranceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $gerances = ContratGerance::with('bailleur')->withCount('biens')->latest()->get();
+        $gerances = ContratGerance::with('bailleur')->withCount('biens')
+            ->when($request->filled('bailleur_id'), fn ($q) => $q->where('bailleur_id', $request->bailleur_id))
+            ->when($request->filled('type_gerance'), fn ($q) => $q->where('type_gerance', $request->type_gerance))
+            ->when($request->filled('statut'), fn ($q) => $q->where('statut', $request->statut))
+            ->latest()
+            ->get();
 
-        return view('locative.gerances.index', compact('gerances'));
+        $bailleurs = Bailleur::orderBy('nom')->get();
+
+        return view('locative.gerances.index', compact('gerances', 'bailleurs'));
     }
 
     public function show(ContratGerance $gerance)

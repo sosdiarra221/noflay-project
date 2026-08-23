@@ -15,11 +15,19 @@ use Illuminate\Support\Facades\DB;
 
 class LocationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $locations = Location::with(['locataire', 'contrats.bien'])->latest()->get();
+        $locations = Location::with(['locataire', 'contrats.bien'])
+            ->when($request->filled('locataire_id'), fn ($q) => $q->where('locataire_id', $request->locataire_id))
+            ->when($request->filled('statut'), function ($q) use ($request) {
+                $q->whereHas('contrats', fn ($q2) => $q2->where('statut', $request->statut));
+            })
+            ->latest()
+            ->get();
 
-        return view('locative.locations.index', compact('locations'));
+        $locataires = Locataire::orderBy('nom')->get();
+
+        return view('locative.locations.index', compact('locations', 'locataires'));
     }
 
     public function create()

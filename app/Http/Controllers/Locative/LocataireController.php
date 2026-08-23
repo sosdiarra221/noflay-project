@@ -10,9 +10,20 @@ use Illuminate\Support\Facades\Gate;
 
 class LocataireController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $locataires = Locataire::withCount('locations')->orderBy('nom')->get();
+        $locataires = Locataire::withCount('locations')
+            ->when($request->filled('recherche'), function ($q) use ($request) {
+                $terme = $request->recherche;
+                $q->where(fn ($q2) => $q2->where('nom', 'like', "%{$terme}%")
+                    ->orWhere('prenom', 'like', "%{$terme}%")
+                    ->orWhere('telephone', 'like', "%{$terme}%")
+                    ->orWhere('email', 'like', "%{$terme}%"));
+            })
+            ->when($request->filled('type_locataire'), fn ($q) => $q->where('type_locataire', $request->type_locataire))
+            ->when($request->filled('statut'), fn ($q) => $q->where('statut', $request->statut))
+            ->orderBy('nom')
+            ->get();
 
         return view('locative.locataires.index', compact('locataires'));
     }

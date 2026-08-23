@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Locative;
 
 use App\Http\Controllers\Controller;
 use App\Models\EcheanceLoyer;
+use App\Models\Locataire;
 use App\Models\Paiement;
 use App\Services\Locative\NumeroService;
 use Illuminate\Http\Request;
@@ -13,14 +14,19 @@ class EcheanceLoyerController extends Controller
 {
     public function index(Request $request)
     {
-        $echeances = EcheanceLoyer::with(['contratLocation.bien', 'contratLocation.location.locataire'])
+        $echeances = EcheanceLoyer::with(['contratLocation.bien', 'contratLocation.location.locataire', 'paiements.modePaiement'])
             ->when($request->filled('statut'), fn ($q) => $q->where('statut', $request->statut))
             ->when($request->filled('annee'), fn ($q) => $q->where('annee', $request->annee))
             ->when($request->filled('mois'), fn ($q) => $q->where('mois', $request->mois))
+            ->when($request->filled('locataire_id'), function ($q) use ($request) {
+                $q->whereHas('contratLocation.location', fn ($q2) => $q2->where('locataire_id', $request->locataire_id));
+            })
             ->orderByDesc('date_echeance')
             ->get();
 
-        return view('locative.echeances.index', compact('echeances'));
+        $locataires = Locataire::orderBy('nom')->get();
+
+        return view('locative.echeances.index', compact('echeances', 'locataires'));
     }
 
     public function encaisser(Request $request, EcheanceLoyer $echeance)
