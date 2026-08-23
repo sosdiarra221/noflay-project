@@ -33,6 +33,7 @@ use App\Http\Controllers\Commercial\TypeDemandeController;
 use App\Http\Controllers\Commercial\AgendaController;
 use App\Http\Controllers\Commercial\PartenaireController;
 use App\Http\Controllers\Commercial\RapportController;
+use App\Http\Controllers\Commercial\BienDisponibleController;
 
 Route::get('connexion', [AuthController::class, 'showLogin'])->name('login');
 Route::post('connexion', [AuthController::class, 'login'])->name('login.store');
@@ -164,6 +165,8 @@ Route::prefix('commercial')->name('commercial.')->group(function () {
 
     Route::get('rapports', [RapportController::class, 'index'])->name('rapports');
     Route::get('rapports/export', [RapportController::class, 'export'])->name('rapports.export');
+
+    Route::get('biens-disponibles', [BienDisponibleController::class, 'index'])->name('biens-disponibles');
 
     Route::get('agenda', [AgendaController::class, 'index'])->name('agenda');
     Route::post('agenda', [AgendaController::class, 'store'])->name('agenda.store');

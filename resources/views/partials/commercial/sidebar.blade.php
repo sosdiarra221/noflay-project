@@ -33,6 +33,12 @@
                 </a>
             </li>
             <li class="pe-slide pe-has-sub">
+                <a href="{{ route('commercial.biens-disponibles') }}" class="pe-nav-link">
+                    <i class="bi bi-house-check pe-nav-icon"></i>
+                    <span class="pe-nav-content">Biens disponibles</span>
+                </a>
+            </li>
+            <li class="pe-slide pe-has-sub">
                 <a href="{{ route('commercial.agenda') }}" class="pe-nav-link">
                     <i class="bi bi-calendar-week pe-nav-icon"></i>
                     <span class="pe-nav-content">Agenda</span>
