@@ -7,6 +7,7 @@ use App\Models\Bailleur;
 use App\Models\ContratGerance;
 use App\Models\ContratLocation;
 use App\Models\Document;
+use App\Models\Locataire;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -17,6 +18,7 @@ class DocumentController extends Controller
         'bailleur' => Bailleur::class,
         'gerance' => ContratGerance::class,
         'contrat' => ContratLocation::class,
+        'locataire' => Locataire::class,
     ];
 
     public function store(Request $request, string $type, int $id)
@@ -28,13 +30,15 @@ class DocumentController extends Controller
 
         $request->validate([
             'fichier' => ['required', 'file', 'max:10240'],
-            'categorie' => ['nullable', 'string', 'max:100'],
+            'titre' => ['required', 'string', 'max:255'],
+            'categorie' => ['required', 'string', 'in:'.implode(',', Document::TYPES)],
         ]);
 
         $fichier = $request->file('fichier');
         $chemin = $fichier->store('documents', 'public');
 
         $documentable->documents()->create([
+            'titre' => $request->titre,
             'nom_original' => $fichier->getClientOriginalName(),
             'chemin' => $chemin,
             'type_mime' => $fichier->getClientMimeType(),

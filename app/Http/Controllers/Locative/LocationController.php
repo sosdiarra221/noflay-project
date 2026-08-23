@@ -45,9 +45,18 @@ class LocationController extends Controller
 
     public function show(Location $location)
     {
-        $location->load(['locataire', 'contrats.bien', 'contrats.echeances']);
+        $location->load(['locataire', 'contrats.bien.categorie', 'contrats.echeances']);
 
-        return view('locative.locations.show', compact('location'));
+        $echeances = $location->contrats->flatMap->echeances;
+
+        $stats = [
+            'loyer_total' => $location->contrats->sum('loyer_mensuel'),
+            'total_attendu' => $echeances->where('statut', '!=', 'annule')->sum('montant_attendu'),
+            'total_paye' => $echeances->sum('montant_paye'),
+            'echeances_en_retard' => $echeances->where('statut', 'en_retard')->count(),
+        ];
+
+        return view('locative.locations.show', compact('location', 'stats'));
     }
 
     public function store(Request $request, EcheanceLoyerService $echeanceService)

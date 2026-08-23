@@ -4,6 +4,10 @@
 @section('title-sub', 'Locative')
 @section('pagetitle', 'Locations')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('assets/libs/choices.js/public/assets/styles/choices.min.css') }}">
+@endsection
+
 @section('content')
     <div id="layout-wrapper">
 
@@ -26,9 +30,9 @@
                         </h2>
                         <div id="filtres_locations_body" class="accordion-collapse collapse show" data-bs-parent="#filtres_locations">
                             <div class="accordion-body py-5">
-                                <form method="GET" class="row g-4">
+                                <form method="GET" class="row g-4" id="formFiltresLocations">
                                     <div class="col-md-6">
-                                        <select class="form-select" name="locataire_id">
+                                        <select class="form-select" name="locataire_id" id="filtreLocataireLocationSelect">
                                             <option value="">Tous les locataires</option>
                                             @foreach ($locataires as $locataire)
                                                 <option value="{{ $locataire->id }}" @selected(request('locataire_id') == $locataire->id)>{{ $locataire->nom_complet }}</option>
@@ -36,7 +40,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6">
-                                        <select class="form-select" name="statut">
+                                        <select class="form-select" name="statut" onchange="this.form.submit()">
                                             <option value="">Tous statuts</option>
                                             @foreach (['actif', 'suspendu', 'expire', 'resilie', 'archive'] as $statutOption)
                                                 <option value="{{ $statutOption }}" @selected(request('statut') === $statutOption)>{{ str_replace('_', ' ', ucfirst($statutOption)) }}</option>
@@ -44,10 +48,10 @@
                                         </select>
                                     </div>
                                     <div class="col-12 d-flex justify-content-end gap-2">
-                                        <button class="btn btn-light-primary" type="submit"><i class="ri-equalizer-line me-2"></i>Filtrer</button>
                                         <a href="{{ route('locative.locations.index') }}" class="btn btn-light-danger">Réinitialiser</a>
                                     </div>
                                 </form>
+                                <p class="text-muted fs-12 mt-3 mb-0"><i class="bi bi-info-circle me-1"></i>Les filtres s'appliquent automatiquement.</p>
                             </div>
                         </div>
                     </div>
@@ -157,5 +161,20 @@
 @endsection
 
 @section('js')
+    <script src="{{ asset('assets/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('formFiltresLocations');
+            const select = document.getElementById('filtreLocataireLocationSelect');
+
+            new Choices(select, {
+                searchEnabled: true,
+                itemSelectText: '',
+                placeholderValue: 'Rechercher un locataire...',
+                searchPlaceholderValue: 'Rechercher...',
+            });
+            select.addEventListener('change', () => form.submit());
+        });
+    </script>
 @endsection

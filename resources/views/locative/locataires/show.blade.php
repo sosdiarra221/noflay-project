@@ -140,6 +140,9 @@
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" data-bs-toggle="tab" data-bs-target="#fiches-tab-pane" type="button">Fiches financières</button>
                         </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#documents-tab-pane" type="button">Documents</button>
+                        </li>
                     </ul>
                 </div>
 
@@ -312,6 +315,11 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    {{-- Documents --}}
+                    <div class="tab-pane fade" id="documents-tab-pane">
+                        @include('locative.documents._liste', ['documentable' => $locataire, 'typeDocument' => 'locataire'])
                     </div>
                 </div>
             </div>

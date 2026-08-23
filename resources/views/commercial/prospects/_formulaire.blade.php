@@ -16,12 +16,21 @@
     @endif
     <div class="row g-3">
         <div class="col-md-6">
+            <label class="form-label">Partenaire apporteur</label>
+            <select class="form-select" name="partenaire_id" id="partenaireSelect">
+                <option value="">—</option>
+                @foreach ($partenaires as $partenaire)
+                    <option value="{{ $partenaire->id }}" @selected(old('partenaire_id') == $partenaire->id)>{{ $partenaire->nom }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-3">
             <label class="form-label">Prénom</label>
             <input type="text" class="form-control" name="prenom" value="{{ old('prenom') }}">
         </div>
-        <div class="col-md-6">
-            <label class="form-label">Nom<span class="text-danger ms-1">*</span></label>
-            <input type="text" class="form-control" name="nom" value="{{ old('nom') }}" required>
+        <div class="col-md-3">
+            <label class="form-label">Nom</label>
+            <input type="text" class="form-control" name="nom" value="{{ old('nom') }}">
         </div>
         <div class="col-md-6">
             <label class="form-label">Téléphone<span class="text-danger ms-1">*</span></label>
@@ -59,15 +68,6 @@
                 <option value="FCFA" selected>FCFA</option>
                 <option value="EURO">EURO</option>
                 <option value="DOLLAR">DOLLAR</option>
-            </select>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">Partenaire apporteur</label>
-            <select class="form-select" name="partenaire_id">
-                <option value="">—</option>
-                @foreach ($partenaires as $partenaire)
-                    <option value="{{ $partenaire->id }}" @selected(old('partenaire_id') == $partenaire->id)>{{ $partenaire->nom }}</option>
-                @endforeach
             </select>
         </div>
         <div class="col-md-6">

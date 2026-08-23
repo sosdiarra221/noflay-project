@@ -33,6 +33,11 @@ class Locataire extends Model
         return $this->hasMany(Location::class);
     }
 
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+
     public function supprimePar()
     {
         return $this->belongsTo(User::class, 'supprime_par_id');

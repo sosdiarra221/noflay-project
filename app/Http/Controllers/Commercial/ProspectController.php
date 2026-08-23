@@ -163,7 +163,7 @@ class ProspectController extends Controller
     protected function valider(Request $request): array
     {
         return $request->validate([
-            'nom' => ['required', 'string', 'max:255'],
+            'nom' => ['nullable', 'string', 'max:255'],
             'prenom' => ['nullable', 'string', 'max:255'],
             'telephone' => ['required', 'string', 'max:50'],
             'email' => ['nullable', 'email', 'max:255'],

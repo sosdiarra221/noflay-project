@@ -4,6 +4,10 @@
 @section('title-sub', 'Commercial')
 @section('pagetitle', 'Prospection')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('assets/libs/choices.js/public/assets/styles/choices.min.css') }}">
+@endsection
+
 @section('content')
 
     <div id="layout-wrapper">
@@ -201,5 +205,19 @@
 @endsection
 
 @section('js')
+    <script src="{{ asset('assets/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const partenaireSelect = document.getElementById('partenaireSelect');
+            if (partenaireSelect) {
+                new Choices(partenaireSelect, {
+                    searchEnabled: true,
+                    itemSelectText: '',
+                    placeholderValue: 'Rechercher un partenaire...',
+                    searchPlaceholderValue: 'Rechercher...',
+                });
+            }
+        });
+    </script>
 @endsection
