@@ -56,7 +56,13 @@
             <li class="pe-slide pe-has-sub">
                 <a href="{{ route('locative.echeances.index') }}" class="pe-nav-link">
                     <i class="bi bi-calendar-check pe-nav-icon"></i>
-                    <span class="pe-nav-content">Échéances &amp; Loyers</span>
+                    <span class="pe-nav-content">Loyers</span>
+                </a>
+            </li>
+            <li class="pe-slide pe-has-sub">
+                <a href="{{ route('locative.encaissements.index') }}" class="pe-nav-link">
+                    <i class="bi bi-cash-stack pe-nav-icon"></i>
+                    <span class="pe-nav-content">Encaissements</span>
                 </a>
             </li>
             <li class="pe-slide pe-has-sub">

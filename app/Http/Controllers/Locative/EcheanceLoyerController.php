@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Locative;
 
 use App\Http\Controllers\Controller;
+use App\Models\ContratLocation;
 use App\Models\EcheanceLoyer;
 use App\Models\Locataire;
 use App\Models\Paiement;
+use App\Models\Reglage;
+use App\Services\Locative\EcheanceLoyerService;
 use App\Services\Locative\NumeroService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -26,7 +30,11 @@ class EcheanceLoyerController extends Controller
 
         $locataires = Locataire::orderBy('nom')->get();
 
-        return view('locative.echeances.index', compact('echeances', 'locataires'));
+        $contrats = ContratLocation::with(['bien', 'location.locataire'])
+            ->where('statut', 'actif')
+            ->get();
+
+        return view('locative.echeances.index', compact('echeances', 'locataires', 'contrats'));
     }
 
     public function encaisser(Request $request, EcheanceLoyer $echeance)
@@ -55,5 +63,51 @@ class EcheanceLoyerController extends Controller
         });
 
         return back()->with('success', 'Paiement enregistré avec succès.');
+    }
+
+    public function generer(Request $request, EcheanceLoyerService $echeanceService)
+    {
+        $data = $request->validate([
+            'contrat_location_id' => ['required', 'exists:contrats_location,id'],
+            'annee' => ['required', 'integer', 'min:2020', 'max:2100'],
+            'mois' => ['required', 'array', 'min:1'],
+            'mois.*' => ['integer', 'min:1', 'max:12'],
+        ]);
+
+        $contrat = ContratLocation::findOrFail($data['contrat_location_id']);
+
+        $creees = $echeanceService->genererLoyersManuel($contrat, $data['annee'], $data['mois']);
+
+        return back()->with('success', count($creees).' échéance(s) générée(s) avec succès.');
+    }
+
+    public function apercuQuittance(EcheanceLoyer $echeance)
+    {
+        [$reglage, $ville] = $this->donneesQuittance();
+        $echeance->load(['contratLocation.bien', 'contratLocation.location.locataire']);
+        $numero = $echeance->numeroQuittance();
+
+        $pdf = Pdf::loadView('locative.pdf.quittance-loyer', compact('echeance', 'numero', 'reglage', 'ville'));
+
+        return $pdf->stream($numero.'.pdf');
+    }
+
+    public function telechargerQuittance(EcheanceLoyer $echeance)
+    {
+        [$reglage, $ville] = $this->donneesQuittance();
+        $echeance->load(['contratLocation.bien', 'contratLocation.location.locataire']);
+        $numero = $echeance->numeroQuittance();
+
+        $pdf = Pdf::loadView('locative.pdf.quittance-loyer', compact('echeance', 'numero', 'reglage', 'ville'));
+
+        return $pdf->download($numero.'.pdf');
+    }
+
+    protected function donneesQuittance(): array
+    {
+        $reglage = Reglage::courant();
+        $ville = $reglage->adresse ? trim(explode(',', $reglage->adresse)[0]) : 'Dakar';
+
+        return [$reglage, $ville];
     }
 }

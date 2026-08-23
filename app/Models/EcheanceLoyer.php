@@ -16,6 +16,7 @@ class EcheanceLoyer extends Model
         'montant_attendu',
         'montant_paye',
         'statut',
+        'numero_quittance',
     ];
 
     protected $casts = [
@@ -55,5 +56,28 @@ class EcheanceLoyer extends Model
         }
 
         $this->save();
+    }
+
+    /**
+     * Numéro de quittance persistant, du type RQL-2027-08-002 (préfixe-année-mois-séquence dans le mois).
+     * Généré une seule fois puis réutilisé, pour rester stable même si la page est régénérée.
+     */
+    public function numeroQuittance(): string
+    {
+        if ($this->numero_quittance) {
+            return $this->numero_quittance;
+        }
+
+        $prefixe = sprintf('RQL-%d-%02d', $this->annee, $this->mois);
+
+        $sequence = static::where('annee', $this->annee)
+            ->where('mois', $this->mois)
+            ->whereNotNull('numero_quittance')
+            ->count() + 1;
+
+        $this->numero_quittance = sprintf('%s-%03d', $prefixe, $sequence);
+        $this->save();
+
+        return $this->numero_quittance;
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Locative;
 
 use App\Http\Controllers\Controller;
 use App\Models\Paiement;
+use App\Models\Reglage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -12,11 +13,30 @@ class PaiementController extends Controller
 {
     public function pdf(Paiement $paiement)
     {
+        [$reglage, $ville] = $this->donneesQuittance();
         $paiement->load(['echeance.contratLocation.bien', 'echeance.contratLocation.location.locataire', 'modePaiement', 'enregistrePar']);
 
-        $pdf = Pdf::loadView('locative.pdf.recu-paiement', compact('paiement'));
+        $pdf = Pdf::loadView('locative.pdf.recu-paiement', compact('paiement', 'reglage', 'ville'));
 
         return $pdf->download($paiement->numero.'.pdf');
+    }
+
+    public function apercu(Paiement $paiement)
+    {
+        [$reglage, $ville] = $this->donneesQuittance();
+        $paiement->load(['echeance.contratLocation.bien', 'echeance.contratLocation.location.locataire', 'modePaiement', 'enregistrePar']);
+
+        $pdf = Pdf::loadView('locative.pdf.recu-paiement', compact('paiement', 'reglage', 'ville'));
+
+        return $pdf->stream($paiement->numero.'.pdf');
+    }
+
+    protected function donneesQuittance(): array
+    {
+        $reglage = Reglage::courant();
+        $ville = $reglage->adresse ? trim(explode(',', $reglage->adresse)[0]) : 'Dakar';
+
+        return [$reglage, $ville];
     }
 
     public function annuler(Request $request, Paiement $paiement)

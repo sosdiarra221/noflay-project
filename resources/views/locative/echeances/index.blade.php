@@ -4,12 +4,27 @@
 @section('title-sub', 'Locative')
 @section('pagetitle', 'Loyers & échéances')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('assets/libs/choices.js/public/assets/styles/choices.min.css') }}">
+@endsection
+
 @section('content')
     <div id="layout-wrapper">
 
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <ul class="mb-0 ps-3">
+                    @foreach ($errors->all() as $erreur)
+                        <li>{{ $erreur }}</li>
+                    @endforeach
+                </ul>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
@@ -71,8 +86,11 @@
             </div>
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
                         <h6 class="mb-0">Historique des loyers <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $echeances->count() }}</span></h6>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#genererLoyersModal">
+                            <i class="bi bi-calendar-plus me-1"></i>Générer les loyers
+                        </button>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-box table-responsive">
@@ -113,7 +131,13 @@
                                             <td>
                                                 <div class="hstack gap-2">
                                                     <button type="button" class="btn btn-light-info icon-btn-sm" data-bs-toggle="modal" data-bs-target="#apercuEcheanceModal{{ $echeance->id }}"><i class="bi bi-eye"></i></button>
-                                                    <a href="{{ route('locative.contrats.show', $echeance->contratLocation) }}" class="btn btn-light-success icon-btn-sm"><i class="bi bi-arrow-up-right-circle"></i></a>
+                                                    @if ($echeance->statut !== 'paye' && $echeance->statut !== 'annule')
+                                                        <button type="button" class="btn btn-light-success icon-btn-sm" data-bs-toggle="modal" data-bs-target="#encaisserEcheanceModal{{ $echeance->id }}"><i class="bi bi-cash-coin"></i></button>
+                                                    @endif
+                                                    @if ($echeance->montant_paye > 0)
+                                                        <button type="button" class="btn btn-light-warning icon-btn-sm" data-bs-toggle="modal" data-bs-target="#quittanceModal{{ $echeance->id }}"><i class="bi bi-receipt"></i></button>
+                                                    @endif
+                                                    <a href="{{ route('locative.contrats.show', $echeance->contratLocation) }}" class="btn btn-light-primary icon-btn-sm"><i class="bi bi-arrow-up-right-circle"></i></a>
                                                 </div>
                                             </td>
                                         </tr>
@@ -176,17 +200,159 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
+                            @if ($echeance->montant_paye > 0)
+                                <button type="button" class="btn btn-warning" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#quittanceModal{{ $echeance->id }}"><i class="bi bi-receipt me-1"></i>Quittance</button>
+                            @endif
                             <a href="{{ route('locative.contrats.show', $echeance->contratLocation) }}" class="btn btn-primary">Ouvrir le contrat</a>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {{-- Encaisser --}}
+            @if ($echeance->statut !== 'paye' && $echeance->statut !== 'annule')
+                <div class="modal fade" id="encaisserEcheanceModal{{ $echeance->id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <form action="{{ route('locative.echeances.encaisser', $echeance) }}" method="POST">
+                                @csrf
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Encaisser — {{ \Carbon\Carbon::createFromDate($echeance->annee, $echeance->mois, 1)->translatedFormat('F Y') }}</h5>
+                                    <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p class="text-muted">Montant attendu : <strong>{{ number_format($echeance->montant_attendu, 0, ',', ' ') }} FCFA</strong> — déjà payé : {{ number_format($echeance->montant_paye, 0, ',', ' ') }} FCFA</p>
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <label class="form-label">Montant payé<span class="text-danger ms-1">*</span></label>
+                                            <input type="number" step="0.01" min="0.01" class="form-control" name="montant" value="{{ max($echeance->montant_attendu - $echeance->montant_paye, 0) }}" required>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Mode de paiement<span class="text-danger ms-1">*</span></label>
+                                            <select class="form-select" name="mode_paiement_id" required>
+                                                <option value="">Sélectionner...</option>
+                                                @foreach (\App\Models\ModePaiement::where('actif', true)->orderBy('nom')->get() as $mode)
+                                                    <option value="{{ $mode->id }}" @selected($echeance->contratLocation->mode_paiement_prefere_id == $mode->id)>{{ $mode->nom }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Date du paiement<span class="text-danger ms-1">*</span></label>
+                                            <input type="date" class="form-control" name="date_paiement" value="{{ now()->format('Y-m-d') }}" required>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Référence</label>
+                                            <input type="text" class="form-control" name="reference" placeholder="Ex: WAV-XXXXXXXX">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Note</label>
+                                            <textarea class="form-control" name="note" rows="2"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
+                                    <button type="submit" class="btn btn-primary">Encaisser</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            {{-- Quittance --}}
+            @if ($echeance->montant_paye > 0)
+                <div class="modal fade" id="quittanceModal{{ $echeance->id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Quittance de loyer — {{ \Carbon\Carbon::createFromDate($echeance->annee, $echeance->mois, 1)->translatedFormat('F Y') }}</h5>
+                                <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
+                            </div>
+                            <div class="modal-body p-0">
+                                <iframe src="{{ route('locative.echeances.quittance', $echeance) }}" style="width: 100%; height: 70vh; border: 0;"></iframe>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
+                                <a href="{{ route('locative.echeances.quittance-telecharger', $echeance) }}" class="btn btn-primary"><i class="bi bi-download me-1"></i>Télécharger en PDF</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
         @endforeach
+
+        {{-- Générer les loyers --}}
+        <div class="modal fade" id="genererLoyersModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <form action="{{ route('locative.echeances.generer') }}" method="POST">
+                        @csrf
+                        <div class="modal-header">
+                            <h5 class="modal-title">Générer les loyers</h5>
+                            <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">Contrat de location<span class="text-danger ms-1">*</span></label>
+                                    <select class="form-select" name="contrat_location_id" id="genererContratSelect" required>
+                                        <option value="">Sélectionner un contrat...</option>
+                                        @foreach ($contrats as $contrat)
+                                            <option value="{{ $contrat->id }}">{{ $contrat->location->locataire->nom_complet }} — {{ $contrat->bien->titre }} ({{ $contrat->numero }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Année<span class="text-danger ms-1">*</span></label>
+                                    <select class="form-select" name="annee" required>
+                                        @for ($annee = now()->year - 1; $annee <= now()->year + 2; $annee++)
+                                            <option value="{{ $annee }}" @selected($annee === now()->year)>{{ $annee }}</option>
+                                        @endfor
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Mois à générer<span class="text-danger ms-1">*</span></label>
+                                    <div class="row g-2">
+                                        @for ($mois = 1; $mois <= 12; $mois++)
+                                            <div class="col-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="mois[]" value="{{ $mois }}" id="moisGenerer{{ $mois }}">
+                                                    <label class="form-check-label" for="moisGenerer{{ $mois }}">{{ ucfirst(\Carbon\Carbon::createFromDate(2026, $mois, 1)->translatedFormat('F')) }}</label>
+                                                </div>
+                                            </div>
+                                        @endfor
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
+                            <button type="submit" class="btn btn-primary">Générer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 
     </div>
     </main>
 @endsection
 
 @section('js')
+    <script src="{{ asset('assets/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const contratSelect = document.getElementById('genererContratSelect');
+            if (contratSelect) {
+                new Choices(contratSelect, {
+                    searchEnabled: true,
+                    itemSelectText: '',
+                    placeholderValue: 'Rechercher un contrat...',
+                    searchPlaceholderValue: 'Rechercher...',
+                });
+            }
+        });
+    </script>
 @endsection

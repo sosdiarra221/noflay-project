@@ -21,6 +21,7 @@ use App\Http\Controllers\Locative\ReversementController;
 use App\Http\Controllers\Locative\CorbeilleController;
 use App\Http\Controllers\Locative\JournalActiviteController;
 use App\Http\Controllers\Locative\DocumentController;
+use App\Http\Controllers\Locative\EncaissementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Commercial\CommercialDashboardController;
 use App\Http\Controllers\Commercial\ProspectController;
@@ -104,9 +105,15 @@ Route::prefix('locative')->name('locative.')->group(function () {
     Route::post('contrats/{contrat}/generer-loyers', [ContratLocationController::class, 'genererLoyers'])->name('contrats.generer-loyers');
 
     Route::get('echeances', [EcheanceLoyerController::class, 'index'])->name('echeances.index');
+    Route::post('echeances/generer', [EcheanceLoyerController::class, 'generer'])->name('echeances.generer');
     Route::post('echeances/{echeance}/encaisser', [EcheanceLoyerController::class, 'encaisser'])->name('echeances.encaisser');
+    Route::get('echeances/{echeance}/quittance', [EcheanceLoyerController::class, 'apercuQuittance'])->name('echeances.quittance');
+    Route::get('echeances/{echeance}/quittance/telecharger', [EcheanceLoyerController::class, 'telechargerQuittance'])->name('echeances.quittance-telecharger');
+
+    Route::get('encaissements', [EncaissementController::class, 'index'])->name('encaissements.index');
 
     Route::get('paiements/{paiement}/recu', [PaiementController::class, 'pdf'])->name('paiements.recu');
+    Route::get('paiements/{paiement}/apercu', [PaiementController::class, 'apercu'])->name('paiements.apercu');
     Route::post('paiements/{paiement}/annuler', [PaiementController::class, 'annuler'])->name('paiements.annuler');
 
     Route::get('reversements', [ReversementController::class, 'index'])->name('reversements.index');
