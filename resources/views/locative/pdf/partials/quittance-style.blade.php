@@ -13,8 +13,26 @@
 
     .bandeau-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
     .bandeau-titre { background-color: #1a3c8c; color: #ffffff; font-size: 20px; font-weight: bold; padding: 14px 18px; }
+    .bandeau-soustitre { font-size: 11px; font-weight: normal; color: #cdd8f2; margin-top: 2px; }
     .bandeau-numero { background-color: #eef2fb; color: #1a3c8c; font-size: 11px; font-weight: bold; padding: 10px 14px; text-align: right; width: 220px; }
     .bandeau-numero div { margin: 2px 0; }
+
+    .boites-table { width: 100%; border-collapse: separate; border-spacing: 12px 0; margin: 0 -12px 16px -12px; }
+    .boite { background-color: #f5f7fc; padding: 0; vertical-align: top; width: 50%; }
+    .boite-entete { background-color: #1a3c8c; color: #ffffff; font-size: 11px; font-weight: bold; padding: 8px 12px; text-transform: uppercase; }
+    .boite-corps { padding: 10px 12px; font-size: 12px; line-height: 1.7; }
+    .boite-corps strong { color: #1a3c8c; }
+
+    .designation-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+    .designation-table th { background-color: #1a3c8c; color: #ffffff; padding: 10px; font-size: 11px; text-transform: uppercase; }
+    .designation-table th.col-montant, .designation-table th.col-obs { text-align: left; }
+    .designation-table td { padding: 10px; border: 1px solid #e2e6f0; font-size: 12px; }
+    .designation-table td.col-montant { text-align: center; font-weight: bold; }
+    .designation-table tr.ligne-total td { background-color: #1a3c8c; color: #ffffff; font-weight: bold; font-size: 13px; border-color: #1a3c8c; }
+    .designation-table tr.ligne-total td.col-montant { background-color: #d8ae4e; color: #1a3c8c; font-size: 15px; }
+
+    .note-box { background-color: #eef2fb; padding: 10px 14px; font-size: 11px; line-height: 1.6; margin-bottom: 26px; }
+    .note-box strong { color: #1a3c8c; }
 
     .infos-box { background-color: #f5f7fc; padding: 14px 16px; margin-bottom: 16px; }
     .infos-table { width: 100%; border-collapse: collapse; }

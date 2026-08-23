@@ -22,6 +22,7 @@ use App\Http\Controllers\Locative\CorbeilleController;
 use App\Http\Controllers\Locative\JournalActiviteController;
 use App\Http\Controllers\Locative\DocumentController;
 use App\Http\Controllers\Locative\EncaissementController;
+use App\Http\Controllers\Locative\FicheLocativeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Commercial\CommercialDashboardController;
 use App\Http\Controllers\Commercial\ProspectController;
@@ -89,9 +90,14 @@ Route::prefix('locative')->name('locative.')->group(function () {
     Route::delete('biens/{bien}', [BienController::class, 'destroy'])->name('biens.destroy');
 
     Route::get('locataires', [LocataireController::class, 'index'])->name('locataires.index');
+    Route::get('locataires/{locataire}', [LocataireController::class, 'show'])->name('locataires.show');
     Route::post('locataires', [LocataireController::class, 'store'])->name('locataires.store');
     Route::put('locataires/{locataire}', [LocataireController::class, 'update'])->name('locataires.update');
     Route::delete('locataires/{locataire}', [LocataireController::class, 'destroy'])->name('locataires.destroy');
+
+    Route::post('fiches-locatives', [FicheLocativeController::class, 'store'])->name('fiches-locatives.store');
+    Route::get('fiches-locatives/{fiche}/apercu', [FicheLocativeController::class, 'apercu'])->name('fiches-locatives.apercu');
+    Route::get('fiches-locatives/{fiche}/telecharger', [FicheLocativeController::class, 'telecharger'])->name('fiches-locatives.telecharger');
 
     Route::get('locations', [LocationController::class, 'index'])->name('locations.index');
     Route::get('locations/creer', [LocationController::class, 'create'])->name('locations.create');

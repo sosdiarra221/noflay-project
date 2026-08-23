@@ -4,6 +4,10 @@
 @section('title-sub', 'Locative')
 @section('pagetitle', 'Historique des encaissements')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('assets/libs/choices.js/public/assets/styles/choices.min.css') }}">
+@endsection
+
 @section('content')
     <div id="layout-wrapper">
 
@@ -54,9 +58,9 @@
                         </h2>
                         <div id="filtres_encaissements_body" class="accordion-collapse collapse show" data-bs-parent="#filtres_encaissements">
                             <div class="accordion-body py-5">
-                                <form method="GET" class="row g-4">
+                                <form method="GET" class="row g-4" id="formFiltresEncaissements">
                                     <div class="col-md-3">
-                                        <select class="form-select" name="locataire_id">
+                                        <select class="form-select" name="locataire_id" id="filtreLocataireSelect">
                                             <option value="">Tous les locataires</option>
                                             @foreach ($locataires as $locataire)
                                                 <option value="{{ $locataire->id }}" @selected(request('locataire_id') == $locataire->id)>{{ $locataire->nom_complet }}</option>
@@ -64,7 +68,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-3">
-                                        <select class="form-select" name="mode_paiement_id">
+                                        <select class="form-select" name="mode_paiement_id" onchange="this.form.submit()">
                                             <option value="">Tous les modes</option>
                                             @foreach ($modesPaiement as $mode)
                                                 <option value="{{ $mode->id }}" @selected(request('mode_paiement_id') == $mode->id)>{{ $mode->nom }}</option>
@@ -72,8 +76,8 @@
                                         </select>
                                     </div>
                                     <div class="col-md-3">
-                                        <select class="form-select" name="periode">
-                                            <option value="">Période personnalisée</option>
+                                        <select class="form-select" name="periode" onchange="this.form.submit()">
+                                            <option value="">Période rapide...</option>
                                             <option value="aujourdhui" @selected(request('periode') === 'aujourdhui')>Aujourd'hui</option>
                                             <option value="hier" @selected(request('periode') === 'hier')>Hier</option>
                                             <option value="cette_semaine" @selected(request('periode') === 'cette_semaine')>Cette semaine</option>
@@ -82,30 +86,18 @@
                                         </select>
                                     </div>
                                     <div class="col-md-3">
-                                        &nbsp;
-                                    </div>
-                                    <div class="col-md-3">
-                                        <select class="form-select" name="mois">
+                                        <select class="form-select" name="mois_annee" id="filtreMoisAnneeSelect">
                                             <option value="">Tous les mois</option>
-                                            @for ($mois = 1; $mois <= 12; $mois++)
-                                                <option value="{{ $mois }}" @selected((string) request('mois') === (string) $mois)>{{ ucfirst(\Carbon\Carbon::createFromDate(2026, $mois, 1)->translatedFormat('F')) }}</option>
-                                            @endfor
+                                            @foreach ($periodesDisponibles as $periode)
+                                                <option value="{{ $periode['valeur'] }}" @selected(request('mois_annee') === $periode['valeur'])>{{ $periode['libelle'] }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-md-3">
-                                        <select class="form-select" name="annee">
-                                            <option value="">Toutes années</option>
-                                            @for ($annee = now()->year - 1; $annee <= now()->year + 1; $annee++)
-                                                <option value="{{ $annee }}" @selected((string) request('annee') === (string) $annee)>{{ $annee }}</option>
-                                            @endfor
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 d-flex justify-content-end align-items-end gap-2">
-                                        <button class="btn btn-light-primary" type="submit"><i class="ri-equalizer-line me-2"></i>Filtrer</button>
+                                    <div class="col-12 d-flex justify-content-end gap-2">
                                         <a href="{{ route('locative.encaissements.index') }}" class="btn btn-light-danger">Réinitialiser</a>
                                     </div>
                                 </form>
-                                <p class="text-muted fs-12 mt-3 mb-0"><i class="bi bi-info-circle me-1"></i>La « Période » (Aujourd'hui, Hier...) prend le pas sur les filtres Mois / Année si elle est renseignée.</p>
+                                <p class="text-muted fs-12 mt-3 mb-0"><i class="bi bi-info-circle me-1"></i>Les filtres s'appliquent automatiquement. La « Période » rapide (Aujourd'hui, Hier...) prend le pas sur le filtre Mois / Année si elle est renseignée.</p>
                             </div>
                         </div>
                     </div>
@@ -190,5 +182,27 @@
 @endsection
 
 @section('js')
+    <script src="{{ asset('assets/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('formFiltresEncaissements');
+
+            const locataireSelect = new Choices(document.getElementById('filtreLocataireSelect'), {
+                searchEnabled: true,
+                itemSelectText: '',
+                placeholderValue: 'Rechercher un locataire...',
+                searchPlaceholderValue: 'Rechercher...',
+            });
+            document.getElementById('filtreLocataireSelect').addEventListener('change', () => form.submit());
+
+            const moisAnneeSelect = new Choices(document.getElementById('filtreMoisAnneeSelect'), {
+                searchEnabled: true,
+                itemSelectText: '',
+                placeholderValue: 'Rechercher un mois...',
+                searchPlaceholderValue: 'Rechercher...',
+            });
+            document.getElementById('filtreMoisAnneeSelect').addEventListener('change', () => form.submit());
+        });
+    </script>
 @endsection

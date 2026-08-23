@@ -21,8 +21,10 @@ class EncaissementController extends Controller
                 [$debut, $fin] = $this->plagePeriode($request->periode);
                 $q->whereBetween('date_paiement', [$debut, $fin]);
             })
-            ->when(! $request->filled('periode') && $request->filled('annee'), fn ($q) => $q->whereYear('date_paiement', $request->annee))
-            ->when(! $request->filled('periode') && $request->filled('mois'), fn ($q) => $q->whereMonth('date_paiement', $request->mois))
+            ->when(! $request->filled('periode') && $request->filled('mois_annee'), function ($q) use ($request) {
+                [$annee, $mois] = explode('-', $request->mois_annee);
+                $q->whereYear('date_paiement', $annee)->whereMonth('date_paiement', $mois);
+            })
             ->orderByDesc('date_paiement')
             ->get();
 
@@ -38,7 +40,17 @@ class EncaissementController extends Controller
         $locataires = Locataire::orderBy('nom')->get();
         $modesPaiement = ModePaiement::where('actif', true)->orderBy('nom')->get();
 
-        return view('locative.encaissements.index', compact('paiements', 'stats', 'locataires', 'modesPaiement'));
+        $periodesDisponibles = Paiement::selectRaw('YEAR(date_paiement) as annee, MONTH(date_paiement) as mois')
+            ->distinct()
+            ->orderByDesc('annee')
+            ->orderByDesc('mois')
+            ->get()
+            ->map(fn ($ligne) => [
+                'valeur' => sprintf('%d-%02d', $ligne->annee, $ligne->mois),
+                'libelle' => ucfirst(\Carbon\Carbon::createFromDate($ligne->annee, $ligne->mois, 1)->translatedFormat('F Y')),
+            ]);
+
+        return view('locative.encaissements.index', compact('paiements', 'stats', 'locataires', 'modesPaiement', 'periodesDisponibles'));
     }
 
     protected function plagePeriode(string $periode): array

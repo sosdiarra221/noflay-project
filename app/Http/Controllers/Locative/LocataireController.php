@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Locative;
 
 use App\Http\Controllers\Controller;
+use App\Models\ContratLocation;
 use App\Models\Locataire;
 use App\Services\Locative\NumeroService;
 use Illuminate\Http\Request;
@@ -26,6 +27,52 @@ class LocataireController extends Controller
             ->get();
 
         return view('locative.locataires.index', compact('locataires'));
+    }
+
+    public function show(Locataire $locataire)
+    {
+        $locataire->load([
+            'locations.contrats.bien',
+            'locations.contrats.echeances.paiements',
+            'locations.contrats.fichesLocatives',
+        ]);
+
+        $contrats = $locataire->locations->flatMap->contrats;
+        $echeances = $contrats->flatMap->echeances->sortByDesc('date_echeance')->values();
+        $paiements = $echeances->flatMap->paiements->sortByDesc('date_paiement')->values();
+        $fiches = $contrats->flatMap->fichesLocatives->sortByDesc(fn ($f) => sprintf('%04d%02d', $f->annee, $f->mois))->values();
+
+        $maintenant = now();
+        $arrieres = $echeances
+            ->filter(fn ($e) => $e->date_echeance->lt($maintenant) && ! in_array($e->statut, ['paye', 'annule']))
+            ->sum(fn ($e) => max($e->montant_attendu - $e->montant_paye, 0));
+
+        $echeancesEchues = $echeances->filter(fn ($e) => $e->date_echeance->lt($maintenant) && $e->statut !== 'annule');
+        $echeancesEchuesPayees = $echeancesEchues->where('statut', 'paye')->count();
+        $tauxPaiement = $echeancesEchues->count() > 0 ? round($echeancesEchuesPayees / $echeancesEchues->count() * 100, 1) : 100;
+
+        $stats = [
+            'total_du' => $echeances->where('statut', '!=', 'annule')->sum('montant_attendu'),
+            'total_paye' => $echeances->sum('montant_paye'),
+            'arrieres' => $arrieres,
+            'taux_paiement' => $tauxPaiement,
+            'profil' => $arrieres <= 0 ? 'bon' : ($arrieres <= ($contrats->max('loyer_mensuel') ?? 0) ? 'a_surveiller' : 'mauvais'),
+        ];
+
+        $tendance = collect(range(11, 0))->map(function ($moisAvant) use ($echeances) {
+            $date = now()->subMonths($moisAvant);
+            $duMois = $echeances->filter(fn ($e) => $e->annee == $date->year && $e->mois == $date->month);
+
+            return [
+                'libelle' => ucfirst($date->translatedFormat('M Y')),
+                'attendu' => $duMois->sum('montant_attendu'),
+                'paye' => $duMois->sum('montant_paye'),
+            ];
+        });
+
+        $contratsActifs = ContratLocation::whereIn('id', $contrats->pluck('id'))->where('statut', 'actif')->get();
+
+        return view('locative.locataires.show', compact('locataire', 'contrats', 'echeances', 'paiements', 'fiches', 'stats', 'tendance', 'contratsActifs'));
     }
 
     public function store(Request $request)

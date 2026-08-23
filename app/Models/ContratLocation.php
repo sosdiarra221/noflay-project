@@ -65,6 +65,11 @@ class ContratLocation extends Model
         return $this->hasMany(EcheanceLoyer::class);
     }
 
+    public function fichesLocatives()
+    {
+        return $this->hasMany(FicheLocative::class);
+    }
+
     public function supprimePar()
     {
         return $this->belongsTo(User::class, 'supprime_par_id');

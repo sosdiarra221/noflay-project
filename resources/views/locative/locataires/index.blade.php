@@ -103,6 +103,7 @@
                                             <td>
                                                 <div class="hstack gap-2">
                                                     <button type="button" class="btn btn-light-info icon-btn-sm" data-bs-toggle="modal" data-bs-target="#apercuLocataireModal{{ $locataire->id }}"><i class="bi bi-eye"></i></button>
+                                                    <a href="{{ route('locative.locataires.show', $locataire) }}" class="btn btn-light-success icon-btn-sm"><i class="bi bi-arrow-up-right-circle"></i></a>
                                                     <button type="button" class="btn btn-light-primary icon-btn-sm" data-bs-toggle="modal" data-bs-target="#editLocataireModal{{ $locataire->id }}"><i class="bi bi-pencil-square"></i></button>
                                                     <button type="button" class="btn btn-light-danger icon-btn-sm" data-bs-toggle="modal" data-bs-target="#deleteLocataireModal{{ $locataire->id }}"><i class="ri-delete-bin-line"></i></button>
                                                 </div>
@@ -175,6 +176,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
+                            <a href="{{ route('locative.locataires.show', $locataire) }}" class="btn btn-primary">Ouvrir le dossier</a>
                         </div>
                     </div>
                 </div>
