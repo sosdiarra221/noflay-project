@@ -2,10 +2,10 @@
 <html lang="en">
 
 <meta charset="utf-8" />
-<title>@yield('title', ' | FabKin Admin & Dashboards Template')</title>
+<title>@yield('title', ' | Takha CRM Admin & Dashboards Template')</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta content="Admin & Dashboards Template" name="description" />
-<meta content="Pixeleyez" name="author" />
+<meta content="Pene Technologies Service (PTS)" name="author" />
 
 <!-- layout setup -->
 <script type="module" src="assets/js/layout-setup.js"></script>

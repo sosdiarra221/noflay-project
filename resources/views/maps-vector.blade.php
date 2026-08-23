@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'Vector Maps | FabKin Admin & Dashboards Template')
+@section('title', 'Vector Maps | Takha CRM Admin & Dashboards Template')
 
 @section('title-sub', 'Maps')
 @section('pagetitle', 'Vector Maps')

@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'UI Range Slider | FabKin Admin & Dashboards Template')
+@section('title', 'UI Range Slider | Takha CRM Admin & Dashboards Template')
 
 @section('title-sub', 'Base UI')
 @section('pagetitle', 'Range Slider')

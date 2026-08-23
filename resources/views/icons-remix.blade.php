@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'Remix Icons | FabKin Admin & Dashboards Template')
+@section('title', 'Remix Icons | Takha CRM Admin & Dashboards Template')
 
 @section('title-sub', 'Base UI')
 @section('pagetitle', 'Remix Icons')

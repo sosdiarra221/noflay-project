@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'UI Tour | FabKin Admin & Dashboards Template')
+@section('title', 'UI Tour | Takha CRM Admin & Dashboards Template')
 
 @section('title-sub', 'Base UI')
 @section('pagetitle', 'Tour')
@@ -16,7 +16,7 @@
             <div class="col-12 pt-5 mt-5">
                 <section>
                     <div class="d-flex flex-column justify-content-center align-items-center pb-5 mb-5">
-                        <h2 class="fw-semibold mb-5">Welcome to <span class="text-primary">Fabkin</span></h2>
+                        <h2 class="fw-semibold mb-5">Welcome to <span class="text-primary">Takha CRM</span></h2>
                         <p>Discover our advanced SCSS admin template with flexible structure and clean code.</p>
                         <a href="javascript:void(0)" class="btn btn-primary btn-sm fw-semibold" id="start-tour">Get
                             Started</a>

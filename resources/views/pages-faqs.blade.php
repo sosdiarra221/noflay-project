@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'FAQs | FabKin Admin & Dashboards Template')
+@section('title', 'FAQs | Takha CRM Admin & Dashboards Template')
 @section('title-sub', 'Pages')
 @section('pagetitle', 'FAQs')
 @section('content')
@@ -48,7 +48,7 @@
                                     <p class="text-muted">Reach out to us anytime for assistance, we're here to help!</p>
                                     <div class="support-widgets-link">
                                         <a href="javascript:void(0)"><i class="bi bi-envelope me-1"></i>
-                                            support@fabkin.com</a>
+                                            support@takhacrm.com</a>
                                         <a href="javascript:void(0)"><i class="bi bi-telephone me-1"></i> +(415) 9874
                                             5621</a>
                                     </div>

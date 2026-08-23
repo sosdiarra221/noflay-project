@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'UI Floating Labels | FabKin Admin & Dashboards Template')
+@section('title', 'UI Floating Labels | Takha CRM Admin & Dashboards Template')
 
 @section('title-sub', 'Base UI')
 @section('pagetitle', 'Floating Labels')

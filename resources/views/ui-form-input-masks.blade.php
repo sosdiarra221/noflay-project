@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'UI Input Masks | FabKin Admin & Dashboards Template')
+@section('title', 'UI Input Masks | Takha CRM Admin & Dashboards Template')
 
 @section('title-sub', 'Base UI')
 @section('pagetitle', 'Input Masks')

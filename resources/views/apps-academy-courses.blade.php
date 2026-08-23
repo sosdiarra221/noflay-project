@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'Index | FabKin Admin & Dashboards Template')
+@section('title', 'Index | Takha CRM Admin & Dashboards Template')
 @section('css')
     <link rel="stylesheet" href="assets/libs/choices.js/public/assets/styles/choices.min.css">
 @endsection

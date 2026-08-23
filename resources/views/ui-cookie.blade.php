@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'UI Cookies | FabKin Admin & Dashboards Template')
+@section('title', 'UI Cookies | Takha CRM Admin & Dashboards Template')
 @section('title-sub', 'Base UI')
 @section('pagetitle', 'Cookies')
 @section('css')

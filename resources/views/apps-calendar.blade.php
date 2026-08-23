@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'Calendar | FabKin Admin & Dashboards Template')
+@section('title', 'Calendar | Takha CRM Admin & Dashboards Template')
 @section('title-sub', 'Applications')
 @section('pagetitle', 'Calendar')
 @section('content')
@@ -100,7 +100,7 @@
                             <li>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <h6 class="mb-0">Fabkin Project</h6>
+                                        <h6 class="mb-0">Takha CRM Project</h6>
                                         <span class="fs-10">Today - 6:00 PM </span>
                                     </div>
                                     <div>

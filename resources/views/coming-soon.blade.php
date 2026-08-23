@@ -1,6 +1,6 @@
 @extends('partials.layouts.master_auth')
 
-@section('title', 'Coming Soon | FabKin Admin & Dashboards Template')
+@section('title', 'Coming Soon | Takha CRM Admin & Dashboards Template')
 
 @section('content')
 
@@ -15,7 +15,7 @@
                 <div class="col-lg-8">
                     <div class="position-relative justify-content-center py-10">
                         <div class="mb-5 text-center">
-                            <h2 class="fw-normal">Welcome to <span class="fw-bold text-primary">Fabkin</span></h2>
+                            <h2 class="fw-normal">Welcome to <span class="fw-bold text-primary">Takha CRM</span></h2>
                             <p class="text-muted mb-0">We're working on an additional feature for you; give us some time,
                                 and we'll notify you soon.</p>
                         </div>

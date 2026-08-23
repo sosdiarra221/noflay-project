@@ -1,6 +1,6 @@
 @extends('partials.layouts.master_auth')
 
-@section('title', 'Sign Up| FabKin Admin & Dashboards Template')
+@section('title', 'Sign Up| Takha CRM Admin & Dashboards Template')
 
 @section('content')
 
@@ -81,7 +81,7 @@
                             </div>
                         </div>
                     </div>
-                    <p class="position-relative text-center fs-12 mb-0">© 2025 Fabkin. Crafted with ❤️ by Pixeleyez</p>
+                    <p class="position-relative text-center fs-12 mb-0">© 2025 Takha CRM. Conception par Pene Technologies Service (PTS)</p>
                 </div>
             </div>
         </div>

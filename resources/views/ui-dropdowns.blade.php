@@ -1,6 +1,6 @@
 @extends('partials.layouts.master2')
 
-@section('title', 'Dropdowns | FabKin Admin & Dashboards Template')
+@section('title', 'Dropdowns | Takha CRM Admin & Dashboards Template')
 @section('title-sub', 'Base UI')
 @section('pagetitle', 'Dropdowns')
 
@@ -900,7 +900,7 @@
                                     Header
                                 </button>
                                 <div class="dropdown-menu">
-                                    <div class="dropdown-header"> Welcome Fabkin User! </div>
+                                    <div class="dropdown-header"> Welcome Takha CRM User! </div>
                                     <!-- item-->
                                     <a class="dropdown-item" href="javascript:void(0)">Action</a>
                                     <a class="dropdown-item" href="javascript:void(0)">Another action</a>

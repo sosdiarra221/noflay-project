@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'UI Sortable JS | FabKin Admin & Dashboards Template')
+@section('title', 'UI Sortable JS | Takha CRM Admin & Dashboards Template')
 
 @section('title-sub', 'Base UI')
 @section('pagetitle', 'Sortable JS')

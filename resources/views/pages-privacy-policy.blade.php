@@ -1,6 +1,6 @@
 @extends('partials.layouts.master')
 
-@section('title', 'Blog Details | FabKin Admin & Dashboards Template')
+@section('title', 'Blog Details | Takha CRM Admin & Dashboards Template')
 
 @section('title-sub', 'Page')
 @section('pagetitle', 'Privacy Policy')
@@ -14,7 +14,7 @@
             <div class="card">
               <div class="card-body">
                 <div class="text-center mb-6">
-                  <h5>Fabkin - Admin & Dashboard Templates</h5>
+                  <h5>Takha CRM - Admin & Dashboard Templates</h5>
                   <p>Effective Date: 26 November, 2024</p>
                 </div>
                 <p class="text-muted">At <span class="fw-semibold">[Your Company Name].</span> ("we," "our," or "us"), we are committed to respecting and protecting the privacy of your personal information. This Privacy Policy outlines the types of information we collect, how we use it, and the steps we take to ensure your privacy is maintained while using our website, services, and products. By using our services, you agree to the practices described in this policy.</p>
