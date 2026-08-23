@@ -7,7 +7,7 @@
     </button>
 </div>
 <div class="modal-body">
-    <div class="row g-3">
+    <div class="row g-3" data-form-type-toggle>
         <div class="col-md-4">
             <label class="form-label">Type<span class="text-danger ms-1">*</span></label>
             <select class="form-select" name="type" required>
@@ -15,12 +15,12 @@
                 <option value="entreprise" @selected(old('type', $bailleur->type ?? '') === 'entreprise')>Entreprise</option>
             </select>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-4 champ-prenom">
             <label class="form-label">Prénom</label>
             <input type="text" class="form-control" name="prenom" value="{{ old('prenom', $bailleur->prenom ?? '') }}">
         </div>
-        <div class="col-md-4">
-            <label class="form-label">Nom{{ ($bailleur->type ?? 'particulier') === 'entreprise' ? ' / Raison sociale' : '' }}<span class="text-danger ms-1">*</span></label>
+        <div class="col-md-4 champ-nom" data-col-defaut="col-md-4" data-col-entreprise="col-md-8">
+            <label class="form-label"><span class="texte-label-nom">Nom</span><span class="text-danger ms-1">*</span></label>
             <input type="text" class="form-control" name="nom" value="{{ old('nom', $bailleur->nom ?? '') }}" required>
         </div>
         <div class="col-md-4">
@@ -59,9 +59,13 @@
             <label class="form-label">Pièce d'identité — numéro</label>
             <input type="text" class="form-control" name="piece_identite_numero" value="{{ old('piece_identite_numero', $bailleur->piece_identite_numero ?? '') }}">
         </div>
-        <div class="col-md-4">
+        <div class="col-md-4 champ-entreprise">
             <label class="form-label">NINEA</label>
-            <input type="text" class="form-control" name="ninea" value="{{ old('ninea', $bailleur->ninea ?? '') }}" placeholder="Si entreprise">
+            <input type="text" class="form-control" name="ninea" value="{{ old('ninea', $bailleur->ninea ?? '') }}">
+        </div>
+        <div class="col-md-4 champ-entreprise">
+            <label class="form-label">RC (Registre de Commerce)</label>
+            <input type="text" class="form-control" name="rc" value="{{ old('rc', $bailleur->rc ?? '') }}">
         </div>
         <div class="col-12">
             <label class="form-label">Coordonnées de paiement</label>

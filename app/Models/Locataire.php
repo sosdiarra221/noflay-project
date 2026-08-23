@@ -20,6 +20,8 @@ class Locataire extends Model
         'email',
         'adresse',
         'type_locataire',
+        'ninea',
+        'rc',
         'piece_identite_type',
         'piece_identite_numero',
         'notes',

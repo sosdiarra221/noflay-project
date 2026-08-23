@@ -84,6 +84,7 @@ class BailleurController extends Controller
             'piece_identite_type' => ['nullable', 'string', 'max:100'],
             'piece_identite_numero' => ['nullable', 'string', 'max:100'],
             'ninea' => ['nullable', 'string', 'max:100'],
+            'rc' => ['nullable', 'string', 'max:100'],
             'coordonnees_paiement' => ['nullable', 'string'],
             'notes' => ['nullable', 'string'],
             'statut' => ['required', 'string', 'in:actif,inactif'],

@@ -121,6 +121,8 @@ class LocataireController extends Controller
             'email' => ['nullable', 'email', 'max:255'],
             'adresse' => ['nullable', 'string', 'max:255'],
             'type_locataire' => ['nullable', 'string', 'in:particulier,entreprise'],
+            'ninea' => ['nullable', 'string', 'max:100'],
+            'rc' => ['nullable', 'string', 'max:100'],
             'piece_identite_type' => ['nullable', 'string', 'max:100'],
             'piece_identite_numero' => ['nullable', 'string', 'max:100'],
             'notes' => ['nullable', 'string'],

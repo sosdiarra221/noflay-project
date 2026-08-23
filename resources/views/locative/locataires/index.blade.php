@@ -243,4 +243,5 @@
 
 @section('js')
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
+    @include('locative._form-type-toggle-script')
 @endsection

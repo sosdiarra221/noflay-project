@@ -5,13 +5,13 @@
     </button>
 </div>
 <div class="modal-body">
-    <div class="row g-3">
-        <div class="col-md-6">
+    <div class="row g-3" data-form-type-toggle>
+        <div class="col-md-6 champ-prenom">
             <label class="form-label">Prénom</label>
             <input type="text" class="form-control" name="prenom" value="{{ old('prenom', $locataire->prenom ?? '') }}">
         </div>
-        <div class="col-md-6">
-            <label class="form-label">Nom<span class="text-danger ms-1">*</span></label>
+        <div class="col-md-6 champ-nom" data-col-defaut="col-md-6" data-col-entreprise="col-md-12">
+            <label class="form-label"><span class="texte-label-nom">Nom</span><span class="text-danger ms-1">*</span></label>
             <input type="text" class="form-control" name="nom" value="{{ old('nom', $locataire->nom ?? '') }}" required>
         </div>
         <div class="col-md-4">
@@ -56,6 +56,14 @@
                 <option value="actif" @selected(old('statut', $locataire->statut ?? 'actif') === 'actif')>Actif</option>
                 <option value="inactif" @selected(old('statut', $locataire->statut ?? '') === 'inactif')>Inactif</option>
             </select>
+        </div>
+        <div class="col-md-6 champ-entreprise">
+            <label class="form-label">NINEA</label>
+            <input type="text" class="form-control" name="ninea" value="{{ old('ninea', $locataire->ninea ?? '') }}">
+        </div>
+        <div class="col-md-6 champ-entreprise">
+            <label class="form-label">RC (Registre de Commerce)</label>
+            <input type="text" class="form-control" name="rc" value="{{ old('rc', $locataire->rc ?? '') }}">
         </div>
         <div class="col-12">
             <label class="form-label">Notes</label>

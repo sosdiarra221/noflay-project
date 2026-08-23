@@ -142,6 +142,7 @@
 @section('js')
     <script src="{{ asset('assets/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
+    @include('locative._form-type-toggle-script')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const bailleurSelect = document.getElementById('bailleurSelect');

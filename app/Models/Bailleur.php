@@ -23,6 +23,7 @@ class Bailleur extends Model
         'piece_identite_type',
         'piece_identite_numero',
         'ninea',
+        'rc',
         'coordonnees_paiement',
         'notes',
         'statut',
