@@ -104,6 +104,18 @@ class ContratGeranceController extends Controller
         return $pdf->download('Mandat-gerance-'.$gerance->numero.'.pdf');
     }
 
+    public function apercu(ContratGerance $gerance)
+    {
+        $gerance->load(['bailleur', 'biens.categorie']);
+
+        $reglage = Reglage::courant();
+        $ville = $reglage->adresse ? trim(explode(',', $reglage->adresse)[0]) : 'Dakar';
+
+        $pdf = Pdf::loadView('locative.pdf.mandat-gerance', compact('gerance', 'reglage', 'ville'));
+
+        return $pdf->stream('Mandat-gerance-'.$gerance->numero.'.pdf');
+    }
+
     protected function valider(Request $request): array
     {
         return $request->validate([

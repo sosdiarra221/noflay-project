@@ -34,7 +34,7 @@
                         </p>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="{{ route('locative.contrats.pdf', $contrat) }}" class="btn btn-light-info"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</a>
+                        <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#bailContratModal"><i class="bi bi-file-earmark-pdf me-1"></i>Contrat de bail</button>
                         <button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#editContratModal"><i class="bi bi-pencil-square me-1"></i>Modifier</button>
                         <button type="button" class="btn btn-light-warning" data-bs-toggle="modal" data-bs-target="#genererLoyersModal"><i class="bi bi-calendar-plus me-1"></i>Générer les loyers</button>
                     </div>
@@ -322,6 +322,25 @@
                             <button type="submit" class="btn btn-primary">Enregistrer</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visualiseur du contrat de bail -->
+        <div class="modal fade" id="bailContratModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Contrat de bail — {{ $contrat->numero }}</h5>
+                        <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <iframe src="{{ route('locative.contrats.apercu', $contrat) }}" style="width: 100%; height: 70vh; border: 0;"></iframe>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
+                        <a href="{{ route('locative.contrats.pdf', $contrat) }}" class="btn btn-primary"><i class="bi bi-download me-1"></i>Télécharger en PDF</a>
+                    </div>
                 </div>
             </div>
         </div>

@@ -85,4 +85,13 @@ class ContratLocationController extends Controller
 
         return $pdf->download($contrat->numero.'.pdf');
     }
+
+    public function apercu(ContratLocation $contrat)
+    {
+        $contrat->load(['bien', 'bailleur', 'location.locataire']);
+
+        $pdf = Pdf::loadView('locative.pdf.contrat-location', compact('contrat'));
+
+        return $pdf->stream($contrat->numero.'.pdf');
+    }
 }

@@ -41,9 +41,9 @@
                         </p>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="{{ route('locative.gerances.pdf', $gerance) }}" class="btn btn-light-info">
+                        <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#mandatGeranceModal">
                             <i class="bi bi-file-earmark-pdf me-1"></i>Mandat de gérance
-                        </a>
+                        </button>
                         <button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#editGeranceModal">
                             <i class="bi bi-pencil-square me-1"></i>Modifier
                         </button>
@@ -285,6 +285,25 @@
                             <button type="submit" class="btn btn-primary">Enregistrer</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visualiseur du Mandat de gérance -->
+        <div class="modal fade" id="mandatGeranceModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Mandat de gérance — {{ $gerance->numero }}</h5>
+                        <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <iframe src="{{ route('locative.gerances.apercu', $gerance) }}" style="width: 100%; height: 70vh; border: 0;"></iframe>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
+                        <a href="{{ route('locative.gerances.pdf', $gerance) }}" class="btn btn-primary"><i class="bi bi-download me-1"></i>Télécharger en PDF</a>
+                    </div>
                 </div>
             </div>
         </div>

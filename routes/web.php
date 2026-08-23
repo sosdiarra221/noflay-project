@@ -81,6 +81,7 @@ Route::prefix('locative')->name('locative.')->group(function () {
     Route::get('gerances/creer', [ContratGeranceController::class, 'create'])->name('gerances.create');
     Route::get('gerances/{gerance}', [ContratGeranceController::class, 'show'])->name('gerances.show');
     Route::get('gerances/{gerance}/pdf', [ContratGeranceController::class, 'pdf'])->name('gerances.pdf');
+    Route::get('gerances/{gerance}/apercu', [ContratGeranceController::class, 'apercu'])->name('gerances.apercu');
     Route::post('gerances', [ContratGeranceController::class, 'store'])->name('gerances.store');
     Route::put('gerances/{gerance}', [ContratGeranceController::class, 'update'])->name('gerances.update');
     Route::delete('gerances/{gerance}', [ContratGeranceController::class, 'destroy'])->name('gerances.destroy');
@@ -109,6 +110,7 @@ Route::prefix('locative')->name('locative.')->group(function () {
     Route::put('contrats/{contrat}', [ContratLocationController::class, 'update'])->name('contrats.update');
     Route::delete('contrats/{contrat}', [ContratLocationController::class, 'destroy'])->name('contrats.destroy');
     Route::get('contrats/{contrat}/pdf', [ContratLocationController::class, 'pdf'])->name('contrats.pdf');
+    Route::get('contrats/{contrat}/apercu', [ContratLocationController::class, 'apercu'])->name('contrats.apercu');
     Route::post('contrats/{contrat}/generer-loyers', [ContratLocationController::class, 'genererLoyers'])->name('contrats.generer-loyers');
 
     Route::get('echeances', [EcheanceLoyerController::class, 'index'])->name('echeances.index');
