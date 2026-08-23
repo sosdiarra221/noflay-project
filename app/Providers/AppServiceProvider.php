@@ -23,6 +23,10 @@ class AppServiceProvider extends ServiceProvider
 
         'commercial.gerer' => [Role::ADMINISTRATEUR, Role::DIRECTEUR, Role::AGENT_IMMOBILIER, Role::ASSISTANT],
         'commercial.operations-sensibles' => [Role::ADMINISTRATEUR, Role::DIRECTEUR],
+
+        // Module Gestion Document : réservé à la Direction (modèles contractuels sensibles).
+        'documents.gerer' => [Role::ADMINISTRATEUR, Role::DIRECTEUR],
+        'documents.templates' => [Role::ADMINISTRATEUR, Role::DIRECTEUR],
     ];
 
     /**

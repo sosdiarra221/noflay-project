@@ -330,6 +330,14 @@
                     <span class="pe-nav-content">Gestion Commercial</span>
                 </a>
             </li>
+            @can('documents.gerer')
+                <li class="pe-slide pe-has-sub">
+                    <a href="{{ route('documents.dashboard') }}" class="pe-nav-link">
+                        <i class="bi bi-file-earmark-text pe-nav-icon"></i>
+                        <span class="pe-nav-content">Gestion Document</span>
+                    </a>
+                </li>
+            @endcan
             <li class="pe-menu-title">
                 Administration
             </li>

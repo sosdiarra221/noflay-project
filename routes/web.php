@@ -34,6 +34,10 @@ use App\Http\Controllers\Commercial\AgendaController;
 use App\Http\Controllers\Commercial\PartenaireController;
 use App\Http\Controllers\Commercial\RapportController;
 use App\Http\Controllers\Commercial\BienDisponibleController;
+use App\Http\Controllers\Documents\DocumentsDashboardController;
+use App\Http\Controllers\Documents\DocumentTemplateController;
+use App\Http\Controllers\Documents\DocumentTemplateVersionController;
+use App\Http\Controllers\Documents\DocumentController as DocumentGenereController;
 
 Route::get('connexion', [AuthController::class, 'showLogin'])->name('login');
 Route::post('connexion', [AuthController::class, 'login'])->name('login.store');
@@ -174,6 +178,33 @@ Route::prefix('commercial')->name('commercial.')->group(function () {
     Route::post('agenda', [AgendaController::class, 'store'])->name('agenda.store');
     Route::put('agenda/{rendezVous}', [AgendaController::class, 'update'])->name('agenda.update');
     Route::delete('agenda/{rendezVous}', [AgendaController::class, 'destroy'])->name('agenda.destroy');
+});
+
+// Module Gestion Document — sous-application avec son propre dashboard et son propre menu.
+// Moteur de modèles et de génération de documents (contrats, mandats...).
+Route::prefix('gestion-documents')->name('documents.')->group(function () {
+    Route::get('/', [DocumentsDashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('modeles', [DocumentTemplateController::class, 'index'])->name('modeles.index');
+    Route::get('modeles/creer', [DocumentTemplateController::class, 'create'])->name('modeles.create');
+    Route::post('modeles', [DocumentTemplateController::class, 'store'])->name('modeles.store');
+    Route::get('modeles/{modele}/editer', [DocumentTemplateController::class, 'edit'])->name('modeles.edit');
+    Route::get('modeles/{modele}/apercu', [DocumentTemplateController::class, 'apercu'])->name('modeles.apercu');
+    Route::post('modeles/{modele}/dupliquer', [DocumentTemplateController::class, 'dupliquer'])->name('modeles.dupliquer');
+    Route::delete('modeles/{modele}', [DocumentTemplateController::class, 'destroy'])->name('modeles.destroy');
+
+    Route::get('modeles/{modele}/versions', [DocumentTemplateVersionController::class, 'index'])->name('versions.index');
+    Route::post('modeles/{modele}/versions/{version}/enregistrer', [DocumentTemplateVersionController::class, 'enregistrer'])->name('versions.enregistrer');
+    Route::post('modeles/{modele}/versions/{version}/publier', [DocumentTemplateVersionController::class, 'publier'])->name('versions.publier');
+    Route::get('modeles/{modele}/versions/{version}/apercu', [DocumentTemplateVersionController::class, 'apercu'])->name('versions.apercu');
+    Route::post('modeles/{modele}/versions/{version}/restaurer', [DocumentTemplateVersionController::class, 'restaurer'])->name('versions.restaurer');
+
+    Route::get('generes', [DocumentGenereController::class, 'index'])->name('generes.index');
+    Route::get('generes/{document}/editer', [DocumentGenereController::class, 'edit'])->name('generes.edit');
+    Route::put('generes/{document}', [DocumentGenereController::class, 'update'])->name('generes.update');
+    Route::get('generes/{document}/apercu', [DocumentGenereController::class, 'apercu'])->name('generes.apercu');
+    Route::get('generes/{document}/telecharger', [DocumentGenereController::class, 'telecharger'])->name('generes.telecharger');
+    Route::get('generes/{document}/historique', [DocumentGenereController::class, 'historique'])->name('generes.historique');
 });
 
 Route::get('{any}', [DashboardController::class, 'index'])->where('any', '.*'); // Catch-all route for the dashboard.

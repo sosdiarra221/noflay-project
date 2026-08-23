@@ -8,10 +8,12 @@ use App\Models\ContratLocation;
 use App\Models\Locataire;
 use App\Models\Location;
 use App\Models\ModePaiement;
+use App\Services\Documents\DocumentGenerationService;
 use App\Services\Locative\EcheanceLoyerService;
 use App\Services\Locative\NumeroService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class LocationController extends Controller
 {
@@ -59,7 +61,7 @@ class LocationController extends Controller
         return view('locative.locations.show', compact('location', 'stats'));
     }
 
-    public function store(Request $request, EcheanceLoyerService $echeanceService)
+    public function store(Request $request, EcheanceLoyerService $echeanceService, DocumentGenerationService $documentGenerationService)
     {
         $data = $request->validate([
             'locataire_id' => ['required', 'exists:locataires,id'],
@@ -119,6 +121,34 @@ class LocationController extends Controller
             return $location;
         });
 
-        return redirect()->route('locative.locations.show', $location)->with('success', 'Location créée avec succès.');
+        // Génération automatique du (des) document(s) contractuel(s) — module Gestion Document.
+        //
+        // Cette étape se fait volontairement APRÈS la validation de la transaction ci-dessus, et
+        // chaque contrat est traité indépendamment : un échec de génération (aucun modèle actif
+        // configuré pour ce type de contrat, etc.) ne doit jamais annuler ni bloquer la création
+        // de la location déjà actée (cf. spécification, règle "la génération ne bloque jamais").
+        $contratsSansModele = [];
+
+        foreach ($location->contrats()->with('bien.categorie')->get() as $contrat) {
+            try {
+                $type = $documentGenerationService->typePourContratLocation($contrat);
+                $document = $documentGenerationService->generateFor($contrat, $type);
+
+                if (! $document) {
+                    $contratsSansModele[] = $contrat->numero;
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Échec de génération automatique du document contractuel pour '.$contrat->numero.' : '.$e->getMessage());
+                $contratsSansModele[] = $contrat->numero;
+            }
+        }
+
+        $redirection = redirect()->route('locative.locations.show', $location)->with('success', 'Location créée avec succès.');
+
+        if (! empty($contratsSansModele)) {
+            $redirection->with('notice', "Aucun modèle actif n'est configuré pour générer le document contractuel de : ".implode(', ', $contratsSansModele).'. Vous pouvez configurer un modèle dans Gestion Document.');
+        }
+
+        return $redirection;
     }
 }

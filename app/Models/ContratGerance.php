@@ -56,6 +56,15 @@ class ContratGerance extends Model
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    /**
+     * Documents générés par le nouveau moteur de modèles (module Gestion Document), distincts
+     * des pièces jointes ci-dessus (App\Models\Document).
+     */
+    public function documentsGeneres()
+    {
+        return $this->morphMany(\App\Models\Documents\Document::class, 'documentable');
+    }
+
     public function getDureeAttribute(): ?string
     {
         if (! $this->date_debut || ! $this->date_fin) {

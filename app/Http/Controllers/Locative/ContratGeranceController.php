@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Bailleur;
 use App\Models\CategorieBien;
 use App\Models\ContratGerance;
+use App\Models\Documents\Document as DocumentGenere;
 use App\Models\Reglage;
 use App\Services\Locative\NumeroService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -33,7 +34,14 @@ class ContratGeranceController extends Controller
         $gerance->load(['bailleur', 'biens.categorie']);
         $categories = CategorieBien::where('actif', true)->orderBy('nom')->get();
 
-        return view('locative.gerances.show', compact('gerance', 'categories'));
+        // Document généré par le nouveau moteur de modèles (module Gestion Document), s'il existe.
+        $documentGenere = DocumentGenere::where('documentable_type', ContratGerance::class)
+            ->where('documentable_id', $gerance->id)
+            ->where('status', '!=', DocumentGenere::STATUT_CANCELLED)
+            ->latest('generated_at')
+            ->first();
+
+        return view('locative.gerances.show', compact('gerance', 'categories', 'documentGenere'));
     }
 
     public function create()
@@ -43,7 +51,7 @@ class ContratGeranceController extends Controller
         return view('locative.gerances.create', compact('bailleurs'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, \App\Services\Documents\DocumentGenerationService $documentGenerationService)
     {
         $data = $this->valider($request);
 
@@ -51,7 +59,22 @@ class ContratGeranceController extends Controller
 
         $gerance = ContratGerance::create($data);
 
-        return redirect()->route('locative.gerances.show', $gerance)->with('success', 'Contrat de gérance créé avec succès.');
+        // Génération automatique du mandat de gérance (module Gestion Document) — ne doit jamais
+        // bloquer la création du contrat de gérance (même règle que pour les locations).
+        $notice = null;
+        try {
+            $document = $documentGenerationService->generateFor($gerance, \App\Services\Documents\DocumentType::MANDAT_GERANCE);
+            if (! $document) {
+                $notice = "Aucun modèle actif n'est configuré pour générer le mandat de gérance. Vous pouvez configurer un modèle dans Gestion Document.";
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Échec de génération automatique du mandat de gérance pour '.$gerance->numero.' : '.$e->getMessage());
+            $notice = "Aucun modèle actif n'est configuré pour générer le mandat de gérance. Vous pouvez configurer un modèle dans Gestion Document.";
+        }
+
+        $redirection = redirect()->route('locative.gerances.show', $gerance)->with('success', 'Contrat de gérance créé avec succès.');
+
+        return $notice ? $redirection->with('notice', $notice) : $redirection;
     }
 
     public function update(Request $request, ContratGerance $gerance)

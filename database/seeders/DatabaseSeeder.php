@@ -36,6 +36,7 @@ class DatabaseSeeder extends Seeder
             CommercialSourceSeeder::class,
             CommercialTypeDemandeSeeder::class,
             UserSeeder::class,
+            DocumentTemplateSeeder::class,
         ]);
     }
 }
