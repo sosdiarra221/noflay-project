@@ -16,12 +16,12 @@
     @endif
     <div class="row g-3">
         <div class="col-md-6">
-            <label class="form-label">Nom<span class="text-danger ms-1">*</span></label>
-            <input type="text" class="form-control" name="nom" value="{{ old('nom') }}" required>
-        </div>
-        <div class="col-md-6">
             <label class="form-label">Prénom</label>
             <input type="text" class="form-control" name="prenom" value="{{ old('prenom') }}">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Nom<span class="text-danger ms-1">*</span></label>
+            <input type="text" class="form-control" name="nom" value="{{ old('nom') }}" required>
         </div>
         <div class="col-md-6">
             <label class="form-label">Téléphone<span class="text-danger ms-1">*</span></label>

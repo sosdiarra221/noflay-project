@@ -156,7 +156,7 @@
                                 @forelse ($prospect->historiqueStatuts as $historique)
                                     <li class="card border-0 box">
                                         <span class="h-28px w-28px d-flex justify-content-center align-items-center text-white"><i class="bi bi-arrow-repeat"></i></span>
-                                        <div class="title">{{ $historique->created_at->format('d/m/Y H:i') }}
+                                        <div class="title">{{ $historique->created_at->versionLongue() }} à {{ $historique->created_at->format('H:i') }}
                                             <span class="badge bg-{{ $classesS[$historique->nouveau_statut] ?? 'secondary' }} float-end text-capitalize">{{ str_replace('_', ' ', $historique->nouveau_statut) }}</span>
                                         </div>
                                         <div class="sub-title">

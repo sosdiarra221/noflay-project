@@ -150,20 +150,39 @@
                         </div>
                         <div class="modal-body">
                             <div class="row g-3">
-                                <div class="col-md-6"><i class="bi bi-telephone me-2 text-muted"></i>{{ $prospect->telephone }}</div>
-                                <div class="col-md-6"><i class="bi bi-envelope me-2 text-muted"></i>{{ $prospect->email ?: '—' }}</div>
-                                <div class="col-md-6"><i class="bi bi-geo-alt me-2 text-muted"></i>{{ $prospect->adresse ?: '—' }}</div>
-                                <div class="col-md-6"><i class="bi bi-tag me-2 text-muted"></i>{{ $prospect->typeDemande->nom ?? '—' }}</div>
-                                <div class="col-md-6"><i class="bi bi-cash-coin me-2 text-muted"></i>
-                                    @if ($prospect->budget_min || $prospect->budget_max)
-                                        {{ number_format($prospect->budget_min ?? 0, 0, ',', ' ') }} - {{ number_format($prospect->budget_max ?? 0, 0, ',', ' ') }} {{ $prospect->devise }}
-                                    @else — @endif
+                                <div class="col-md-6">
+                                    <div class="d-flex gap-2"><i class="bi bi-telephone fs-16"></i><p class="text-muted mb-2">Téléphone</p></div>
+                                    <h6 class="mb-0">{{ $prospect->telephone }}</h6>
                                 </div>
-                                <div class="col-md-6"><i class="bi bi-signpost me-2 text-muted"></i>{{ $prospect->source->nom ?? '—' }}</div>
+                                <div class="col-md-6">
+                                    <div class="d-flex gap-2"><i class="bi bi-envelope fs-16"></i><p class="text-muted mb-2">Email</p></div>
+                                    <h6 class="mb-0">{{ $prospect->email ?: '—' }}</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex gap-2"><i class="bi bi-geo-alt fs-16"></i><p class="text-muted mb-2">Adresse</p></div>
+                                    <h6 class="mb-0">{{ $prospect->adresse ?: '—' }}</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex gap-2"><i class="bi bi-tag fs-16"></i><p class="text-muted mb-2">Type de demande</p></div>
+                                    <h6 class="mb-0">{{ $prospect->typeDemande->nom ?? '—' }}</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex gap-2"><i class="bi bi-cash-coin fs-16"></i><p class="text-muted mb-2">Budget</p></div>
+                                    <h6 class="mb-0">
+                                        @if ($prospect->budget_min || $prospect->budget_max)
+                                            {{ number_format($prospect->budget_min ?? 0, 0, ',', ' ') }} - {{ number_format($prospect->budget_max ?? 0, 0, ',', ' ') }} {{ $prospect->devise }}
+                                        @else — @endif
+                                    </h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex gap-2"><i class="bi bi-signpost fs-16"></i><p class="text-muted mb-2">Source</p></div>
+                                    <h6 class="mb-0">{{ $prospect->source->nom ?? '—' }}</h6>
+                                </div>
                                 @if ($prospect->besoin)
                                     <div class="col-12">
                                         <hr>
-                                        <p class="mb-0 text-muted">{{ $prospect->besoin }}</p>
+                                        <p class="text-muted mb-2">Besoin exprimé</p>
+                                        <p class="mb-0">{{ $prospect->besoin }}</p>
                                     </div>
                                 @endif
                             </div>

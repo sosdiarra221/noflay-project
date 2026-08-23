@@ -39,6 +39,21 @@ class CommercialDashboardController extends Controller
 
         $prospectsRecents = Prospect::with(['typeDemande', 'source'])->latest()->limit(6)->get();
 
-        return view('dashboard-project', compact('kpis', 'tauxConversion', 'sansActivite', 'parSource', 'activitesRecentes', 'prospectsRecents'));
+        // Évolution des nouveaux prospects sur les 14 derniers jours (pour le graphique de tendance).
+        $prospectsParJour = Prospect::selectRaw('DATE(created_at) as jour, COUNT(*) as total')
+            ->where('created_at', '>=', now()->subDays(13)->startOfDay())
+            ->groupBy('jour')
+            ->pluck('total', 'jour');
+
+        $tendance = collect(range(13, 0))->map(function ($joursAvant) use ($prospectsParJour) {
+            $date = now()->subDays($joursAvant)->toDateString();
+
+            return [
+                'date' => now()->subDays($joursAvant)->translatedFormat('d M'),
+                'total' => $prospectsParJour[$date] ?? 0,
+            ];
+        });
+
+        return view('dashboard-commercial', compact('kpis', 'tauxConversion', 'sansActivite', 'parSource', 'activitesRecentes', 'prospectsRecents', 'tendance'));
     }
 }

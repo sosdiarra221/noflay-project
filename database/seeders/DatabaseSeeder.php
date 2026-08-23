@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
             ModePaiementSeeder::class,
             CommercialSourceSeeder::class,
             CommercialTypeDemandeSeeder::class,
+            UserSeeder::class,
         ]);
     }
 }

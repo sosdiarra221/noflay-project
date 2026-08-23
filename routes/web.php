@@ -28,6 +28,7 @@ use App\Http\Controllers\Commercial\ActiviteController;
 use App\Http\Controllers\Commercial\ParametreCommercialController;
 use App\Http\Controllers\Commercial\SourceController;
 use App\Http\Controllers\Commercial\TypeDemandeController;
+use App\Http\Controllers\Commercial\AgendaController;
 
 Route::get('connexion', [AuthController::class, 'showLogin'])->name('login');
 Route::post('connexion', [AuthController::class, 'login'])->name('login.store');
@@ -119,8 +120,8 @@ Route::prefix('locative')->name('locative.')->group(function () {
     Route::delete('documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
 });
 
-// Module Commercial — CRM léger avec son propre dashboard (dashboard-project) et son propre menu.
-Route::get('dashboard-project', [CommercialDashboardController::class, 'index'])->name('commercial.dashboard');
+// Module Commercial — CRM léger avec son propre dashboard (dashboard-commercial) et son propre menu.
+Route::get('dashboard-commercial', [CommercialDashboardController::class, 'index'])->name('commercial.dashboard');
 
 Route::prefix('commercial')->name('commercial.')->group(function () {
     Route::get('prospects', [ProspectController::class, 'index'])->name('prospects.index');
@@ -142,8 +143,12 @@ Route::prefix('commercial')->name('commercial.')->group(function () {
     Route::delete('types-demande/{type}', [TypeDemandeController::class, 'destroy'])->name('types-demande.destroy');
 
     Route::get('partenaires', fn () => view('commercial.bientot', ['titre' => 'Partenaires']))->name('partenaires');
-    Route::get('agenda', fn () => view('commercial.bientot', ['titre' => 'Agenda']))->name('agenda');
     Route::get('rapports', fn () => view('commercial.bientot', ['titre' => 'Rapports']))->name('rapports');
+
+    Route::get('agenda', [AgendaController::class, 'index'])->name('agenda');
+    Route::post('agenda', [AgendaController::class, 'store'])->name('agenda.store');
+    Route::put('agenda/{rendezVous}', [AgendaController::class, 'update'])->name('agenda.update');
+    Route::delete('agenda/{rendezVous}', [AgendaController::class, 'destroy'])->name('agenda.destroy');
 });
 
 Route::get('{any}', [DashboardController::class, 'index'])->where('any', '.*'); // Catch-all route for the dashboard.

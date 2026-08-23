@@ -4,6 +4,10 @@
 @section('title-sub', 'Gérances')
 @section('pagetitle', 'Nouvelle gérance')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('assets/libs/choices.js/public/assets/styles/choices.min.css') }}">
+@endsection
+
 @section('content')
     <div id="layout-wrapper">
 
@@ -19,7 +23,7 @@
         @endif
 
         <div class="row">
-            <div class="col-lg-8 offset-lg-2">
+            <div class="col-lg-10 offset-lg-1">
                 <div class="card">
                     <div class="card-header">
                         <h6 class="card-title mb-0 fw-semibold">Nouveau contrat de gérance</h6>
@@ -29,9 +33,9 @@
                             @csrf
                             <div class="row g-4">
                                 <div class="col-12">
-                                    <label class="form-label">Bailleur<span class="text-danger ms-1">*</span></label>
+                                    <label for="bailleurSelect" class="form-label">Bailleur<span class="text-danger ms-1">*</span></label>
                                     <div class="input-group">
-                                        <select class="form-select" name="bailleur_id" required>
+                                        <select class="form-select" name="bailleur_id" id="bailleurSelect" required>
                                             <option value="">Sélectionner un bailleur...</option>
                                             @foreach ($bailleurs as $bailleur)
                                                 <option value="{{ $bailleur->id }}" @selected(old('bailleur_id', session('bailleur_cree_id')) == $bailleur->id)>
@@ -117,7 +121,7 @@
 
         <!-- Create Bailleur Modal -->
         <div class="modal fade" id="createBailleurModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
                 <div class="modal-content">
                     <form action="{{ route('locative.bailleurs.store') }}" method="POST">
                         @csrf
@@ -136,5 +140,19 @@
 @endsection
 
 @section('js')
+    <script src="{{ asset('assets/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const bailleurSelect = document.getElementById('bailleurSelect');
+            if (bailleurSelect) {
+                new Choices(bailleurSelect, {
+                    searchEnabled: true,
+                    itemSelectText: '',
+                    placeholderValue: 'Rechercher un bailleur...',
+                    searchPlaceholderValue: 'Rechercher...',
+                });
+            }
+        });
+    </script>
 @endsection

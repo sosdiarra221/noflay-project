@@ -16,12 +16,12 @@
             </select>
         </div>
         <div class="col-md-4">
-            <label class="form-label">Nom{{ ($bailleur->type ?? 'particulier') === 'entreprise' ? ' / Raison sociale' : '' }}<span class="text-danger ms-1">*</span></label>
-            <input type="text" class="form-control" name="nom" value="{{ old('nom', $bailleur->nom ?? '') }}" required>
-        </div>
-        <div class="col-md-4">
             <label class="form-label">Prénom</label>
             <input type="text" class="form-control" name="prenom" value="{{ old('prenom', $bailleur->prenom ?? '') }}">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Nom{{ ($bailleur->type ?? 'particulier') === 'entreprise' ? ' / Raison sociale' : '' }}<span class="text-danger ms-1">*</span></label>
+            <input type="text" class="form-control" name="nom" value="{{ old('nom', $bailleur->nom ?? '') }}" required>
         </div>
         <div class="col-md-4">
             <label class="form-label">Téléphone</label>
@@ -48,7 +48,12 @@
         </div>
         <div class="col-md-4">
             <label class="form-label">Pièce d'identité — type</label>
-            <input type="text" class="form-control" name="piece_identite_type" value="{{ old('piece_identite_type', $bailleur->piece_identite_type ?? '') }}" placeholder="CNI, Passeport...">
+            <select class="form-select" name="piece_identite_type">
+                <option value="">—</option>
+                @foreach (['CNI', 'Passeport', 'Permis de conduire', 'Carte de séjour'] as $piece)
+                    <option value="{{ $piece }}" @selected(old('piece_identite_type', $bailleur->piece_identite_type ?? '') === $piece)>{{ $piece }}</option>
+                @endforeach
+            </select>
         </div>
         <div class="col-md-4">
             <label class="form-label">Pièce d'identité — numéro</label>

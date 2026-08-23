@@ -7,12 +7,12 @@
 <div class="modal-body">
     <div class="row g-3">
         <div class="col-md-6">
-            <label class="form-label">Nom<span class="text-danger ms-1">*</span></label>
-            <input type="text" class="form-control" name="nom" value="{{ old('nom', $locataire->nom ?? '') }}" required>
-        </div>
-        <div class="col-md-6">
             <label class="form-label">Prénom</label>
             <input type="text" class="form-control" name="prenom" value="{{ old('prenom', $locataire->prenom ?? '') }}">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Nom<span class="text-danger ms-1">*</span></label>
+            <input type="text" class="form-control" name="nom" value="{{ old('nom', $locataire->nom ?? '') }}" required>
         </div>
         <div class="col-md-4">
             <label class="form-label">Téléphone</label>
@@ -39,7 +39,12 @@
         </div>
         <div class="col-md-4">
             <label class="form-label">Pièce d'identité — type</label>
-            <input type="text" class="form-control" name="piece_identite_type" value="{{ old('piece_identite_type', $locataire->piece_identite_type ?? '') }}">
+            <select class="form-select" name="piece_identite_type">
+                <option value="">—</option>
+                @foreach (['CNI', 'Passeport', 'Permis de conduire', 'Carte de séjour'] as $piece)
+                    <option value="{{ $piece }}" @selected(old('piece_identite_type', $locataire->piece_identite_type ?? '') === $piece)>{{ $piece }}</option>
+                @endforeach
+            </select>
         </div>
         <div class="col-md-4">
             <label class="form-label">Pièce d'identité — numéro</label>
