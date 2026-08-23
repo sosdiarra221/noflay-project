@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Locative;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContratLocation;
+use App\Models\Documents\Document as DocumentGenere;
 use App\Models\ModePaiement;
 use App\Services\Locative\EcheanceLoyerService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -17,7 +18,15 @@ class ContratLocationController extends Controller
         $contrat->load(['bien.categorie', 'bailleur', 'location.locataire', 'echeances.paiements', 'modePaiementPrefere']);
         $modesPaiement = ModePaiement::where('actif', true)->orderBy('nom')->get();
 
-        return view('locative.contrats.show', compact('contrat', 'modesPaiement'));
+        // Document généré par le nouveau moteur de modèles (module Gestion Document), s'il existe,
+        // pour proposer la nouvelle expérience Voir/Modifier/PDF à la place du PDF codé en dur.
+        $documentGenere = DocumentGenere::where('documentable_type', ContratLocation::class)
+            ->where('documentable_id', $contrat->id)
+            ->where('status', '!=', DocumentGenere::STATUT_CANCELLED)
+            ->latest('generated_at')
+            ->first();
+
+        return view('locative.contrats.show', compact('contrat', 'modesPaiement', 'documentGenere'));
     }
 
     public function update(Request $request, ContratLocation $contrat)

@@ -13,6 +13,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
+        @if (session('notice'))
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle me-1"></i>{{ session('notice') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
         @if ($errors->any())
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <ul class="mb-0 ps-3">
@@ -289,7 +295,8 @@
             </div>
         </div>
 
-        <!-- Visualiseur du Mandat de gérance -->
+        <!-- Visualiseur du Mandat de gérance : nouveau moteur de modèles (Gestion Document) si un
+             Document a déjà été généré pour ce mandat, sinon repli sur le PDF codé en dur historique. -->
         <div class="modal fade" id="mandatGeranceModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                 <div class="modal-content">
@@ -297,12 +304,32 @@
                         <h5 class="modal-title">Mandat de gérance — {{ $gerance->numero }}</h5>
                         <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
                     </div>
+                    @if ($documentGenere)
+                        <div class="px-3 pt-3 d-flex flex-wrap gap-2 align-items-center">
+                            <span class="badge bg-primary-subtle text-primary">{{ $documentGenere->reference }}</span>
+                            <span class="badge bg-secondary-subtle text-secondary">{{ $documentGenere->template->name ?? \App\Services\Documents\DocumentType::libelle($documentGenere->type) }}</span>
+                            @if ($documentGenere->version)
+                                <span class="badge bg-secondary-subtle text-secondary">v{{ $documentGenere->version->version }}</span>
+                            @endif
+                            <span class="badge bg-success-subtle text-success">{{ $documentGenere->libelleStatut() }}</span>
+                        </div>
+                    @endif
                     <div class="modal-body p-0">
-                        <iframe src="{{ route('locative.gerances.apercu', $gerance) }}" style="width: 100%; height: 70vh; border: 0;"></iframe>
+                        @if ($documentGenere)
+                            <iframe src="{{ route('documents.generes.apercu', $documentGenere) }}" style="width: 100%; height: 70vh; border: 0;"></iframe>
+                        @else
+                            <iframe src="{{ route('locative.gerances.apercu', $gerance) }}" style="width: 100%; height: 70vh; border: 0;"></iframe>
+                        @endif
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
-                        <a href="{{ route('locative.gerances.pdf', $gerance) }}" class="btn btn-primary"><i class="bi bi-download me-1"></i>Télécharger en PDF</a>
+                        @if ($documentGenere)
+                            <a href="{{ route('documents.generes.historique', $documentGenere) }}" class="btn btn-light-secondary"><i class="bi bi-clock-history me-1"></i>Historique</a>
+                            <a href="{{ route('documents.generes.edit', $documentGenere) }}" class="btn btn-light-primary"><i class="bi bi-pencil-square me-1"></i>Modifier</a>
+                            <a href="{{ route('documents.generes.telecharger', $documentGenere) }}" class="btn btn-primary"><i class="bi bi-download me-1"></i>Télécharger en PDF</a>
+                        @else
+                            <a href="{{ route('locative.gerances.pdf', $gerance) }}" class="btn btn-primary"><i class="bi bi-download me-1"></i>Télécharger en PDF</a>
+                        @endif
                     </div>
                 </div>
             </div>
