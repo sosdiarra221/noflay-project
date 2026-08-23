@@ -64,4 +64,14 @@ class ContratLocation extends Model
     {
         return $this->hasMany(EcheanceLoyer::class);
     }
+
+    public function supprimePar()
+    {
+        return $this->belongsTo(User::class, 'supprime_par_id');
+    }
+
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
 }

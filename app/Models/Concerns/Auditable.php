@@ -7,6 +7,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 trait Auditable
 {
+    /**
+     * Motif optionnel à associer à la PROCHAINE modification, pour les opérations sensibles.
+     * À renseigner avant `save()`/`update()` ; consommé et remis à null automatiquement.
+     */
+    public ?string $motifAction = null;
+
     public static function bootAuditable(): void
     {
         static::created(function ($model) {
@@ -26,7 +32,10 @@ trait Auditable
                 $avant[$colonne] = $model->getOriginal($colonne);
             }
 
-            $model->journaliser('modification', $avant, $changements);
+            $motif = $model->motifAction ?? null;
+            $model->motifAction = null;
+
+            $model->journaliser('modification', $avant, $changements, $motif);
         });
 
         static::deleted(function ($model) {

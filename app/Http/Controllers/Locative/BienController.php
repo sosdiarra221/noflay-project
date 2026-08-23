@@ -8,6 +8,7 @@ use App\Models\Bien;
 use App\Models\CategorieBien;
 use App\Services\Locative\NumeroService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class BienController extends Controller
 {
@@ -48,6 +49,8 @@ class BienController extends Controller
 
     public function destroy(Request $request, Bien $bien)
     {
+        Gate::authorize('locative.operations-sensibles');
+
         $request->validate([
             'motif_suppression' => ['required', 'string', 'max:255'],
         ]);

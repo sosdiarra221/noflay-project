@@ -49,12 +49,20 @@
                         </span>
                         <div class="d-none d-lg-block pe-2">
                             <span class="d-block mb-0 fs-13 fw-semibold">{{ auth()->user()->name ?? 'Utilisateur' }}</span>
-                            <span class="d-block mb-0 fs-12 text-muted">Agence</span>
+                            <span class="d-block mb-0 fs-12 text-muted">{{ auth()->user()->role->libelle ?? 'Agence' }}</span>
                         </div>
                     </button>
                     <div class="dropdown-menu dropdown-mega-sm header-dropdown-menu p-3">
-                        <ul class="list-unstyled mb-0">
+                        <ul class="list-unstyled mb-1 border-bottom pb-1">
                             <li><a class="dropdown-item" href="{{ url('/') }}"><i class="bi bi-box-arrow-left me-1"></i> Retour à l'application</a></li>
+                        </ul>
+                        <ul class="list-unstyled mb-0">
+                            <li>
+                                <form action="{{ route('logout') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right me-1"></i> Déconnexion</button>
+                                </form>
+                            </li>
                         </ul>
                     </div>
                 </div>

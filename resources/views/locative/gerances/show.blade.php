@@ -58,6 +58,7 @@
                     <ul class="nav nav-pills" role="tablist">
                         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#infos-pane" type="button">Vue générale</button></li>
                         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#biens-pane" type="button">Biens</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#documents-pane" type="button">Documents</button></li>
                     </ul>
                 </div>
 
@@ -127,6 +128,10 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="documents-pane">
+                        @include('locative.documents._liste', ['documentable' => $gerance, 'typeDocument' => 'gerance'])
                     </div>
                 </div>
             </div>
@@ -263,6 +268,16 @@
                                     <label class="form-label">Notes</label>
                                     <textarea class="form-control" name="notes" rows="2">{{ $gerance->notes }}</textarea>
                                 </div>
+                                @if ($gerance->statut === 'actif')
+                                    <div class="col-12">
+                                        <div class="alert alert-warning mb-2">
+                                            <i class="bi bi-exclamation-triangle me-1"></i>
+                                            Ce contrat est actif. Toute modification des conditions financières nécessite un motif.
+                                        </div>
+                                        <label class="form-label">Motif de la modification</label>
+                                        <textarea class="form-control" name="motif" rows="2" placeholder="Obligatoire si vous modifiez frais/TVA/taxe/TOM"></textarea>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <div class="modal-footer">

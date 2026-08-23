@@ -14,48 +14,42 @@
                 <div class="col-12 col-md-8 col-lg-6 col-xl-5">
                     <div class="card mx-xxl-8">
                         <div class="card-body py-12 px-8">
-                            <img src="assets/images/logo-dark.png" alt="Logo Dark" height="30"
+                            <img src="{{ asset('assets/images/logo-dark.png') }}" alt="Logo" height="30"
                                 class="mb-4 mx-auto d-block">
-                            <h6 class="mb-3 mb-8 fw-medium text-center">Register to Unlock Your Benefits</h6>
-                            <form>
+                            <h6 class="mb-3 mb-8 fw-medium text-center">Connexion — Gestion Locative</h6>
+
+                            @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    {{ $errors->first() }}
+                                </div>
+                            @endif
+
+                            <form action="{{ route('login.store') }}" method="POST">
+                                @csrf
                                 <div class="row g-4">
                                     <div class="col-12">
-                                        <label for="username" class="form-label">Username <span
+                                        <label for="email" class="form-label">Email <span
                                                 class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="username"
-                                            placeholder="Enter your username" required>
+                                        <input type="email" class="form-control" id="email" name="email"
+                                            value="{{ old('email') }}" placeholder="votre.email@agence.com" required autofocus>
                                     </div>
                                     <div class="col-12">
-                                        <label for="password" class="form-label">Password <span
+                                        <label for="password" class="form-label">Mot de passe <span
                                                 class="text-danger">*</span></label>
-                                        <input type="password" class="form-control" id="password"
-                                            placeholder="Enter your password" required>
+                                        <input type="password" class="form-control" id="password" name="password"
+                                            placeholder="Votre mot de passe" required>
                                     </div>
                                     <div class="col-12">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="rememberMe">
-                                                <label class="form-check-label" for="rememberMe">Remember me</label>
-                                            </div>
-                                            <div class="form-text">
-                                                <a href="auth-create-password"
-                                                    class="link link-primary text-muted text-decoration-underline">Forgot
-                                                    password?</a>
-                                            </div>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="rememberMe" name="remember">
+                                            <label class="form-check-label" for="rememberMe">Se souvenir de moi</label>
                                         </div>
                                     </div>
                                     <div class="col-12 mt-8">
-                                        <button type="submit" class="btn btn-primary w-full mb-4">Sign In<i
+                                        <button type="submit" class="btn btn-primary w-full mb-4">Se connecter<i
                                                 class="bi bi-box-arrow-in-right ms-1 fs-16"></i></button>
                                     </div>
                                 </div>
-                                <button type="submit"
-                                    class="mb-10 btn btn-outline-light w-full mb-4 d-flex align-items-center gap-2 justify-content-center text-muted"><img
-                                        src="assets/images/google.png" alt="Google Image" class="h-20px w-20px">Sign in with
-                                    google</button>
-                                <p class="mb-0 fw-semibold position-relative text-center fs-12">Don't have an account? <a
-                                        href="auth-signup" class="text-decoration-underline text-primary">Sign up here</a>
-                                </p>
                             </form>
                             <div class="text-center">
                             </div>

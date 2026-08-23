@@ -46,6 +46,16 @@ class ContratGerance extends Model
         return $this->hasMany(Bien::class, 'gerance_id');
     }
 
+    public function supprimePar()
+    {
+        return $this->belongsTo(User::class, 'supprime_par_id');
+    }
+
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+
     public function getDureeAttribute(): ?string
     {
         if (! $this->date_debut || ! $this->date_fin) {

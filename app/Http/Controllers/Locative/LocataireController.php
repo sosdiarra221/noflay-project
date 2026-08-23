@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Locataire;
 use App\Services\Locative\NumeroService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class LocataireController extends Controller
 {
@@ -38,6 +39,8 @@ class LocataireController extends Controller
 
     public function destroy(Request $request, Locataire $locataire)
     {
+        Gate::authorize('locative.operations-sensibles');
+
         $request->validate([
             'motif_suppression' => ['required', 'string', 'max:255'],
         ]);

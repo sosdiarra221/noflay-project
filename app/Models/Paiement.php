@@ -18,6 +18,8 @@ class Paiement extends Model
         'reference',
         'note',
         'enregistre_par_id',
+        'statut',
+        'motif_annulation',
     ];
 
     protected $casts = [

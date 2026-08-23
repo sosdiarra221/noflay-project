@@ -40,6 +40,16 @@ class Bailleur extends Model
         return $this->hasMany(Bien::class);
     }
 
+    public function supprimePar()
+    {
+        return $this->belongsTo(User::class, 'supprime_par_id');
+    }
+
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+
     public function getNomCompletAttribute(): string
     {
         if ($this->type === 'entreprise') {

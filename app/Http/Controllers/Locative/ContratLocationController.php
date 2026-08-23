@@ -8,6 +8,7 @@ use App\Models\ModePaiement;
 use App\Services\Locative\EcheanceLoyerService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ContratLocationController extends Controller
 {
@@ -43,6 +44,8 @@ class ContratLocationController extends Controller
 
     public function destroy(Request $request, ContratLocation $contrat)
     {
+        Gate::authorize('locative.operations-sensibles');
+
         $request->validate([
             'motif_suppression' => ['required', 'string', 'max:255'],
         ]);

@@ -48,6 +48,7 @@
                     <ul class="nav nav-pills" role="tablist">
                         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#infos-pane" type="button">Vue générale</button></li>
                         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#echeances-pane" type="button">Échéances</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#documents-pane" type="button">Documents</button></li>
                     </ul>
                 </div>
 
@@ -102,12 +103,16 @@
                                                         <span class="badge bg-{{ $classesE[$echeance->statut] ?? 'secondary' }}-subtle text-{{ $classesE[$echeance->statut] ?? 'secondary' }} text-capitalize">{{ str_replace('_', ' ', $echeance->statut) }}</span>
                                                     </td>
                                                     <td>
+                                                        @php $dernierPaiementValide = $echeance->paiements->where('statut', 'valide')->last(); @endphp
                                                         <div class="hstack gap-2">
                                                             @if ($echeance->statut !== 'paye' && $echeance->statut !== 'annule')
                                                                 <button type="button" class="btn btn-light-success btn-sm" data-bs-toggle="modal" data-bs-target="#encaisserModal{{ $echeance->id }}">Encaisser</button>
                                                             @endif
-                                                            @if ($echeance->paiements->isNotEmpty())
-                                                                <a href="{{ route('locative.paiements.recu', $echeance->paiements->last()) }}" class="btn btn-light-info icon-btn-sm"><i class="bi bi-receipt"></i></a>
+                                                            @if ($dernierPaiementValide)
+                                                                <a href="{{ route('locative.paiements.recu', $dernierPaiementValide) }}" class="btn btn-light-info icon-btn-sm"><i class="bi bi-receipt"></i></a>
+                                                                @can('locative.operations-sensibles')
+                                                                    <button type="button" class="btn btn-light-danger icon-btn-sm" data-bs-toggle="modal" data-bs-target="#annulerPaiementModal{{ $dernierPaiementValide->id }}"><i class="bi bi-x-circle"></i></button>
+                                                                @endcan
                                                             @endif
                                                         </div>
                                                     </td>
@@ -120,6 +125,10 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="documents-pane">
+                        @include('locative.documents._liste', ['documentable' => $contrat, 'typeDocument' => 'contrat'])
                     </div>
                 </div>
             </div>
@@ -169,6 +178,37 @@
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
                                     <button type="submit" class="btn btn-primary">Encaisser</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        @endforeach
+
+        @foreach ($contrat->echeances as $echeance)
+            @php $dernierPaiementValide = $echeance->paiements->where('statut', 'valide')->last(); @endphp
+            @if ($dernierPaiementValide)
+                <div class="modal fade" id="annulerPaiementModal{{ $dernierPaiementValide->id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <form action="{{ route('locative.paiements.annuler', $dernierPaiementValide) }}" method="POST">
+                                @csrf
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Annuler le paiement {{ $dernierPaiementValide->numero }}</h5>
+                                    <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>
+                                        Le paiement de {{ number_format($dernierPaiementValide->montant, 0, ',', ' ') }} FCFA sera annulé et l'échéance recalculée. Un motif est obligatoire.
+                                    </div>
+                                    <label class="form-label">Motif de l'annulation<span class="text-danger ms-1">*</span></label>
+                                    <textarea class="form-control" name="motif_annulation" rows="2" required></textarea>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
+                                    <button type="submit" class="btn btn-danger">Confirmer l'annulation</button>
                                 </div>
                             </form>
                         </div>

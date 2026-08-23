@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Bailleur;
 use App\Services\Locative\NumeroService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class BailleurController extends Controller
 {
@@ -45,6 +46,8 @@ class BailleurController extends Controller
 
     public function destroy(Request $request, Bailleur $bailleur)
     {
+        Gate::authorize('locative.operations-sensibles');
+
         $request->validate([
             'motif_suppression' => ['required', 'string', 'max:255'],
         ]);

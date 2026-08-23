@@ -34,6 +34,16 @@ class EcheanceLoyer extends Model
         return $this->hasMany(Paiement::class);
     }
 
+    /**
+     * Recalcule montant_paye à partir des paiements réellement valides (non annulés),
+     * puis met à jour le statut. À appeler après tout encaissement ou annulation.
+     */
+    public function recalculerMontantPaye(): void
+    {
+        $this->montant_paye = $this->paiements()->where('statut', 'valide')->sum('montant');
+        $this->recalculerStatut();
+    }
+
     public function recalculerStatut(): void
     {
         if ($this->montant_paye <= 0) {

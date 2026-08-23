@@ -33,6 +33,11 @@ class Locataire extends Model
         return $this->hasMany(Location::class);
     }
 
+    public function supprimePar()
+    {
+        return $this->belongsTo(User::class, 'supprime_par_id');
+    }
+
     public function getNomCompletAttribute(): string
     {
         return trim($this->prenom.' '.$this->nom);

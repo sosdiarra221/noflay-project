@@ -437,32 +437,25 @@
                             <span class="position-absolute translate-middle badge border border-light rounded-circle bg-success"><span class="visually-hidden">unread messages</span></span>
                         </span>
                         <div class="d-none d-lg-block pe-2">
-                            <span class="d-block mb-0 fs-13 fw-semibold">Paul Danielle</span>
-                            <span class="d-block mb-0 fs-12 text-muted">Founder</span>
+                            <span class="d-block mb-0 fs-13 fw-semibold">{{ auth()->user()->name ?? 'Utilisateur' }}</span>
+                            <span class="d-block mb-0 fs-12 text-muted">{{ auth()->user()->role->libelle ?? '' }}</span>
                         </div>
                     </button>
                     <div class="dropdown-menu dropdown-mega-sm header-dropdown-menu p-3">
                         <div class="border-bottom pb-2 mb-2 d-flex align-items-center gap-2">
                             <img src="assets/images/avatar/avatar-10.jpg" alt="Avatar Image" class="avatar-md">
                             <div>
-                                <a href="javascript:void(0)">
-                                    <h6 class="mb-0 lh-base">Paul Danielle</h6>
-                                </a>
-                                <p class="mb-0 fs-13 text-muted">paul@fabkin.com</p>
+                                <h6 class="mb-0 lh-base">{{ auth()->user()->name ?? 'Utilisateur' }}</h6>
+                                <p class="mb-0 fs-13 text-muted">{{ auth()->user()->email ?? '' }}</p>
                             </div>
                         </div>
-                        <ul class="list-unstyled mb-1 border-bottom pb-1">
-                            <li><a class="dropdown-item" href="javascript:void(0)"><i class="bi bi-person me-1"></i> View Profile</a></li>
-                            <li><a class="dropdown-item" href="javascript:void(0)"><i class="bi bi-gear me-1"></i> Settings</a></li>
-                            <li><a class="dropdown-item" href="javascript:void(0)"><i class="bi bi-award me-1"></i> Subscription</a></li>
-                        </ul>
-                        <ul class="list-unstyled mb-1 border-bottom pb-1">
-                            <li><a class="dropdown-item" href="javascript:void(0)"><i class="bi bi-clock me-1"></i> ChangLog</a></li>
-                            <li><a class="dropdown-item" href="javascript:void(0)"><i class="bi bi-people me-1"></i> Team</a></li>
-                            <li><a class="dropdown-item" href="javascript:void(0)"><i class="bi bi-headset me-1"></i> Support</a></li>
-                        </ul>
                         <ul class="list-unstyled mb-0">
-                            <li><a class="dropdown-item" href="javascript:void(0)"><i class="bi bi-box-arrow-right me-1"></i> Sign Out</a></li>
+                            <li>
+                                <form action="{{ route('logout') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right me-1"></i> Déconnexion</button>
+                                </form>
+                            </li>
                         </ul>
                     </div>
                 </div>

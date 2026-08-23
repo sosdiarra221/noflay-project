@@ -45,8 +45,7 @@ class EcheanceLoyerController extends Controller
                 'enregistre_par_id' => auth()->id(),
             ]);
 
-            $echeance->montant_paye = $echeance->montant_paye + $data['montant'];
-            $echeance->recalculerStatut();
+            $echeance->recalculerMontantPaye();
         });
 
         return back()->with('success', 'Paiement enregistré avec succès.');

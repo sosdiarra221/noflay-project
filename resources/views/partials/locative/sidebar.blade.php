@@ -65,6 +65,27 @@
                     <span class="pe-nav-content">Reversements</span>
                 </a>
             </li>
+            @canany(['locative.corbeille', 'locative.journal'])
+                <li class="pe-menu-title">
+                    Administration
+                </li>
+                @can('locative.corbeille')
+                    <li class="pe-slide pe-has-sub">
+                        <a href="{{ route('locative.corbeille.index') }}" class="pe-nav-link">
+                            <i class="bi bi-trash3 pe-nav-icon"></i>
+                            <span class="pe-nav-content">Corbeille</span>
+                        </a>
+                    </li>
+                @endcan
+                @can('locative.journal')
+                    <li class="pe-slide pe-has-sub">
+                        <a href="{{ route('locative.journal.index') }}" class="pe-nav-link">
+                            <i class="bi bi-journal-text pe-nav-icon"></i>
+                            <span class="pe-nav-content">Journal d'activité</span>
+                        </a>
+                    </li>
+                @endcan
+            @endcanany
             <li class="pe-menu-title">
                 Configuration
             </li>

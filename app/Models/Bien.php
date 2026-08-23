@@ -60,6 +60,11 @@ class Bien extends Model
         return $this->hasMany(ContratLocation::class);
     }
 
+    public function supprimePar()
+    {
+        return $this->belongsTo(User::class, 'supprime_par_id');
+    }
+
     public function montantExploitation(): ?float
     {
         return $this->type_exploitation === 'vente' ? $this->prix_vente : $this->loyer_mensuel;

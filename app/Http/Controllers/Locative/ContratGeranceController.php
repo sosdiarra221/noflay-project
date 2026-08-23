@@ -9,6 +9,7 @@ use App\Models\ContratGerance;
 use App\Services\Locative\NumeroService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ContratGeranceController extends Controller
 {
@@ -49,6 +50,19 @@ class ContratGeranceController extends Controller
     {
         $data = $this->valider($request);
 
+        $champsFinanciers = ['frais_gestion_mode', 'frais_gestion_valeur', 'tva_charge', 'taxe_charge', 'tom_charge'];
+        $modifieFinancier = collect($champsFinanciers)->contains(fn ($champ) => (string) $gerance->{$champ} !== (string) $data[$champ]);
+
+        if ($gerance->statut === 'actif' && $modifieFinancier) {
+            Gate::authorize('locative.operations-sensibles');
+
+            $request->validate([
+                'motif' => ['required', 'string', 'max:255'],
+            ]);
+
+            $gerance->motifAction = $request->motif;
+        }
+
         $gerance->update($data);
 
         return back()->with('success', 'Contrat de gérance mis à jour avec succès.');
@@ -56,6 +70,8 @@ class ContratGeranceController extends Controller
 
     public function destroy(Request $request, ContratGerance $gerance)
     {
+        Gate::authorize('locative.operations-sensibles');
+
         $request->validate([
             'motif_suppression' => ['required', 'string', 'max:255'],
         ]);
