@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Bailleur;
 use App\Models\CategorieBien;
 use App\Models\ContratGerance;
+use App\Models\Reglage;
 use App\Services\Locative\NumeroService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -93,11 +94,14 @@ class ContratGeranceController extends Controller
 
     public function pdf(ContratGerance $gerance)
     {
-        $gerance->load(['bailleur', 'biens']);
+        $gerance->load(['bailleur', 'biens.categorie']);
 
-        $pdf = Pdf::loadView('locative.pdf.gerance', compact('gerance'));
+        $reglage = Reglage::courant();
+        $ville = $reglage->adresse ? trim(explode(',', $reglage->adresse)[0]) : 'Dakar';
 
-        return $pdf->download($gerance->numero.'.pdf');
+        $pdf = Pdf::loadView('locative.pdf.mandat-gerance', compact('gerance', 'reglage', 'ville'));
+
+        return $pdf->download('Mandat-gerance-'.$gerance->numero.'.pdf');
     }
 
     protected function valider(Request $request): array

@@ -22,6 +22,7 @@ class ReglageController extends Controller
 
         $data = $request->validate([
             'nom_societe' => ['required', 'string', 'max:255'],
+            'ninea' => ['nullable', 'string', 'max:100'],
             'email' => ['nullable', 'email', 'max:255'],
             'telephone' => ['nullable', 'string', 'max:50'],
             'adresse' => ['nullable', 'string', 'max:255'],

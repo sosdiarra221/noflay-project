@@ -135,6 +135,12 @@
                                                 placeholder="+221 77 000 00 00">
                                         </div>
                                         <div class="col-lg-4">
+                                            <label for="ninea" class="form-label">NINEA</label>
+                                            <input type="text" class="form-control" id="ninea" name="ninea"
+                                                value="{{ old('ninea', $reglage->ninea) }}"
+                                                placeholder="NINEA de l'agence">
+                                        </div>
+                                        <div class="col-lg-4">
                                             <label for="site_web" class="form-label">Site web</label>
                                             <input type="text" class="form-control" id="site_web" name="site_web"
                                                 value="{{ old('site_web', $reglage->site_web) }}"

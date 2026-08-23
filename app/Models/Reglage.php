@@ -8,6 +8,7 @@ class Reglage extends Model
 {
     protected $fillable = [
         'nom_societe',
+        'ninea',
         'logo',
         'email',
         'telephone',
