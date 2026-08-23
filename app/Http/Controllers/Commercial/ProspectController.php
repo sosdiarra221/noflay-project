@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Commercial;
 
 use App\Http\Controllers\Controller;
+use App\Models\Commercial\Partenaire;
 use App\Models\Commercial\Prospect;
 use App\Models\Commercial\Source;
 use App\Models\Commercial\StatusHistory;
@@ -17,7 +18,7 @@ class ProspectController extends Controller
 {
     public function index(Request $request)
     {
-        $prospects = Prospect::with(['typeDemande', 'source', 'commercial', 'activites'])
+        $prospects = Prospect::with(['typeDemande', 'source', 'partenaire', 'commercial', 'activites'])
             ->when($request->filled('recherche'), function ($q) use ($request) {
                 $terme = $request->recherche;
                 $q->where(fn ($q2) => $q2->where('nom', 'like', "%{$terme}%")
@@ -33,8 +34,9 @@ class ProspectController extends Controller
 
         $typesDemande = TypeDemande::where('actif', true)->orderBy('nom')->get();
         $sources = Source::where('actif', true)->orderBy('nom')->get();
+        $partenaires = Partenaire::where('statut', 'actif')->orderBy('nom')->get();
 
-        return view('commercial.prospects.index', compact('prospects', 'typesDemande', 'sources'));
+        return view('commercial.prospects.index', compact('prospects', 'typesDemande', 'sources', 'partenaires'));
     }
 
     public function show(Prospect $prospect)
@@ -172,6 +174,7 @@ class ProspectController extends Controller
             'budget_max' => ['nullable', 'numeric', 'min:0', 'gte:budget_min'],
             'devise' => ['nullable', 'string', 'max:10'],
             'source_id' => ['nullable', 'exists:commercial_sources,id'],
+            'partenaire_id' => ['nullable', 'exists:commercial_partenaires,id'],
         ]);
     }
 }

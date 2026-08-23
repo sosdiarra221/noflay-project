@@ -52,6 +52,11 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
+    public function prospectsGeres()
+    {
+        return $this->hasMany(\App\Models\Commercial\Prospect::class, 'commercial_id');
+    }
+
     public function aLeRole(string ...$noms): bool
     {
         return $this->role && in_array($this->role->nom, $noms, true);

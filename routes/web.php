@@ -29,6 +29,8 @@ use App\Http\Controllers\Commercial\ParametreCommercialController;
 use App\Http\Controllers\Commercial\SourceController;
 use App\Http\Controllers\Commercial\TypeDemandeController;
 use App\Http\Controllers\Commercial\AgendaController;
+use App\Http\Controllers\Commercial\PartenaireController;
+use App\Http\Controllers\Commercial\RapportController;
 
 Route::get('connexion', [AuthController::class, 'showLogin'])->name('login');
 Route::post('connexion', [AuthController::class, 'login'])->name('login.store');
@@ -142,8 +144,13 @@ Route::prefix('commercial')->name('commercial.')->group(function () {
     Route::put('types-demande/{type}', [TypeDemandeController::class, 'update'])->name('types-demande.update');
     Route::delete('types-demande/{type}', [TypeDemandeController::class, 'destroy'])->name('types-demande.destroy');
 
-    Route::get('partenaires', fn () => view('commercial.bientot', ['titre' => 'Partenaires']))->name('partenaires');
-    Route::get('rapports', fn () => view('commercial.bientot', ['titre' => 'Rapports']))->name('rapports');
+    Route::get('partenaires', [PartenaireController::class, 'index'])->name('partenaires');
+    Route::post('partenaires', [PartenaireController::class, 'store'])->name('partenaires.store');
+    Route::put('partenaires/{partenaire}', [PartenaireController::class, 'update'])->name('partenaires.update');
+    Route::delete('partenaires/{partenaire}', [PartenaireController::class, 'destroy'])->name('partenaires.destroy');
+
+    Route::get('rapports', [RapportController::class, 'index'])->name('rapports');
+    Route::get('rapports/export', [RapportController::class, 'export'])->name('rapports.export');
 
     Route::get('agenda', [AgendaController::class, 'index'])->name('agenda');
     Route::post('agenda', [AgendaController::class, 'store'])->name('agenda.store');

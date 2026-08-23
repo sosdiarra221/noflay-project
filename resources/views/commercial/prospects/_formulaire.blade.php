@@ -62,6 +62,15 @@
             </select>
         </div>
         <div class="col-md-6">
+            <label class="form-label">Partenaire apporteur</label>
+            <select class="form-select" name="partenaire_id">
+                <option value="">—</option>
+                @foreach ($partenaires as $partenaire)
+                    <option value="{{ $partenaire->id }}" @selected(old('partenaire_id') == $partenaire->id)>{{ $partenaire->nom }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-6">
             <label class="form-label">Budget minimum</label>
             <input type="number" step="0.01" min="0" class="form-control" name="budget_min" value="{{ old('budget_min') }}">
         </div>

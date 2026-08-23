@@ -16,4 +16,9 @@ class TypeDemande extends Model
     protected $casts = [
         'actif' => 'boolean',
     ];
+
+    public function prospects()
+    {
+        return $this->hasMany(Prospect::class, 'type_demande_id');
+    }
 }

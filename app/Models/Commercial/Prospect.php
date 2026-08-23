@@ -27,6 +27,7 @@ class Prospect extends Model
         'budget_max',
         'devise',
         'source_id',
+        'partenaire_id',
         'statut',
         'commercial_id',
         'converti_en',
@@ -49,6 +50,11 @@ class Prospect extends Model
     public function source()
     {
         return $this->belongsTo(Source::class, 'source_id');
+    }
+
+    public function partenaire()
+    {
+        return $this->belongsTo(Partenaire::class, 'partenaire_id');
     }
 
     public function commercial()
