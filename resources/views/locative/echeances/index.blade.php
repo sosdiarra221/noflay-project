@@ -121,14 +121,20 @@
                                             </td>
                                             <td>
                                                 <div class="hstack gap-2">
-                                                    <button type="button" class="btn btn-light-info icon-btn-sm" data-bs-toggle="modal" data-bs-target="#apercuEcheanceModal{{ $echeance->id }}" title="Aperçu de l'échéance"><i class="bi bi-eye"></i></button>
                                                     @if ($echeance->statut !== 'paye' && $echeance->statut !== 'annule')
-                                                        <button type="button" class="btn btn-light-success icon-btn-sm" data-bs-toggle="modal" data-bs-target="#encaisserEcheanceModal{{ $echeance->id }}" title="Encaisser le loyer"><i class="bi bi-cash-coin"></i></button>
+                                                        <button type="button" class="btn btn-light-success btn-sm" data-bs-toggle="modal" data-bs-target="#encaisserEcheanceModal{{ $echeance->id }}" title="Encaisser le loyer">
+                                                            <i class="bi bi-cash-coin me-1"></i>Encaisser
+                                                        </button>
                                                     @endif
                                                     @if ($echeance->montant_paye > 0)
-                                                        <button type="button" class="btn btn-light-warning icon-btn-sm" data-bs-toggle="modal" data-bs-target="#quittanceModal{{ $echeance->id }}" title="Voir le reçu / la quittance"><i class="bi bi-receipt"></i></button>
+                                                        <button type="button" class="btn btn-light-warning btn-sm" data-bs-toggle="modal" data-bs-target="#quittanceModal{{ $echeance->id }}" title="Voir la quittance">
+                                                            <i class="bi bi-eye me-1"></i>Aperçu
+                                                        </button>
+                                                    @else
+                                                        <button type="button" class="btn btn-light-secondary btn-sm" disabled title="Aucun paiement enregistré pour cette échéance">
+                                                            <i class="bi bi-eye me-1"></i>Aperçu
+                                                        </button>
                                                     @endif
-                                                    <a href="{{ route('locative.contrats.show', $echeance->contratLocation) }}" class="btn btn-light-primary icon-btn-sm" title="Voir le contrat"><i class="bi bi-arrow-up-right-circle"></i></a>
                                                 </div>
                                             </td>
                                         </tr>
@@ -144,62 +150,6 @@
         </div>
 
         @foreach ($echeances as $echeance)
-            {{-- Aperçu rapide --}}
-            <div class="modal fade" id="apercuEcheanceModal{{ $echeance->id }}" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-lg" role="document">
-                    <div class="modal-content rounded-4 shadow">
-                        <div class="modal-header bg-gradient text-white bg-{{ $classesE[$echeance->statut] ?? 'primary' }}">
-                            <h5 class="modal-title">
-                                {{ ucfirst(\Carbon\Carbon::createFromDate($echeance->annee, $echeance->mois, 1)->translatedFormat('F Y')) }}
-                                — {{ $echeance->contratLocation->location->locataire->nom_complet }}
-                            </h5>
-                            <button type="button" class="btn-close icon-btn-sm btn-close-white" data-bs-dismiss="modal" aria-label="Close">
-                                <i class="ri-close-large-line fw-semibold"></i>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <div class="d-flex gap-2"><i class="bi bi-building fs-16"></i><p class="text-muted mb-2">Bien</p></div>
-                                    <h6 class="mb-0">{{ $echeance->contratLocation->bien->titre }}</h6>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="d-flex gap-2"><i class="bi bi-calendar-event fs-16"></i><p class="text-muted mb-2">Date d'échéance</p></div>
-                                    <h6 class="mb-0">{{ $echeance->date_echeance->format('d/m/Y') }}</h6>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="d-flex gap-2"><i class="bi bi-cash-coin fs-16"></i><p class="text-muted mb-2">Montant attendu</p></div>
-                                    <h6 class="mb-0">{{ number_format($echeance->montant_attendu, 0, ',', ' ') }} FCFA</h6>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="d-flex gap-2"><i class="bi bi-cash-stack fs-16"></i><p class="text-muted mb-2">Montant payé</p></div>
-                                    <h6 class="mb-0">{{ number_format($echeance->montant_paye, 0, ',', ' ') }} FCFA</h6>
-                                </div>
-                                <div class="col-12">
-                                    <hr>
-                                    <p class="text-muted mb-2">Paiements enregistrés</p>
-                                    @forelse ($echeance->paiements as $paiement)
-                                        <div class="d-flex justify-content-between border-bottom py-2">
-                                            <span>{{ $paiement->date_paiement->format('d/m/Y') }} — {{ $paiement->modePaiement->nom ?? '—' }}</span>
-                                            <span class="fw-medium">{{ number_format($paiement->montant, 0, ',', ' ') }} FCFA</span>
-                                        </div>
-                                    @empty
-                                        <p class="text-muted mb-0">Aucun paiement enregistré.</p>
-                                    @endforelse
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
-                            @if ($echeance->montant_paye > 0)
-                                <button type="button" class="btn btn-warning" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#quittanceModal{{ $echeance->id }}"><i class="bi bi-receipt me-1"></i>Quittance</button>
-                            @endif
-                            <a href="{{ route('locative.contrats.show', $echeance->contratLocation) }}" class="btn btn-primary">Ouvrir le contrat</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             {{-- Encaisser --}}
             @if ($echeance->statut !== 'paye' && $echeance->statut !== 'annule')
                 <div class="modal fade" id="encaisserEcheanceModal{{ $echeance->id }}" tabindex="-1" aria-hidden="true">
