@@ -65,7 +65,9 @@
                                 <div class="accordion-body p-2">
                                     <div class="list-group list-group-flush">
                                         @foreach ($variables as $chemin => $libelle)
-                                            @php($apercuVariable = '{{ '.$chemin.' }}')
+                                            @php($accoladeOuvrante = str_repeat('{', 2))
+                                            @php($accoladeFermante = str_repeat('}', 2))
+                                            @php($apercuVariable = $accoladeOuvrante.' '.$chemin.' '.$accoladeFermante)
                                             <button type="button" class="list-group-item list-group-item-action py-1 px-2 fs-12 tiptap-insert-variable" data-editor="{{ $editorId }}" data-path="{{ $chemin }}">
                                                 <span class="fw-medium">{{ $libelle }}</span>
                                                 <br><code class="fs-10">{{ $apercuVariable }}</code>
@@ -98,15 +100,15 @@
 </style>
 
 <script type="module">
-    import { Editor } from 'https://esm.sh/@@tiptap/core@2.6.6?bundle';
-    import StarterKit from 'https://esm.sh/@@tiptap/starter-kit@2.6.6?bundle';
-    import Underline from 'https://esm.sh/@@tiptap/extension-underline@2.6.6?bundle';
-    import TextAlign from 'https://esm.sh/@@tiptap/extension-text-align@2.6.6?bundle';
-    import Table from 'https://esm.sh/@@tiptap/extension-table@2.6.6?bundle';
-    import TableRow from 'https://esm.sh/@@tiptap/extension-table-row@2.6.6?bundle';
-    import TableHeader from 'https://esm.sh/@@tiptap/extension-table-header@2.6.6?bundle';
-    import TableCell from 'https://esm.sh/@@tiptap/extension-table-cell@2.6.6?bundle';
-    import Link from 'https://esm.sh/@@tiptap/extension-link@2.6.6?bundle';
+    import { Editor } from 'https://esm.sh/@@tiptap/core@2.6.6';
+    import StarterKit from 'https://esm.sh/@@tiptap/starter-kit@2.6.6';
+    import Underline from 'https://esm.sh/@@tiptap/extension-underline@2.6.6';
+    import TextAlign from 'https://esm.sh/@@tiptap/extension-text-align@2.6.6';
+    import Table from 'https://esm.sh/@@tiptap/extension-table@2.6.6';
+    import TableRow from 'https://esm.sh/@@tiptap/extension-table-row@2.6.6';
+    import TableHeader from 'https://esm.sh/@@tiptap/extension-table-header@2.6.6';
+    import TableCell from 'https://esm.sh/@@tiptap/extension-table-cell@2.6.6';
+    import Link from 'https://esm.sh/@@tiptap/extension-link@2.6.6';
 
     (function () {
         const editorId = {!! json_encode($editorId) !!};
