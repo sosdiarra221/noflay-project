@@ -126,15 +126,9 @@
                                                             <i class="bi bi-cash-coin me-1"></i>Encaisser
                                                         </button>
                                                     @endif
-                                                    @if ($echeance->montant_paye > 0)
-                                                        <button type="button" class="btn btn-light-warning btn-sm" data-bs-toggle="modal" data-bs-target="#quittanceModal{{ $echeance->id }}" title="Voir la quittance">
-                                                            <i class="bi bi-eye me-1"></i>Aperçu
-                                                        </button>
-                                                    @else
-                                                        <button type="button" class="btn btn-light-secondary btn-sm" disabled title="Aucun paiement enregistré pour cette échéance">
-                                                            <i class="bi bi-eye me-1"></i>Aperçu
-                                                        </button>
-                                                    @endif
+                                                    <button type="button" class="btn btn-light-warning btn-sm" data-bs-toggle="modal" data-bs-target="#quittanceModal{{ $echeance->id }}" title="Voir la quittance">
+                                                        <i class="bi bi-eye me-1"></i>Aperçu
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -202,14 +196,14 @@
             @endif
 
             {{-- Quittance --}}
-            @if ($echeance->montant_paye > 0)
-                <div class="modal fade" id="quittanceModal{{ $echeance->id }}" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Quittance de loyer — {{ \Carbon\Carbon::createFromDate($echeance->annee, $echeance->mois, 1)->translatedFormat('F Y') }}</h5>
-                                <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
-                            </div>
+            <div class="modal fade" id="quittanceModal{{ $echeance->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Quittance de loyer — {{ \Carbon\Carbon::createFromDate($echeance->annee, $echeance->mois, 1)->translatedFormat('F Y') }}</h5>
+                            <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
+                        </div>
+                        @if ($echeance->montant_paye > 0)
                             <div class="modal-body p-0">
                                 <iframe src="{{ route('locative.echeances.quittance', $echeance) }}" style="width: 100%; height: 70vh; border: 0;"></iframe>
                             </div>
@@ -217,10 +211,22 @@
                                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
                                 <a href="{{ route('locative.echeances.quittance-telecharger', $echeance) }}" class="btn btn-primary"><i class="bi bi-download me-1"></i>Télécharger en PDF</a>
                             </div>
-                        </div>
+                        @else
+                            <div class="modal-body text-center py-6">
+                                <i class="bi bi-receipt text-muted" style="font-size: 2.5rem;"></i>
+                                <p class="text-muted mt-3 mb-0">Aucun paiement n'a encore été enregistré pour cette échéance.</p>
+                                <p class="text-muted mb-0">La quittance sera disponible dès le premier encaissement.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
+                                @if ($echeance->statut !== 'paye' && $echeance->statut !== 'annule')
+                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#encaisserEcheanceModal{{ $echeance->id }}"><i class="bi bi-cash-coin me-1"></i>Encaisser</button>
+                                @endif
+                            </div>
+                        @endif
                     </div>
                 </div>
-            @endif
+            </div>
         @endforeach
 
         {{-- Générer les loyers --}}
