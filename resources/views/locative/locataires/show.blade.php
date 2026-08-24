@@ -58,13 +58,32 @@
             </div>
         </div>
 
-        @if ($montantDuAuLocataire > 0)
-            <div class="alert alert-info d-flex align-items-center gap-3">
-                <i class="bi bi-cash-stack fs-2"></i>
-                <div>
-                    <h6 class="mb-1">L'agence doit {{ number_format($montantDuAuLocataire, 0, ',', ' ') }} FCFA à ce locataire</h6>
-                    <p class="mb-0 fs-13">Solde de caution/garantie restant à lui restituer. Voir l'onglet « Caution &amp; dépenses » pour le détail par location.</p>
+        @php $cautionsDues = $cautions->where('statut', '!=', 'restituee')->values(); @endphp
+        @if ($cautionsDues->count() > 0)
+            <div id="carouselBullesLocataire" class="carousel slide mb-4" @if ($cautionsDues->count() > 1) data-bs-ride="carousel" data-bs-interval="4500" @endif>
+                <div class="carousel-inner">
+                    @foreach ($cautionsDues as $index => $caution)
+                        <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                            <div class="alert alert-info d-flex align-items-center gap-3 mb-0 {{ $cautionsDues->count() > 1 ? 'px-6' : '' }}">
+                                <button type="button" class="btn btn-info text-white rounded-circle flex-shrink-0 p-0 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;" data-bs-toggle="modal" data-bs-target="#bulleCautionModal{{ $caution->id }}" title="Aperçu de la caution à restituer">
+                                    <i class="bi bi-cash-stack fs-4"></i>
+                                </button>
+                                <div>
+                                    <h6 class="mb-1">L'agence doit {{ number_format($caution->montantARestituer(), 0, ',', ' ') }} FCFA à ce locataire</h6>
+                                    <p class="mb-0 fs-13">Caution/garantie — {{ $caution->contratLocation->bien->titre ?? '—' }}. Cliquez sur l'icône pour l'aperçu.</p>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
+                @if ($cautionsDues->count() > 1)
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselBullesLocataire" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true" style="filter: invert(1) grayscale(1);"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselBullesLocataire" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true" style="filter: invert(1) grayscale(1);"></span>
+                    </button>
+                @endif
             </div>
         @endif
 
@@ -423,6 +442,49 @@
         </div>
 
     </div>
+
+    @foreach ($cautionsDues as $caution)
+        <div class="modal fade" id="bulleCautionModal{{ $caution->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title">Caution à restituer</h5>
+                        <button type="button" class="btn-close btn-close-white icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <p class="text-muted mb-1 fs-12">Bien / location</p>
+                                <h6 class="mb-0">{{ $caution->contratLocation->bien->titre ?? '—' }}</h6>
+                            </div>
+                            <div class="col-6">
+                                <p class="text-muted mb-1 fs-12">Montant reçu</p>
+                                <h6 class="mb-0">{{ number_format($caution->part_bailleur, 0, ',', ' ') }} FCFA</h6>
+                            </div>
+                            <div class="col-6">
+                                <p class="text-muted mb-1 fs-12">Retenues</p>
+                                <h6 class="mb-0 {{ $caution->montant_retenu > 0 ? 'text-danger' : '' }}">{{ $caution->montant_retenu > 0 ? number_format($caution->montant_retenu, 0, ',', ' ').' FCFA' : '—' }}</h6>
+                            </div>
+                            <div class="col-6">
+                                <p class="text-muted mb-1 fs-12">À restituer</p>
+                                <h5 class="mb-0 text-success">{{ number_format($caution->montantARestituer(), 0, ',', ' ') }} FCFA</h5>
+                            </div>
+                            @if ($caution->motif_retenue)
+                                <div class="col-12">
+                                    <p class="text-muted mb-1 fs-12">Motif de la retenue</p>
+                                    <p class="mb-0">{{ $caution->motif_retenue }}</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
+                        <a href="{{ route('locative.locations.show', $caution->contratLocation->location_id) }}" class="btn btn-primary">Voir la location</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
 
     @foreach ($paiements as $paiement)
         <div class="modal fade" id="recuLocModal{{ $paiement->id }}" tabindex="-1" aria-hidden="true">
