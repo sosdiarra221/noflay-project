@@ -6,6 +6,7 @@ use App\Events\LocationCreee;
 use App\Http\Controllers\Controller;
 use App\Models\Bien;
 use App\Models\Caution;
+use App\Models\ChargeLocative;
 use App\Models\ContratLocation;
 use App\Models\DepenseLocation;
 use App\Models\Locataire;
@@ -61,6 +62,11 @@ class LocationController extends Controller
             ->latest()
             ->get();
 
+        $charges = ChargeLocative::whereIn('contrat_location_id', $location->contrats->pluck('id'))
+            ->with('contratLocation.bien')
+            ->latest('date_charge')
+            ->get();
+
         $stats = [
             'loyer_total' => $location->contrats->sum('loyer_mensuel'),
             'total_attendu' => $echeances->where('statut', '!=', 'annule')->sum('montant_attendu'),
@@ -69,7 +75,7 @@ class LocationController extends Controller
             'total_depenses' => $depenses->whereIn('statut', DepenseLocation::STATUTS_PAYEES)->sum(fn ($d) => $d->montantImpute()),
         ];
 
-        return view('locative.locations.show', compact('location', 'stats', 'echeances', 'paiements', 'depenses'));
+        return view('locative.locations.show', compact('location', 'stats', 'echeances', 'paiements', 'depenses', 'charges'));
     }
 
     public function store(Request $request, EcheanceLoyerService $echeanceService, DocumentGenerationService $documentGenerationService)
@@ -90,7 +96,6 @@ class LocationController extends Controller
             'conditions.*.depot_garantie' => ['nullable', 'numeric', 'min:0'],
             'conditions.*.depot_garantie_part_bailleur' => ['nullable', 'numeric', 'min:0'],
             'conditions.*.depot_garantie_part_agence' => ['nullable', 'numeric', 'min:0'],
-            'conditions.*.charges' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $biensSelectionnes = Bien::whereIn('id', $data['biens'])->get();
@@ -128,7 +133,6 @@ class LocationController extends Controller
                     'depot_garantie_part_bailleur' => $depotGarantie > 0 ? $partBailleur : null,
                     'depot_garantie_part_agence' => $depotGarantie > 0 ? $partAgence : null,
                     'jour_echeance' => $data['jour_echeance'],
-                    'charges' => $conditions['charges'] ?? 0,
                     'appliquer_tva' => ! empty($conditions['appliquer_tva']),
                     'appliquer_tom' => ! empty($conditions['appliquer_tom']),
                     'mode_paiement_prefere_id' => $data['mode_paiement_prefere_id'] ?? null,

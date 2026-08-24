@@ -119,7 +119,6 @@
                                             <th>Loyer mensuel</th>
                                             <th>Taxes</th>
                                             <th>Caution / frais d'agence</th>
-                                            <th>Charges</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -160,13 +159,9 @@
                                                     </button>
                                                     <div class="fs-11 text-muted mt-1 resume-caution">Non configurée</div>
                                                 </td>
-                                                <td>
-                                                    <input type="number" step="0.01" min="0" class="form-control" style="width: 120px"
-                                                        name="conditions[{{ $bien->id }}][charges]" value="0">
-                                                </td>
                                             </tr>
                                         @empty
-                                            <tr><td colspan="7" class="text-center text-muted py-5">Aucun bien disponible pour le moment.</td></tr>
+                                            <tr><td colspan="6" class="text-center text-muted py-5">Aucun bien disponible pour le moment.</td></tr>
                                         @endforelse
                                     </tbody>
                                 </table>

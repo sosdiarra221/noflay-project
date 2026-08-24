@@ -9,6 +9,7 @@ use App\Http\Controllers\Locative\LocativeDashboardController;
 use App\Http\Controllers\Locative\ParametreLocativeController;
 use App\Http\Controllers\Locative\CategorieBienController;
 use App\Http\Controllers\Locative\CategorieDepenseController;
+use App\Http\Controllers\Locative\ChargeLocativeController;
 use App\Http\Controllers\Locative\ModePaiementController;
 use App\Http\Controllers\Locative\BailleurController;
 use App\Http\Controllers\Locative\ContratGeranceController;
@@ -129,6 +130,10 @@ Route::prefix('locative')->name('locative.')->group(function () {
     Route::post('fiches-locatives', [FicheLocativeController::class, 'store'])->name('fiches-locatives.store');
     Route::get('fiches-locatives/{fiche}/apercu', [FicheLocativeController::class, 'apercu'])->name('fiches-locatives.apercu');
     Route::get('fiches-locatives/{fiche}/telecharger', [FicheLocativeController::class, 'telecharger'])->name('fiches-locatives.telecharger');
+
+    Route::post('charges', [ChargeLocativeController::class, 'store'])->name('charges.store');
+    Route::put('charges/{charge}', [ChargeLocativeController::class, 'update'])->name('charges.update');
+    Route::delete('charges/{charge}', [ChargeLocativeController::class, 'destroy'])->name('charges.destroy');
 
     Route::get('locations', [LocationController::class, 'index'])->name('locations.index');
     Route::get('locations/creer', [LocationController::class, 'create'])->name('locations.create');

@@ -57,12 +57,15 @@ class EcheanceLoyerService
 
         $jour = min($contrat->jour_echeance, Carbon::createFromDate($annee, $mois, 1)->daysInMonth);
 
+        // Les charges (électricité, eau, wifi...) sont propres au locataire et ne font pas
+        // partie du loyer dû au titre du contrat de location — elles sont suivies séparément
+        // (cf. App\Models\ChargeLocative), jamais ajoutées au montant de l'échéance.
         return EcheanceLoyer::create([
             'contrat_location_id' => $contrat->id,
             'annee' => $annee,
             'mois' => $mois,
             'date_echeance' => Carbon::createFromDate($annee, $mois, $jour),
-            'montant_attendu' => $contrat->loyer_mensuel + $contrat->charges,
+            'montant_attendu' => $contrat->loyer_mensuel,
             'montant_paye' => 0,
             'statut' => 'a_venir',
         ]);

@@ -130,6 +130,11 @@
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#loyers-tab-pane" type="button">Loyers &amp; paiements</button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#charges-tab-pane" type="button">
+                        Charges <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $charges->count() }}</span>
+                    </button>
+                </li>
                 @can('locative.finances')
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#depenses-tab-pane" type="button">
@@ -255,6 +260,68 @@
             </div>
         </div>
 
+        {{-- Charges locatives --}}
+        <div class="tab-pane fade" id="charges-tab-pane">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0">Charges locatives</h6>
+                        <p class="text-muted fs-11 mb-0">Électricité, eau, wifi... à la charge du locataire — distinctes du loyer, elles n'entrent jamais dans le calcul des échéances.</p>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-sm flex-shrink-0" data-bs-toggle="modal" data-bs-target="#ajouterChargeModal">
+                        <i class="bi bi-plus-lg me-1"></i>Ajouter une charge
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-box table-responsive">
+                        <table class="table text-nowrap align-middle mb-0">
+                            <thead><tr><th>Type</th><th>Titre</th><th>Bien</th><th>Montant</th><th>Fréquence</th><th>Réglée par</th><th>Statut</th><th>Actions</th></tr></thead>
+                            <tbody>
+                                @forelse ($charges as $charge)
+                                    <tr>
+                                        <td>{{ $charge->libelleType() }}</td>
+                                        <td class="fw-medium">{{ $charge->titre }}</td>
+                                        <td>{{ $charge->contratLocation->bien->titre ?? '—' }}</td>
+                                        <td>{{ number_format($charge->montant, 0, ',', ' ') }} FCFA</td>
+                                        <td>{{ $charge->libelleFrequence() }}</td>
+                                        <td>
+                                            @if ($charge->reglee_par_locataire)
+                                                <span class="badge bg-secondary-subtle text-secondary">Locataire</span>
+                                            @else
+                                                <span class="badge bg-primary-subtle text-primary">Agence</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($charge->statut === 'payee')
+                                                <span class="badge bg-success-subtle text-success">Payée</span>
+                                            @else
+                                                <span class="badge bg-warning-subtle text-warning">À payer</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="hstack gap-2">
+                                                @if ($charge->statut !== 'payee')
+                                                    <form action="{{ route('locative.charges.update', $charge) }}" method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <input type="hidden" name="statut" value="payee">
+                                                        <button type="submit" class="btn btn-light-success icon-btn-sm" title="Marquer comme payée"><i class="bi bi-check-circle"></i></button>
+                                                    </form>
+                                                @endif
+                                                <button type="button" class="btn btn-light-danger icon-btn-sm" data-bs-toggle="modal" data-bs-target="#supprimerChargeModal{{ $charge->id }}" title="Supprimer"><i class="ri-delete-bin-line"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="8" class="text-center text-muted py-5">Aucune charge enregistrée pour cette location.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- Dépenses --}}
         @can('locative.finances')
             <div class="tab-pane fade" id="depenses-tab-pane">
@@ -295,6 +362,116 @@
         @endcan
         </div>
 
+        {{-- Ajouter une charge --}}
+        <div class="modal fade" id="ajouterChargeModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <form action="{{ route('locative.charges.store') }}" method="POST">
+                        @csrf
+                        <div class="modal-header">
+                            <h5 class="modal-title">Ajouter une charge</h5>
+                            <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row g-3">
+                                @if ($location->contrats->count() > 1)
+                                    <div class="col-12">
+                                        <label class="form-label">Bien concerné<span class="text-danger ms-1">*</span></label>
+                                        <select class="form-select" name="contrat_location_id" required>
+                                            @foreach ($location->contrats as $contrat)
+                                                <option value="{{ $contrat->id }}">{{ $contrat->bien->titre ?? $contrat->numero }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                @else
+                                    <input type="hidden" name="contrat_location_id" value="{{ $location->contrats->first()->id ?? '' }}">
+                                @endif
+                                <div class="col-md-6">
+                                    <label class="form-label">Type de charge<span class="text-danger ms-1">*</span></label>
+                                    <select class="form-select" name="type_charge" required>
+                                        @foreach (\App\Models\ChargeLocative::TYPES as $valeur => $libelle)
+                                            <option value="{{ $valeur }}">{{ $libelle }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Titre<span class="text-danger ms-1">*</span></label>
+                                    <input type="text" class="form-control" name="titre" placeholder="Ex: Facture SENELEC" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Montant (FCFA)<span class="text-danger ms-1">*</span></label>
+                                    <input type="number" step="0.01" min="0" class="form-control" name="montant" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Date<span class="text-danger ms-1">*</span></label>
+                                    <input type="date" class="form-control" name="date_charge" value="{{ now()->format('Y-m-d') }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Fréquence</label>
+                                    <select class="form-select" id="selectFrequenceCharge">
+                                        <option value="1">Chaque mois</option>
+                                        <option value="2">Tous les 2 mois</option>
+                                        <option value="3">Tous les 3 mois</option>
+                                        <option value="4">Tous les 4 mois</option>
+                                        <option value="5">Tous les 5 mois</option>
+                                        <option value="personnalise">Période personnalisée...</option>
+                                    </select>
+                                    <input type="number" min="1" max="36" class="form-control mt-2 d-none" id="champFrequencePersonnalisee" placeholder="Tous les combien de mois ?">
+                                    <input type="hidden" name="frequence_mois" id="champFrequenceMois" value="1">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label d-block">Statut initial</label>
+                                    <select class="form-select" name="statut">
+                                        <option value="a_payer">À payer</option>
+                                        <option value="payee">Déjà payée</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="reglee_par_locataire" value="1" id="chargeRegleeParLocataire" checked>
+                                        <label class="form-check-label" for="chargeRegleeParLocataire">Cette charge est réglée directement par le locataire (hors agence)</label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-control" name="description" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-primary">Ajouter la charge</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        @foreach ($charges as $charge)
+            <div class="modal fade" id="supprimerChargeModal{{ $charge->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <form action="{{ route('locative.charges.destroy', $charge) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <div class="modal-header">
+                                <h5 class="modal-title">Supprimer la charge « {{ $charge->titre }} »</h5>
+                                <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
+                            </div>
+                            <div class="modal-body">
+                                <label class="form-label">Motif de suppression<span class="text-danger ms-1">*</span></label>
+                                <textarea class="form-control" name="motif_suppression" rows="2" required></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                                <button type="submit" class="btn btn-danger">Confirmer</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+
         @foreach ($location->contrats as $contrat)
             <div class="modal fade" id="bailContratModal{{ $contrat->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -321,4 +498,26 @@
 
 @section('js')
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectFrequence = document.getElementById('selectFrequenceCharge');
+            const champPersonnalise = document.getElementById('champFrequencePersonnalisee');
+            const champFrequenceMois = document.getElementById('champFrequenceMois');
+            if (! selectFrequence) return;
+
+            function synchroniser() {
+                if (selectFrequence.value === 'personnalise') {
+                    champPersonnalise.classList.remove('d-none');
+                    champFrequenceMois.value = champPersonnalise.value || 1;
+                } else {
+                    champPersonnalise.classList.add('d-none');
+                    champFrequenceMois.value = selectFrequence.value;
+                }
+            }
+
+            selectFrequence.addEventListener('change', synchroniser);
+            champPersonnalise.addEventListener('input', synchroniser);
+            synchroniser();
+        });
+    </script>
 @endsection

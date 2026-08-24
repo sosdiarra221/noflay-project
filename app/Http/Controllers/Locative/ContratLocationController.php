@@ -35,7 +35,6 @@ class ContratLocationController extends Controller
             'date_fin' => ['nullable', 'date', 'after:date_debut'],
             'loyer_mensuel' => ['required', 'numeric', 'min:0'],
             'depot_garantie' => ['nullable', 'numeric', 'min:0'],
-            'charges' => ['nullable', 'numeric', 'min:0'],
             'jour_echeance' => ['required', 'integer', 'min:1', 'max:28'],
             'mode_paiement_prefere_id' => ['nullable', 'exists:modes_paiement,id'],
             'statut' => ['required', 'string', 'in:actif,suspendu,expire,resilie,archive'],

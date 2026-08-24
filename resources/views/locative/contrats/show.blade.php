@@ -71,7 +71,6 @@
                                     <div class="card-header"><h6 class="card-action-title mb-0">Conditions financières</h6></div>
                                     <div class="card-body">
                                         <div class="row mb-3"><div class="col-5 text-muted">Loyer mensuel</div><div class="col-7 fw-medium">{{ number_format($contrat->loyer_mensuel, 0, ',', ' ') }} FCFA</div></div>
-                                        <div class="row mb-3"><div class="col-5 text-muted">Charges</div><div class="col-7 fw-medium">{{ number_format($contrat->charges, 0, ',', ' ') }} FCFA</div></div>
                                         <div class="row mb-3"><div class="col-5 text-muted">Dépôt de garantie</div><div class="col-7 fw-medium">{{ number_format($contrat->depot_garantie, 0, ',', ' ') }} FCFA</div></div>
                                         <div class="row"><div class="col-5 text-muted">Jour d'échéance</div><div class="col-7 fw-medium">{{ $contrat->jour_echeance }}</div></div>
                                     </div>
@@ -286,15 +285,11 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <label class="form-label">Loyer mensuel</label>
                                     <input type="number" step="0.01" min="0" class="form-control" name="loyer_mensuel" value="{{ $contrat->loyer_mensuel }}" required>
                                 </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Charges</label>
-                                    <input type="number" step="0.01" min="0" class="form-control" name="charges" value="{{ $contrat->charges }}">
-                                </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <label class="form-label">Dépôt de garantie</label>
                                     <input type="number" step="0.01" min="0" class="form-control" name="depot_garantie" value="{{ $contrat->depot_garantie }}">
                                 </div>
@@ -372,4 +367,13 @@
 
 @section('js')
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
+    <script>
+        // Visiter la fiche du contrat ouvre directement la visualisation du contrat de bail.
+        document.addEventListener('DOMContentLoaded', function () {
+            const modalEl = document.getElementById('bailContratModal');
+            if (modalEl && window.bootstrap) {
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            }
+        });
+    </script>
 @endsection
