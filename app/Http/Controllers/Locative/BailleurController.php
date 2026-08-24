@@ -35,11 +35,12 @@ class BailleurController extends Controller
 
         $compte = null;
         $reversements = collect();
+        $versements = collect();
         if (Gate::allows('locative.finances')) {
-            ['resume' => $compte, 'reversements' => $reversements] = $compteBailleurService->calculer($bailleur);
+            ['resume' => $compte, 'reversements' => $reversements, 'versements' => $versements] = $compteBailleurService->calculer($bailleur);
         }
 
-        return view('locative.bailleurs.show', compact('bailleur', 'compte', 'reversements'));
+        return view('locative.bailleurs.show', compact('bailleur', 'compte', 'reversements', 'versements'));
     }
 
     public function store(Request $request)

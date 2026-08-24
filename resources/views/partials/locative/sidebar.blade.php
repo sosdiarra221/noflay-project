@@ -68,9 +68,17 @@
             <li class="pe-slide pe-has-sub">
                 <a href="{{ route('locative.reversements.index') }}" class="pe-nav-link">
                     <i class="bi bi-arrow-left-right pe-nav-icon"></i>
-                    <span class="pe-nav-content">Reversements</span>
+                    <span class="pe-nav-content">Reversements (rapport)</span>
                 </a>
             </li>
+            @can('locative.finances')
+                <li class="pe-slide pe-has-sub">
+                    <a href="{{ route('locative.versements.index') }}" class="pe-nav-link">
+                        <i class="bi bi-cash-coin pe-nav-icon"></i>
+                        <span class="pe-nav-content">Versements bailleurs</span>
+                    </a>
+                </li>
+            @endcan
             @canany(['locative.corbeille', 'locative.journal'])
                 <li class="pe-menu-title">
                     Administration

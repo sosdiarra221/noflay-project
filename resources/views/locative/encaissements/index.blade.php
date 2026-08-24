@@ -125,11 +125,12 @@
                                 </thead>
                                 <tbody>
                                     @forelse ($paiements as $paiement)
+                                        @php $contratPaiement = $paiement->contratLocation ?? $paiement->echeance?->contratLocation; @endphp
                                         <tr>
                                             <td class="fw-medium">{{ $paiement->numero }}</td>
                                             <td>{{ $paiement->date_paiement->format('d/m/Y') }}</td>
-                                            <td>{{ $paiement->echeance->contratLocation->location->locataire->nom_complet }}</td>
-                                            <td>{{ $paiement->echeance->contratLocation->bien->titre }}</td>
+                                            <td>{{ $contratPaiement?->location?->locataire?->nom_complet ?? '—' }}</td>
+                                            <td>{{ $contratPaiement?->bien?->titre ?? '—' }}</td>
                                             <td>{{ $paiement->modePaiement->nom ?? '—' }}</td>
                                             <td>{{ number_format($paiement->montant, 0, ',', ' ') }} FCFA</td>
                                             <td>
@@ -141,8 +142,12 @@
                                             </td>
                                             <td>
                                                 <div class="hstack gap-2">
-                                                    <button type="button" class="btn btn-light-warning icon-btn-sm" data-bs-toggle="modal" data-bs-target="#recuModal{{ $paiement->id }}"><i class="bi bi-receipt"></i></button>
-                                                    <a href="{{ route('locative.contrats.show', $paiement->echeance->contratLocation) }}" class="btn btn-light-primary icon-btn-sm"><i class="bi bi-arrow-up-right-circle"></i></a>
+                                                    @if ($paiement->type !== 'entree')
+                                                        <button type="button" class="btn btn-light-warning icon-btn-sm" data-bs-toggle="modal" data-bs-target="#recuModal{{ $paiement->id }}" title="Voir le reçu"><i class="bi bi-receipt"></i></button>
+                                                    @endif
+                                                    @if ($contratPaiement)
+                                                        <a href="{{ route('locative.contrats.show', $contratPaiement) }}" class="btn btn-light-primary icon-btn-sm" title="Voir le contrat"><i class="bi bi-arrow-up-right-circle"></i></a>
+                                                    @endif
                                                 </div>
                                             </td>
                                         </tr>
@@ -157,7 +162,7 @@
             </div>
         </div>
 
-        @foreach ($paiements as $paiement)
+        @foreach ($paiements->where('type', '!=', 'entree') as $paiement)
             <div class="modal fade" id="recuModal{{ $paiement->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                     <div class="modal-content">

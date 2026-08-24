@@ -12,9 +12,16 @@ class EncaissementController extends Controller
 {
     public function index(Request $request)
     {
-        $paiements = Paiement::with(['echeance.contratLocation.bien', 'echeance.contratLocation.location.locataire', 'modePaiement', 'enregistrePar'])
+        $paiements = Paiement::with([
+                'echeance.contratLocation.bien', 'echeance.contratLocation.location.locataire',
+                'contratLocation.bien', 'contratLocation.location.locataire',
+                'modePaiement', 'enregistrePar',
+            ])
             ->when($request->filled('locataire_id'), function ($q) use ($request) {
-                $q->whereHas('echeance.contratLocation.location', fn ($q2) => $q2->where('locataire_id', $request->locataire_id));
+                $q->where(function ($q2) use ($request) {
+                    $q2->whereHas('echeance.contratLocation.location', fn ($q3) => $q3->where('locataire_id', $request->locataire_id))
+                        ->orWhereHas('contratLocation.location', fn ($q3) => $q3->where('locataire_id', $request->locataire_id));
+                });
             })
             ->when($request->filled('mode_paiement_id'), fn ($q) => $q->where('mode_paiement_id', $request->mode_paiement_id))
             ->when($request->filled('periode'), function ($q) use ($request) {

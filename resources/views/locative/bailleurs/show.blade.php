@@ -148,15 +148,54 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="text-muted fs-12 mb-4">
-                                Solde du compte bailleur : loyers encaissés pour son compte, moins la commission de gestion de l'agence, moins les travaux/dépenses mis à sa charge, moins ce qui lui a déjà été reversé — le résultat est le montant qu'il lui reste à recevoir.
-                                @can('finance.consulter')
-                                    <a href="{{ route('finance.bailleurs.show', $bailleur) }}">Voir le détail complet dans le module Finance</a>
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                                <p class="text-muted fs-12 mb-0">
+                                    Solde du compte bailleur : loyers encaissés pour son compte, moins la commission de gestion de l'agence, moins les travaux/dépenses mis à sa charge, moins ce qui lui a déjà été versé — le résultat est le montant qu'il lui reste à recevoir
+                                    (dont <strong>{{ number_format($compte['du_mois_courant'], 0, ',', ' ') }} FCFA</strong> pour le mois en cours et <strong class="{{ $compte['arriere_anterieur'] > 0 ? 'text-danger' : '' }}">{{ number_format($compte['arriere_anterieur'], 0, ',', ' ') }} FCFA</strong> d'arriéré des mois précédents).
+                                    @can('finance.consulter')
+                                        <a href="{{ route('finance.bailleurs.show', $bailleur) }}">Voir le détail complet dans le module Finance</a>
+                                    @endcan
+                                </p>
+                                @can('locative.finances')
+                                    <a href="{{ route('locative.versements.index', ['bailleur_id' => $bailleur->id]) }}" class="btn btn-primary btn-sm flex-shrink-0">
+                                        <i class="bi bi-cash-coin me-1"></i>Enregistrer un versement
+                                    </a>
                                 @endcan
-                            </p>
+                            </div>
 
                             <div class="card">
-                                <div class="card-header"><h6 class="mb-0">Historique des reversements <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $reversements->count() }}</span></h6></div>
+                                <div class="card-header"><h6 class="mb-0">Versements &amp; avances <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $versements->count() }}</span></h6></div>
+                                <div class="card-body p-0">
+                                    <div class="table-box table-responsive">
+                                        <table class="table text-nowrap align-middle mb-0">
+                                            <thead><tr><th>Numéro</th><th>Date</th><th>Type</th><th>Montant</th><th>Mode</th><th>Référence</th></tr></thead>
+                                            <tbody>
+                                                @forelse ($versements as $versement)
+                                                    <tr>
+                                                        <td class="fw-medium">{{ $versement->numero }}</td>
+                                                        <td>{{ $versement->date_versement->format('d/m/Y') }}</td>
+                                                        <td>
+                                                            @if ($versement->type === 'avance')
+                                                                <span class="badge bg-info-subtle text-info">Avance</span>
+                                                            @else
+                                                                <span class="badge bg-success-subtle text-success">Normal</span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="fw-medium">{{ number_format($versement->montant, 0, ',', ' ') }} FCFA</td>
+                                                        <td>{{ $versement->modePaiement->nom ?? '—' }}</td>
+                                                        <td>{{ $versement->reference ?: '—' }}</td>
+                                                    </tr>
+                                                @empty
+                                                    <tr><td colspan="6" class="text-center text-muted py-5">Aucun versement enregistré pour ce bailleur.</td></tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header"><h6 class="mb-0">Historique des reversements (module Finance) <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $reversements->count() }}</span></h6></div>
                                 <div class="card-body p-0">
                                     <div class="table-box table-responsive">
                                         <table class="table text-nowrap align-middle mb-0">

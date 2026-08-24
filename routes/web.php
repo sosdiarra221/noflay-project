@@ -19,6 +19,7 @@ use App\Http\Controllers\Locative\ContratLocationController;
 use App\Http\Controllers\Locative\EcheanceLoyerController;
 use App\Http\Controllers\Locative\PaiementController;
 use App\Http\Controllers\Locative\ReversementController;
+use App\Http\Controllers\Locative\VersementBailleurController;
 use App\Http\Controllers\Locative\CorbeilleController;
 use App\Http\Controllers\Locative\JournalActiviteController;
 use App\Http\Controllers\Locative\DocumentController;
@@ -154,6 +155,10 @@ Route::prefix('locative')->name('locative.')->group(function () {
     Route::post('paiements/{paiement}/annuler', [PaiementController::class, 'annuler'])->name('paiements.annuler');
 
     Route::get('reversements', [ReversementController::class, 'index'])->name('reversements.index');
+
+    Route::get('versements', [VersementBailleurController::class, 'index'])->name('versements.index');
+    Route::post('versements', [VersementBailleurController::class, 'store'])->name('versements.store');
+    Route::delete('versements/{versement}', [VersementBailleurController::class, 'destroy'])->name('versements.destroy');
 
     Route::get('corbeille', [CorbeilleController::class, 'index'])->name('corbeille.index');
     Route::post('corbeille/{type}/{id}/restaurer', [CorbeilleController::class, 'restaurer'])->name('corbeille.restaurer');

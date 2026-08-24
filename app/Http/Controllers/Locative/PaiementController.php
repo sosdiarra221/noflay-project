@@ -57,7 +57,7 @@ class PaiementController extends Controller
             'motif_annulation' => $request->motif_annulation,
         ]);
 
-        $paiement->echeance->recalculerMontantPaye();
+        $paiement->echeance?->recalculerMontantPaye();
 
         return back()->with('success', 'Paiement annulé avec succès.');
     }
