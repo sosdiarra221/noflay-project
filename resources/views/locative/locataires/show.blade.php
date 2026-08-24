@@ -186,6 +186,38 @@
                 <div class="tab-content">
                     {{-- Vue générale --}}
                     <div class="tab-pane fade show active" id="infos-tab-pane">
+                        @php
+                            $premiereLocationLe = $contrats->pluck('date_debut')->filter()->min();
+                            $nbBiensLoues = $contrats->pluck('bien_id')->unique()->count();
+                        @endphp
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-primary-subtle">
+                                <h6 class="card-action-title mb-0 text-primary"><i class="bi bi-file-earmark-text me-2"></i>Rapport de situation — {{ $locataire->nom_complet }}</h6>
+                            </div>
+                            <div class="card-body" style="max-height: 260px; overflow-y: auto;">
+                                <p>
+                                    <strong>{{ $locataire->nom_complet }}</strong> ({{ $locataire->type_locataire === 'entreprise' ? 'entreprise' : 'particulier' }}) est locataire de <strong>{{ $nbBiensLoues }}</strong> bien{{ $nbBiensLoues > 1 ? 's' : '' }} auprès de l'agence{{ $premiereLocationLe ? ', depuis le '.$premiereLocationLe->format('d/m/Y') : '' }},
+                                    au travers de <strong>{{ $contrats->count() }}</strong> contrat{{ $contrats->count() > 1 ? 's' : '' }} de location dont <strong>{{ $contratsActifs->count() }}</strong> actuellement actif{{ $contratsActifs->count() > 1 ? 's' : '' }}.
+                                </p>
+                                <p>
+                                    Sur l'ensemble de la relation, le total des loyers dus s'élève à <strong>{{ number_format($stats['total_du'], 0, ',', ' ') }} FCFA</strong>, dont <strong>{{ number_format($stats['total_paye'], 0, ',', ' ') }} FCFA</strong> ont déjà été réglés
+                                    (taux de règlement à échéance d'environ <strong>{{ $stats['taux_paiement'] }} %</strong>).
+                                    {{ $stats['arrieres'] > 0 ? 'Il reste actuellement un arriéré de '.number_format($stats['arrieres'], 0, ',', ' ').' FCFA dû à l\'agence, ce qui classe ce locataire dans le profil « '.($stats['profil'] === 'a_surveiller' ? 'à surveiller' : 'mauvais payeur').' ».' : 'Aucun arriéré : ce locataire est à jour de ses paiements et classé « bon payeur ».' }}
+                                </p>
+                                @if ($cautions->isNotEmpty())
+                                    <p class="{{ $montantDuAuLocataire > 0 ? '' : 'mb-0' }}">
+                                        Au titre des cautions/garanties versées à la signature de ses contrats,
+                                        {{ $montantDuAuLocataire > 0 ? 'l\'agence lui doit encore la restitution de '.number_format($montantDuAuLocataire, 0, ',', ' ').' FCFA.' : 'toutes les cautions concernées ont déjà été restituées.' }}
+                                    </p>
+                                @endif
+                                @if ($depensesLocataire->isNotEmpty())
+                                    <p class="mb-0">
+                                        Par ailleurs, <strong>{{ $depensesLocataire->count() }}</strong> dépense{{ $depensesLocataire->count() > 1 ? 's sont' : ' est' }} à sa charge,
+                                        pour un total de <strong>{{ number_format($depensesLocataire->sum(fn ($d) => $d->montantImpute()), 0, ',', ' ') }} FCFA</strong>.
+                                    </p>
+                                @endif
+                            </div>
+                        </div>
                         <div class="row g-4">
                             <div class="col-lg-6">
                                 <div class="card">
