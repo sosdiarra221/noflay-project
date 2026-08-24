@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Locative;
 
 use App\Http\Controllers\Controller;
 use App\Models\Bailleur;
+use App\Models\ChargeLocative;
+use App\Models\ContratLocation;
 use App\Models\ModePaiement;
 use App\Models\Reglage;
 use App\Models\VersementBailleur;
@@ -32,19 +34,39 @@ class VersementBailleurController extends Controller
         $depenses = collect();
         $versements = collect();
         $contratsAvecTaxes = collect();
+        $suiviLoyers = collect();
 
         if ($request->filled('bailleur_id')) {
             $bailleur = Bailleur::findOrFail($request->bailleur_id);
             ['resume' => $compte, 'paiementsLoyer' => $paiementsLoyer, 'depenses' => $depenses, 'versements' => $versements] = $compteBailleurService->calculer($bailleur);
 
-            $contratsAvecTaxes = \App\Models\ContratLocation::where('bailleur_id', $bailleur->id)
-                ->with('bien')
+            $contratsAvecTaxes = ContratLocation::where('bailleur_id', $bailleur->id)
+                ->with(['bien', 'caution', 'echeances' => fn ($q) => $q->orderBy('annee')->orderBy('mois')])
                 ->get();
+
+            $chargesParContrat = ChargeLocative::whereIn('contrat_location_id', $contratsAvecTaxes->pluck('id'))
+                ->get()
+                ->groupBy('contrat_location_id');
+
+            // Regroupe, pour chaque contrat du bailleur, le statut mois par mois (payé / partiel /
+            // en retard / à venir) — permet d'afficher en un coup d'œil quels loyers sont encaissés
+            // et lesquels sont en arriéré, plutôt qu'un seul chiffre agrégé.
+            $suiviLoyers = $contratsAvecTaxes->map(function (ContratLocation $contrat) use ($chargesParContrat) {
+                $charges = $chargesParContrat->get($contrat->id, collect());
+
+                return [
+                    'contrat' => $contrat,
+                    'echeances' => $contrat->echeances,
+                    'nouvelle_location' => $contrat->date_debut && $contrat->date_debut->greaterThan(now()->subDays(45)),
+                    'charges_total' => (float) $charges->sum('montant'),
+                    'charges_a_payer' => $charges->where('statut', 'a_payer')->count(),
+                ];
+            });
         }
 
         $reglage = Reglage::courant();
 
-        return view('locative.versements.index', compact('bailleurs', 'modesPaiement', 'bailleur', 'compte', 'paiementsLoyer', 'depenses', 'versements', 'contratsAvecTaxes', 'reglage'));
+        return view('locative.versements.index', compact('bailleurs', 'modesPaiement', 'bailleur', 'compte', 'paiementsLoyer', 'depenses', 'versements', 'contratsAvecTaxes', 'reglage', 'suiviLoyers'));
     }
 
     public function store(Request $request)

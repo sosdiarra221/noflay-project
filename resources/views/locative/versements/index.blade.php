@@ -138,6 +138,59 @@
             <div class="row g-4">
                 <div class="col-12">
                     <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">Suivi des loyers par bien</h6>
+                            <p class="text-muted fs-11 mb-0">Détail mois par mois de ce qui a été encaissé et de l'éventuel arriéré, contrat par contrat.</p>
+                        </div>
+                        <div class="card-body">
+                            @forelse ($suiviLoyers as $suivi)
+                                @php
+                                    $classesMois = ['paye' => 'success', 'partiellement_paye' => 'warning', 'en_retard' => 'danger', 'a_venir' => 'secondary', 'annule' => 'dark'];
+                                    $libellesMois = ['paye' => 'Payé', 'partiellement_paye' => 'Partiel', 'en_retard' => 'Arriéré', 'a_venir' => 'À venir', 'annule' => 'Annulé'];
+                                @endphp
+                                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2 {{ ! $loop->last ? 'pb-3 border-bottom' : '' }}">
+                                    <div>
+                                        <p class="fw-medium mb-1">
+                                            {{ $suivi['contrat']->bien->titre ?? '—' }}
+                                            <span class="text-muted fs-12">— {{ number_format($suivi['contrat']->loyer_mensuel, 0, ',', ' ') }} FCFA/mois</span>
+                                            @if ($suivi['nouvelle_location'])
+                                                <span class="badge bg-info-subtle text-info ms-1">Nouvelle location</span>
+                                            @endif
+                                        </p>
+                                        <div class="d-flex flex-wrap gap-1 mb-2">
+                                            @forelse ($suivi['echeances'] as $echeance)
+                                                <span class="badge bg-{{ $classesMois[$echeance->statut] ?? 'secondary' }}-subtle text-{{ $classesMois[$echeance->statut] ?? 'secondary' }}" title="{{ $libellesMois[$echeance->statut] ?? $echeance->statut }} — {{ number_format($echeance->montant_paye, 0, ',', ' ') }} / {{ number_format($echeance->montant_attendu, 0, ',', ' ') }} FCFA">
+                                                    {{ ucfirst(\Carbon\Carbon::createFromDate($echeance->annee, $echeance->mois, 1)->translatedFormat('M Y')) }}
+                                                    <i class="bi bi-{{ $echeance->statut === 'paye' ? 'check-circle' : ($echeance->statut === 'en_retard' ? 'exclamation-triangle' : 'dash-circle') }} ms-1"></i>
+                                                </span>
+                                            @empty
+                                                <span class="text-muted fs-12">Aucune échéance générée pour ce contrat.</span>
+                                            @endforelse
+                                        </div>
+                                        @if ($suivi['charges_total'] > 0)
+                                            <p class="fs-12 text-muted mb-0">
+                                                <i class="bi bi-lightning-charge me-1"></i>Charges locatives : {{ number_format($suivi['charges_total'], 0, ',', ' ') }} FCFA
+                                                @if ($suivi['charges_a_payer'] > 0)
+                                                    <span class="text-warning-emphasis">({{ $suivi['charges_a_payer'] }} à payer)</span>
+                                                @endif
+                                            </p>
+                                        @endif
+                                    </div>
+                                    @if ($suivi['contrat']->caution)
+                                        <div class="text-md-end flex-shrink-0">
+                                            <p class="text-muted fs-11 text-uppercase mb-1">Caution détenue (part bailleur)</p>
+                                            <h6 class="mb-0">{{ number_format($suivi['contrat']->caution->part_bailleur, 0, ',', ' ') }} FCFA</h6>
+                                            <span class="badge bg-secondary-subtle text-secondary text-capitalize">{{ str_replace('_', ' ', $suivi['contrat']->caution->statut) }}</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            @empty
+                                <p class="text-muted text-center mb-0 py-3">Aucun contrat pour ce bailleur.</p>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <div class="card">
                         <div class="card-header"><h6 class="mb-0">Contrats — TVA / TOM appliquées</h6></div>
                         <div class="card-body p-0">
                             <div class="table-box table-responsive">
@@ -247,7 +300,7 @@
 
             {{-- Faire le paiement --}}
             <div class="modal fade" id="payerVersementModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                     <div class="modal-content">
                         <form action="{{ route('locative.versements.store') }}" method="POST">
                             @csrf
@@ -258,23 +311,23 @@
                             </div>
                             <div class="modal-body">
                                 <div class="row g-3">
-                                    <div class="col-12">
+                                    <div class="col-md-6">
                                         <label class="form-label">Montant payé (FCFA)<span class="text-danger ms-1">*</span></label>
                                         <input type="number" step="0.01" min="0.01" class="form-control" name="montant" value="{{ old('montant', $compte['a_reverser'] > 0 ? $compte['a_reverser'] : '') }}" required>
                                         <div class="fs-11 text-muted mt-1">Solde net à verser : {{ number_format($compte['a_reverser'], 0, ',', ' ') }} FCFA. Vous pouvez indiquer un montant inférieur (paiement partiel / avance).</div>
                                     </div>
-                                    <div class="col-12">
+                                    <div class="col-md-6">
                                         <label class="form-label">Type<span class="text-danger ms-1">*</span></label>
                                         <select class="form-select" name="type" required>
                                             <option value="normal">Versement normal</option>
                                             <option value="avance">Avance</option>
                                         </select>
                                     </div>
-                                    <div class="col-12">
+                                    <div class="col-md-6">
                                         <label class="form-label">Date du versement<span class="text-danger ms-1">*</span></label>
                                         <input type="date" class="form-control" name="date_versement" value="{{ now()->format('Y-m-d') }}" required>
                                     </div>
-                                    <div class="col-12">
+                                    <div class="col-md-6">
                                         <label class="form-label">Mode de paiement<span class="text-danger ms-1">*</span></label>
                                         <select class="form-select" name="mode_paiement_id" required>
                                             <option value="">Sélectionner...</option>
@@ -283,11 +336,11 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-12">
+                                    <div class="col-md-6">
                                         <label class="form-label">Référence</label>
                                         <input type="text" class="form-control" name="reference" placeholder="Ex: VIR-XXXXXXXX">
                                     </div>
-                                    <div class="col-12">
+                                    <div class="col-md-6">
                                         <label class="form-label">Notes</label>
                                         <textarea class="form-control" name="notes" rows="2"></textarea>
                                     </div>
