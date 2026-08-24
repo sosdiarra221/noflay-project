@@ -6,7 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Bailleur;
 use App\Models\CategorieBien;
 use App\Models\ContratGerance;
+use App\Models\ContratLocation;
 use App\Models\Documents\Document as DocumentGenere;
+use App\Models\EcheanceLoyer;
+use App\Models\FicheLocative;
+use App\Models\Paiement;
 use App\Models\Reglage;
 use App\Services\Locative\NumeroService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -41,7 +45,50 @@ class ContratGeranceController extends Controller
             ->latest('generated_at')
             ->first();
 
-        return view('locative.gerances.show', compact('gerance', 'categories', 'documentGenere'));
+        $kpis = Gate::allows('locative.finances') ? $this->calculerKpisFinanciers($gerance) : null;
+
+        return view('locative.gerances.show', compact('gerance', 'categories', 'documentGenere', 'kpis'));
+    }
+
+    /**
+     * Ce que touche l'agence via cette gérance (commission de gestion) et les taxes collectées
+     * sur les biens rattachés, pour le mois en cours + une tendance sur 12 mois.
+     */
+    protected function calculerKpisFinanciers(ContratGerance $gerance): array
+    {
+        $bienIds = $gerance->biens->pluck('id');
+        $contratIds = ContratLocation::whereIn('bien_id', $bienIds)->pluck('id');
+        $echeanceIds = EcheanceLoyer::whereIn('contrat_location_id', $contratIds)->pluck('id');
+
+        $requetePaiements = fn ($debut, $fin) => Paiement::where('statut', 'valide')
+            ->where('type', 'loyer')
+            ->where(fn ($q) => $q->whereIn('contrat_location_id', $contratIds)->orWhereIn('echeance_loyer_id', $echeanceIds))
+            ->whereBetween('date_paiement', [$debut, $fin])
+            ->get();
+
+        $paiementsMois = $requetePaiements(now()->startOfMonth(), now()->endOfMonth());
+        $fichesMois = FicheLocative::whereIn('contrat_location_id', $contratIds)
+            ->where('annee', now()->year)->where('mois', now()->month)
+            ->get();
+
+        $tendance = collect(range(11, 0))->map(function ($moisAvant) use ($requetePaiements) {
+            $date = now()->subMonths($moisAvant);
+            $paiements = $requetePaiements($date->copy()->startOfMonth(), $date->copy()->endOfMonth());
+
+            return [
+                'libelle' => ucfirst($date->translatedFormat('M Y')),
+                'commission' => (float) $paiements->sum('part_commission_agence'),
+                'loyers' => (float) $paiements->sum('montant'),
+            ];
+        });
+
+        return [
+            'commission_mois' => (float) $paiementsMois->sum('part_commission_agence'),
+            'loyers_encaisses_mois' => (float) $paiementsMois->sum('montant'),
+            'tva_mois' => (float) $fichesMois->sum('montant_tva'),
+            'tom_mois' => (float) $fichesMois->sum('montant_tom'),
+            'tendance' => $tendance,
+        ];
     }
 
     public function create()

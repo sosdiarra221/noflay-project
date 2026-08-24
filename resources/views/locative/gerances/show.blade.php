@@ -58,6 +58,78 @@
             </div>
         </div>
 
+        @if ($kpis)
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-3 mb-1">
+                <div class="col">
+                    <div class="card border h-100">
+                        <div class="card-body">
+                            <div class="d-flex gap-3 align-items-center">
+                                <div class="h-45px w-45px bg-primary text-white d-flex align-items-center justify-content-center rounded-circle fs-5 flex-shrink-0">
+                                    <i class="bi bi-wallet2"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">{{ number_format($kpis['commission_mois'], 0, ',', ' ') }}</h5>
+                                    <p class="text-muted mb-0 fs-12">Ce que touche l'agence ce mois (FCFA)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card border h-100">
+                        <div class="card-body">
+                            <div class="d-flex gap-3 align-items-center">
+                                <div class="h-45px w-45px bg-success text-white d-flex align-items-center justify-content-center rounded-circle fs-5 flex-shrink-0">
+                                    <i class="bi bi-cash-coin"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">{{ number_format($kpis['loyers_encaisses_mois'], 0, ',', ' ') }}</h5>
+                                    <p class="text-muted mb-0 fs-12">Loyers encaissés ce mois (FCFA)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card border h-100">
+                        <div class="card-body">
+                            <div class="d-flex gap-3 align-items-center">
+                                <div class="h-45px w-45px bg-info text-white d-flex align-items-center justify-content-center rounded-circle fs-5 flex-shrink-0">
+                                    <i class="bi bi-receipt"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">{{ number_format($kpis['tva_mois'], 0, ',', ' ') }}</h5>
+                                    <p class="text-muted mb-0 fs-12">TVA collectée ce mois (FCFA)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card border h-100">
+                        <div class="card-body">
+                            <div class="d-flex gap-3 align-items-center">
+                                <div class="h-45px w-45px bg-secondary text-white d-flex align-items-center justify-content-center rounded-circle fs-5 flex-shrink-0">
+                                    <i class="bi bi-building"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">{{ number_format($kpis['tom_mois'], 0, ',', ' ') }}</h5>
+                                    <p class="text-muted mb-0 fs-12">TOM collectée ce mois (FCFA)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h6 class="mb-0">Commission de l'agence — 12 derniers mois</h6></div>
+                <div class="card-body">
+                    <div id="chartCommissionGerance"></div>
+                </div>
+            </div>
+        @endif
+
         <div class="row">
             <div class="col-12">
                 <div class="mb-6">
@@ -73,12 +145,29 @@
                         <div class="row g-4">
                             <div class="col-lg-6">
                                 <div class="card">
-                                    <div class="card-header"><h6 class="card-action-title mb-0">Conditions financières</h6></div>
+                                    <div class="card-header"><h6 class="card-action-title mb-0"><i class="bi bi-percent me-1"></i>Frais de gestion</h6></div>
                                     <div class="card-body">
-                                        <div class="row mb-3"><div class="col-5 text-muted">Frais de gestion</div><div class="col-7 fw-medium">{{ $gerance->frais_gestion_valeur }}{{ $gerance->frais_gestion_mode === 'pourcentage' ? ' %' : ' FCFA' }}</div></div>
-                                        <div class="row mb-3"><div class="col-5 text-muted">TVA à la charge</div><div class="col-7 fw-medium text-capitalize">{{ $gerance->tva_charge }}</div></div>
-                                        <div class="row mb-3"><div class="col-5 text-muted">Taxe à la charge</div><div class="col-7 fw-medium text-capitalize">{{ $gerance->taxe_charge }}</div></div>
-                                        <div class="row"><div class="col-5 text-muted">TOM à la charge</div><div class="col-7 fw-medium text-capitalize">{{ $gerance->tom_charge }}</div></div>
+                                        <div class="d-flex align-items-center gap-3 mb-4">
+                                            <div class="h-50px w-50px bg-primary-subtle text-primary d-flex align-items-center justify-content-center rounded-circle fs-4 flex-shrink-0">
+                                                <i class="bi bi-cash-stack"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="mb-0">{{ $gerance->frais_gestion_valeur }}{{ $gerance->frais_gestion_mode === 'pourcentage' ? ' %' : ' FCFA' }}</h4>
+                                                <p class="text-muted mb-0 fs-12">{{ $gerance->frais_gestion_mode === 'pourcentage' ? 'Du loyer mensuel encaissé' : 'Montant fixe par loyer encaissé' }}</p>
+                                            </div>
+                                        </div>
+                                        <p class="text-muted fs-12 mb-2">Qui supporte les taxes :</p>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <span class="badge bg-{{ $gerance->tva_charge === 'agence' ? 'primary' : 'secondary' }}-subtle text-{{ $gerance->tva_charge === 'agence' ? 'primary' : 'secondary' }} fs-12 px-3 py-2">
+                                                <i class="bi bi-receipt me-1"></i>TVA — {{ ucfirst($gerance->tva_charge) }}
+                                            </span>
+                                            <span class="badge bg-{{ $gerance->taxe_charge === 'agence' ? 'primary' : 'secondary' }}-subtle text-{{ $gerance->taxe_charge === 'agence' ? 'primary' : 'secondary' }} fs-12 px-3 py-2">
+                                                <i class="bi bi-receipt-cutoff me-1"></i>Taxe — {{ ucfirst($gerance->taxe_charge) }}
+                                            </span>
+                                            <span class="badge bg-{{ $gerance->tom_charge === 'agence' ? 'primary' : 'secondary' }}-subtle text-{{ $gerance->tom_charge === 'agence' ? 'primary' : 'secondary' }} fs-12 px-3 py-2">
+                                                <i class="bi bi-building me-1"></i>TOM — {{ ucfirst($gerance->tom_charge) }}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -207,6 +296,7 @@
                     <form action="{{ route('locative.gerances.update', $gerance) }}" method="POST">
                         @csrf
                         @method('PUT')
+                        <input type="hidden" name="bailleur_id" value="{{ $gerance->bailleur_id }}">
                         <div class="modal-header">
                             <h5 class="modal-title">Modifier le contrat de gérance</h5>
                             <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
@@ -340,5 +430,32 @@
 @endsection
 
 @section('js')
+    @if ($kpis)
+        <script src="{{ asset('assets/libs/apexcharts/apexcharts.min.js') }}"></script>
+    @endif
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
+    @if ($kpis)
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const tendance = {!! json_encode([
+                    'categories' => $kpis['tendance']->pluck('libelle'),
+                    'commission' => $kpis['tendance']->pluck('commission'),
+                    'loyers' => $kpis['tendance']->pluck('loyers'),
+                ]) !!};
+
+                new ApexCharts(document.querySelector('#chartCommissionGerance'), {
+                    chart: { type: 'bar', height: 300, toolbar: { show: false } },
+                    series: [
+                        { name: 'Loyers encaissés', data: tendance.loyers },
+                        { name: 'Commission agence', data: tendance.commission },
+                    ],
+                    xaxis: { categories: tendance.categories },
+                    colors: ['#f7b84b', '#405189'],
+                    plotOptions: { bar: { borderRadius: 4, columnWidth: '55%' } },
+                    dataLabels: { enabled: false },
+                    legend: { position: 'top' },
+                }).render();
+            });
+        </script>
+    @endif
 @endsection

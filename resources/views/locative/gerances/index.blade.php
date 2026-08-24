@@ -99,9 +99,12 @@
                                             </td>
                                             <td>
                                                 <div class="hstack gap-2">
-                                                    <button type="button" class="btn btn-light-info icon-btn-sm" data-bs-toggle="modal" data-bs-target="#apercuGeranceModal{{ $gerance->id }}"><i class="bi bi-eye"></i></button>
-                                                    <a href="{{ route('locative.gerances.show', $gerance) }}" class="btn btn-light-success icon-btn-sm"><i class="bi bi-arrow-up-right-circle"></i></a>
-                                                    <button type="button" class="btn btn-light-info icon-btn-sm" data-bs-toggle="modal" data-bs-target="#mandatGeranceModal{{ $gerance->id }}"><i class="bi bi-file-earmark-pdf"></i></button>
+                                                    <a href="{{ route('locative.gerances.show', $gerance) }}" class="btn btn-light-success btn-sm" title="Consulter le dossier">
+                                                        <i class="bi bi-folder2-open me-1"></i>Dossier
+                                                    </a>
+                                                    <button type="button" class="btn btn-light-info btn-sm" data-bs-toggle="modal" data-bs-target="#mandatGeranceModal{{ $gerance->id }}" title="Consulter le contrat">
+                                                        <i class="bi bi-file-earmark-pdf me-1"></i>Contrat
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -118,56 +121,7 @@
             </div>
         </div>
 
-        @php
-            $classesPopover = ['actif' => 'success', 'brouillon' => 'secondary', 'en_attente_signature' => 'warning', 'suspendu' => 'warning', 'expire' => 'dark', 'resilie' => 'danger', 'archive' => 'dark'];
-        @endphp
         @foreach ($gerances as $gerance)
-            {{-- Aperçu rapide --}}
-            <div class="modal fade" id="apercuGeranceModal{{ $gerance->id }}" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-lg" role="document">
-                    <div class="modal-content rounded-4 shadow">
-                        <div class="modal-header bg-gradient text-white bg-{{ $classesPopover[$gerance->statut] ?? 'primary' }}">
-                            <h5 class="modal-title">{{ $gerance->numero }}</h5>
-                            <button type="button" class="btn-close icon-btn-sm btn-close-white" data-bs-dismiss="modal" aria-label="Close">
-                                <i class="ri-close-large-line fw-semibold"></i>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <div class="d-flex gap-2"><i class="bi bi-person-badge fs-16"></i><p class="text-muted mb-2">Bailleur</p></div>
-                                    <h6 class="mb-0">{{ $gerance->bailleur->nom_complet }}</h6>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="d-flex gap-2"><i class="bi bi-tag fs-16"></i><p class="text-muted mb-2">Type</p></div>
-                                    <h6 class="mb-0 text-capitalize">{{ str_replace('_', ' ', $gerance->type_gerance) }}</h6>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="d-flex gap-2"><i class="bi bi-calendar-range fs-16"></i><p class="text-muted mb-2">Période</p></div>
-                                    <h6 class="mb-0">{{ $gerance->date_debut->format('d/m/Y') }} @if ($gerance->date_fin) → {{ $gerance->date_fin->format('d/m/Y') }} @endif</h6>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="d-flex gap-2"><i class="bi bi-toggle-on fs-16"></i><p class="text-muted mb-2">Statut</p></div>
-                                    <h6 class="mb-0 text-capitalize">{{ str_replace('_', ' ', $gerance->statut) }}</h6>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="d-flex gap-2"><i class="bi bi-percent fs-16"></i><p class="text-muted mb-2">Frais de gestion</p></div>
-                                    <h6 class="mb-0">{{ $gerance->frais_gestion_valeur }}{{ $gerance->frais_gestion_mode === 'pourcentage' ? ' %' : ' FCFA' }}</h6>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="d-flex gap-2"><i class="bi bi-building fs-16"></i><p class="text-muted mb-2">Biens</p></div>
-                                    <h6 class="mb-0">{{ $gerance->biens_count }}</h6>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
-                            <a href="{{ route('locative.gerances.show', $gerance) }}" class="btn btn-primary">Ouvrir la fiche</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             {{-- Visualiseur du Mandat de gérance --}}
             <div class="modal fade" id="mandatGeranceModal{{ $gerance->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
