@@ -20,9 +20,14 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'identifiant',
         'password',
+        'code_pin',
+        'photo',
+        'statut',
         'role_id',
         'departement_id',
+        'derniere_activite_at',
     ];
 
     /**
@@ -32,6 +37,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
+        'code_pin',
         'remember_token',
     ];
 
@@ -45,7 +51,19 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'code_pin' => 'hashed',
+            'derniere_activite_at' => 'datetime',
         ];
+    }
+
+    public function avatarUrl(): string
+    {
+        return $this->photo ? asset('storage/'.$this->photo) : asset('assets/images/avatar/avatar-10.jpg');
+    }
+
+    public function estActif(): bool
+    {
+        return $this->statut === 'actif';
     }
 
     public function role()

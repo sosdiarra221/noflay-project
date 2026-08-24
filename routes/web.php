@@ -25,6 +25,11 @@ use App\Http\Controllers\Locative\DocumentController;
 use App\Http\Controllers\Locative\EncaissementController;
 use App\Http\Controllers\Locative\FicheLocativeController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfilController;
+use App\Http\Controllers\Administration\AdministrationDashboardController;
+use App\Http\Controllers\Administration\UtilisateurController;
+use App\Http\Controllers\Administration\RoleController;
+use App\Http\Controllers\Administration\SecuriteController;
 use App\Http\Controllers\Commercial\CommercialDashboardController;
 use App\Http\Controllers\Commercial\ProspectController;
 use App\Http\Controllers\Commercial\ActiviteController;
@@ -51,8 +56,12 @@ use App\Http\Controllers\Finance\TaxeController;
 
 Route::get('connexion', [AuthController::class, 'showLogin'])->name('login');
 Route::post('connexion', [AuthController::class, 'login'])->name('login.store');
+Route::post('connexion-pin', [AuthController::class, 'loginParPin'])->name('login.pin');
 
-Route::middleware('auth')->group(function () {
+Route::get('verrouillage', [AuthController::class, 'showVerrouillage'])->name('verrouillage');
+Route::post('verrouillage', [AuthController::class, 'deverrouiller'])->name('verrouillage.store');
+
+Route::middleware(['auth', 'inactivite'])->group(function () {
 
 Route::post('deconnexion', [AuthController::class, 'logout'])->name('logout');
 
@@ -258,6 +267,36 @@ Route::prefix('finance')->name('finance.')->group(function () {
 
     Route::get('bailleurs', [BailleurFinanceController::class, 'index'])->name('bailleurs.index');
     Route::get('bailleurs/{bailleur}', [BailleurFinanceController::class, 'show'])->name('bailleurs.show');
+});
+
+// Module Direction & Administration — sous-application avec son propre dashboard et son propre menu.
+Route::prefix('administration')->name('administration.')->group(function () {
+    Route::get('/', [AdministrationDashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('utilisateurs', [UtilisateurController::class, 'index'])->name('utilisateurs.index');
+    Route::get('utilisateurs/creer', [UtilisateurController::class, 'create'])->name('utilisateurs.create');
+    Route::post('utilisateurs', [UtilisateurController::class, 'store'])->name('utilisateurs.store');
+    Route::get('utilisateurs/{utilisateur}/modifier', [UtilisateurController::class, 'edit'])->name('utilisateurs.edit');
+    Route::put('utilisateurs/{utilisateur}', [UtilisateurController::class, 'update'])->name('utilisateurs.update');
+    Route::post('utilisateurs/{utilisateur}/statut', [UtilisateurController::class, 'toggleStatut'])->name('utilisateurs.toggle-statut');
+    Route::delete('utilisateurs/{utilisateur}', [UtilisateurController::class, 'destroy'])->name('utilisateurs.destroy');
+
+    Route::get('roles', [RoleController::class, 'index'])->name('roles.index');
+    Route::post('roles', [RoleController::class, 'store'])->name('roles.store');
+    Route::get('roles/{role}/modifier', [RoleController::class, 'edit'])->name('roles.edit');
+    Route::put('roles/{role}', [RoleController::class, 'update'])->name('roles.update');
+    Route::delete('roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
+
+    Route::get('securite', [SecuriteController::class, 'index'])->name('securite.index');
+    Route::put('securite', [SecuriteController::class, 'update'])->name('securite.update');
+});
+
+Route::prefix('profil')->name('profil.')->group(function () {
+    Route::get('/', [ProfilController::class, 'index'])->name('index');
+    Route::put('informations', [ProfilController::class, 'updateInformations'])->name('update-informations');
+    Route::post('photo', [ProfilController::class, 'updatePhoto'])->name('update-photo');
+    Route::put('code-pin', [ProfilController::class, 'updateCodePin'])->name('update-code-pin');
+    Route::put('mot-de-passe', [ProfilController::class, 'updateMotDePasse'])->name('update-mot-de-passe');
 });
 
 Route::get('{any}', [DashboardController::class, 'index'])->where('any', '.*'); // Catch-all route for the dashboard.

@@ -37,6 +37,7 @@ class DatabaseSeeder extends Seeder
             CommercialTypeDemandeSeeder::class,
             UserSeeder::class,
             DocumentTemplateSeeder::class,
+            PermissionSeeder::class,
         ]);
     }
 }

@@ -346,6 +346,14 @@
                     </a>
                 </li>
             @endcan
+            @can('administration.gerer')
+                <li class="pe-slide pe-has-sub">
+                    <a href="{{ route('administration.dashboard') }}" class="pe-nav-link">
+                        <i class="bi bi-shield-lock pe-nav-icon"></i>
+                        <span class="pe-nav-content">Direction &amp; Administration</span>
+                    </a>
+                </li>
+            @endcan
             <li class="pe-menu-title">
                 Administration
             </li>

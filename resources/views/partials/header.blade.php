@@ -433,7 +433,7 @@
                 <div class="dropdown pe-dropdown-mega d-none d-md-block">
                     <button class="header-profile-btn btn gap-1 text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="header-btn btn position-relative">
-                            <img src="assets/images/avatar/avatar-10.jpg" alt="Avatar Image" class="img-fluid rounded-circle">
+                            <img src="{{ auth()->user()->avatarUrl() }}" alt="Avatar Image" class="img-fluid rounded-circle">
                             <span class="position-absolute translate-middle badge border border-light rounded-circle bg-success"><span class="visually-hidden">unread messages</span></span>
                         </span>
                         <div class="d-none d-lg-block pe-2">
@@ -443,12 +443,15 @@
                     </button>
                     <div class="dropdown-menu dropdown-mega-sm header-dropdown-menu p-3">
                         <div class="border-bottom pb-2 mb-2 d-flex align-items-center gap-2">
-                            <img src="assets/images/avatar/avatar-10.jpg" alt="Avatar Image" class="avatar-md">
+                            <img src="{{ auth()->user()->avatarUrl() }}" alt="Avatar Image" class="avatar-md">
                             <div>
                                 <h6 class="mb-0 lh-base">{{ auth()->user()->name ?? 'Utilisateur' }}</h6>
                                 <p class="mb-0 fs-13 text-muted">{{ auth()->user()->email ?? '' }}</p>
                             </div>
                         </div>
+                        <ul class="list-unstyled mb-1 border-bottom pb-1">
+                            <li><a class="dropdown-item" href="{{ route('profil.index') }}"><i class="bi bi-person me-1"></i> Mon profil</a></li>
+                        </ul>
                         <ul class="list-unstyled mb-0">
                             <li>
                                 <form action="{{ route('logout') }}" method="POST">

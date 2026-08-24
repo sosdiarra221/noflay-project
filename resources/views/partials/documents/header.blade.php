@@ -32,7 +32,7 @@
                 <div class="dropdown pe-dropdown-mega d-none d-md-block">
                     <button class="header-profile-btn btn gap-1 text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="header-btn btn position-relative">
-                            <img src="{{ asset('assets/images/avatar/avatar-10.jpg') }}" alt="Avatar Image" class="img-fluid rounded-circle">
+                            <img src="{{ auth()->user()->avatarUrl() }}" alt="Avatar Image" class="img-fluid rounded-circle">
                         </span>
                         <div class="d-none d-lg-block pe-2">
                             <span class="d-block mb-0 fs-13 fw-semibold">{{ auth()->user()->name ?? 'Utilisateur' }}</span>
@@ -41,6 +41,7 @@
                     </button>
                     <div class="dropdown-menu dropdown-mega-sm header-dropdown-menu p-3">
                         <ul class="list-unstyled mb-1 border-bottom pb-1">
+                            <li><a class="dropdown-item" href="{{ route('profil.index') }}"><i class="bi bi-person me-1"></i> Mon profil</a></li>
                             <li><a class="dropdown-item" href="{{ url('/') }}"><i class="bi bi-box-arrow-left me-1"></i> Retour à l'application</a></li>
                         </ul>
                         <ul class="list-unstyled mb-0">

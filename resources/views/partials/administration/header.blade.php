@@ -4,7 +4,7 @@
         <div class="d-flex align-items-center">
             <div class="me-auto">
                 <div class="d-inline-flex align-items-center gap-5">
-                    <a href="{{ route('finance.dashboard') }}" class="fs-18 fw-semibold">
+                    <a href="{{ route('administration.dashboard') }}" class="fs-18 fw-semibold">
                         <img height="30" class="header-sidebar-logo-default d-none" alt="Logo" src="{{ asset('assets/images/logo-dark.png') }}">
                         <img height="30" class="header-sidebar-logo-light d-none" alt="Logo" src="{{ asset('assets/images/logo-light.png') }}">
                         <img height="30" class="header-sidebar-logo-small d-none" alt="Logo" src="{{ asset('assets/images/logo-md.png') }}">
@@ -15,7 +15,7 @@
                     </button>
                     <div class="header-dropdown d-flex align-items-center">
                         <span class="badge bg-primary-subtle text-primary fs-13 px-3 py-2">
-                            <i class="bi bi-cash-coin me-1"></i> Module Finance
+                            <i class="bi bi-shield-lock me-1"></i> Direction &amp; Administration
                         </span>
                     </div>
                 </div>

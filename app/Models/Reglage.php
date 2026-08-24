@@ -12,6 +12,7 @@ class Reglage extends Model
         'taux_tva_defaut',
         'taux_tom_defaut',
         'commission_regime',
+        'duree_inactivite_minutes',
         'logo',
         'email',
         'telephone',
