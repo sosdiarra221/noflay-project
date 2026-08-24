@@ -260,12 +260,12 @@
             </div>
         </div>
 
-        {{-- Charges locatives --}}
+        {{-- Charge location --}}
         <div class="tab-pane fade" id="charges-tab-pane">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="mb-0">Charges locatives</h6>
+                        <h6 class="mb-0">Charge location</h6>
                         <p class="text-muted fs-11 mb-0">Électricité, eau, wifi... à la charge du locataire — distinctes du loyer, elles n'entrent jamais dans le calcul des échéances.</p>
                     </div>
                     <button type="button" class="btn btn-primary btn-sm flex-shrink-0" data-bs-toggle="modal" data-bs-target="#ajouterChargeModal">
