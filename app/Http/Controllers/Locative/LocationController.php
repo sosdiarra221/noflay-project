@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Bien;
 use App\Models\Caution;
 use App\Models\ContratLocation;
+use App\Models\DepenseLocation;
 use App\Models\Locataire;
 use App\Models\Location;
 use App\Models\ModePaiement;
@@ -50,18 +51,25 @@ class LocationController extends Controller
 
     public function show(Location $location)
     {
-        $location->load(['locataire', 'contrats.bien.categorie', 'contrats.echeances', 'contrats.caution']);
+        $location->load(['locataire', 'contrats.bien.categorie', 'contrats.echeances.paiements.modePaiement', 'contrats.caution']);
 
-        $echeances = $location->contrats->flatMap->echeances;
+        $echeances = $location->contrats->flatMap->echeances->sortByDesc('date_echeance')->values();
+        $paiements = $echeances->flatMap->paiements->sortByDesc('date_paiement')->values();
+
+        $depenses = DepenseLocation::whereIn('contrat_location_id', $location->contrats->pluck('id'))
+            ->with('bien', 'categorie')
+            ->latest()
+            ->get();
 
         $stats = [
             'loyer_total' => $location->contrats->sum('loyer_mensuel'),
             'total_attendu' => $echeances->where('statut', '!=', 'annule')->sum('montant_attendu'),
             'total_paye' => $echeances->sum('montant_paye'),
             'echeances_en_retard' => $echeances->where('statut', 'en_retard')->count(),
+            'total_depenses' => $depenses->whereIn('statut', DepenseLocation::STATUTS_PAYEES)->sum(fn ($d) => $d->montantImpute()),
         ];
 
-        return view('locative.locations.show', compact('location', 'stats'));
+        return view('locative.locations.show', compact('location', 'stats', 'echeances', 'paiements', 'depenses'));
     }
 
     public function store(Request $request, EcheanceLoyerService $echeanceService, DocumentGenerationService $documentGenerationService)

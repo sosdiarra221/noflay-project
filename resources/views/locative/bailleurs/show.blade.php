@@ -54,6 +54,11 @@
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#infos-tab-pane" type="button">Vue générale</button>
                         </li>
+                        @if ($compte)
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#compte-tab-pane" type="button">Compte &amp; reversements</button>
+                            </li>
+                        @endif
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" data-bs-toggle="tab" data-bs-target="#gerances-tab-pane" type="button">Gérances</button>
                         </li>
@@ -98,6 +103,91 @@
                             </div>
                         </div>
                     </div>
+
+                    @if ($compte)
+                        <div class="tab-pane fade" id="compte-tab-pane">
+                            <div class="row row-cols-1 row-cols-md-3 row-cols-xl-5 g-3 mb-1">
+                                <div class="col">
+                                    <div class="card border h-100">
+                                        <div class="card-body">
+                                            <h5 class="mb-1">{{ number_format($compte['loyers_encaisses'], 0, ',', ' ') }}</h5>
+                                            <p class="text-muted mb-0 fs-12">Loyers encaissés (FCFA)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="card border h-100">
+                                        <div class="card-body">
+                                            <h5 class="mb-1 text-primary">- {{ number_format($compte['commission_agence'], 0, ',', ' ') }}</h5>
+                                            <p class="text-muted mb-0 fs-12">Commission agence (FCFA)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="card border h-100">
+                                        <div class="card-body">
+                                            <h5 class="mb-1 text-danger">- {{ number_format($compte['travaux_depenses'], 0, ',', ' ') }}</h5>
+                                            <p class="text-muted mb-0 fs-12">Travaux / dépenses (FCFA)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="card border h-100">
+                                        <div class="card-body">
+                                            <h5 class="mb-1 text-info">{{ number_format($compte['deja_reverse'], 0, ',', ' ') }}</h5>
+                                            <p class="text-muted mb-0 fs-12">Déjà reçu par le bailleur (FCFA)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="card border h-100 {{ $compte['a_reverser'] > 0 ? 'border-success' : '' }}">
+                                        <div class="card-body">
+                                            <h5 class="mb-1 {{ $compte['a_reverser'] > 0 ? 'text-success' : '' }}">{{ number_format($compte['a_reverser'], 0, ',', ' ') }}</h5>
+                                            <p class="text-muted mb-0 fs-12">Reste à recevoir (FCFA)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-muted fs-12 mb-4">
+                                Solde du compte bailleur : loyers encaissés pour son compte, moins la commission de gestion de l'agence, moins les travaux/dépenses mis à sa charge, moins ce qui lui a déjà été reversé — le résultat est le montant qu'il lui reste à recevoir.
+                                @can('finance.consulter')
+                                    <a href="{{ route('finance.bailleurs.show', $bailleur) }}">Voir le détail complet dans le module Finance</a>
+                                @endcan
+                            </p>
+
+                            <div class="card">
+                                <div class="card-header"><h6 class="mb-0">Historique des reversements <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $reversements->count() }}</span></h6></div>
+                                <div class="card-body p-0">
+                                    <div class="table-box table-responsive">
+                                        <table class="table text-nowrap align-middle mb-0">
+                                            <thead><tr><th>Numéro</th><th>Période</th><th>Encaissé</th><th>Frais de gestion</th><th>Net reversé</th><th>Statut</th><th>Date de versement</th></tr></thead>
+                                            <tbody>
+                                                @forelse ($reversements as $reversement)
+                                                    <tr>
+                                                        <td class="fw-medium">{{ $reversement->numero }}</td>
+                                                        <td>{{ ucfirst(\Carbon\Carbon::createFromDate($reversement->periode_annee, $reversement->periode_mois, 1)->translatedFormat('F Y')) }}</td>
+                                                        <td>{{ number_format($reversement->montant_encaisse, 0, ',', ' ') }} FCFA</td>
+                                                        <td>{{ number_format($reversement->montant_frais_gestion, 0, ',', ' ') }} FCFA</td>
+                                                        <td class="fw-medium">{{ number_format($reversement->montant_net, 0, ',', ' ') }} FCFA</td>
+                                                        <td>
+                                                            @if ($reversement->statut === 'verse')
+                                                                <span class="badge bg-success-subtle text-success">Versé</span>
+                                                            @else
+                                                                <span class="badge bg-warning-subtle text-warning">À verser</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>{{ optional($reversement->date_versement)->format('d/m/Y') ?: '—' }}</td>
+                                                    </tr>
+                                                @empty
+                                                    <tr><td colspan="7" class="text-center text-muted py-5">Aucun reversement enregistré pour ce bailleur.</td></tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
 
                     <div class="tab-pane fade" id="gerances-tab-pane">
                         <div class="card">

@@ -58,6 +58,16 @@
             </div>
         </div>
 
+        @if ($montantDuAuLocataire > 0)
+            <div class="alert alert-info d-flex align-items-center gap-3">
+                <i class="bi bi-cash-stack fs-2"></i>
+                <div>
+                    <h6 class="mb-1">L'agence doit {{ number_format($montantDuAuLocataire, 0, ',', ' ') }} FCFA à ce locataire</h6>
+                    <p class="mb-0 fs-13">Solde de caution/garantie restant à lui restituer. Voir l'onglet « Caution &amp; dépenses » pour le détail par location.</p>
+                </div>
+            </div>
+        @endif
+
         <div class="row g-3 mb-1">
             <div class="col-md-6 col-xl-3">
                 <div class="card border">
@@ -139,6 +149,14 @@
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" data-bs-toggle="tab" data-bs-target="#fiches-tab-pane" type="button">Fiches financières</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#caution-tab-pane" type="button">
+                                Caution &amp; dépenses
+                                @if ($montantDuAuLocataire > 0)
+                                    <span class="badge bg-info-subtle text-info ms-1">{{ number_format($montantDuAuLocataire, 0, ',', ' ') }} FCFA</span>
+                                @endif
+                            </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" data-bs-toggle="tab" data-bs-target="#documents-tab-pane" type="button">Documents</button>
@@ -309,6 +327,85 @@
                                                 </tr>
                                             @empty
                                                 <tr><td colspan="5" class="text-center text-muted py-5">Aucune fiche générée pour ce locataire.</td></tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Caution & dépenses --}}
+                    <div class="tab-pane fade" id="caution-tab-pane">
+                        <div class="card">
+                            <div class="card-header"><h6 class="card-action-title mb-0">Garantie / caution</h6></div>
+                            <div class="card-body p-0">
+                                <div class="table-box table-responsive">
+                                    <table class="table text-nowrap align-middle mb-0">
+                                        <thead><tr><th>Bien / location</th><th>Montant reçu</th><th>Retenues</th><th>Motif</th><th>À restituer</th><th>Statut</th></tr></thead>
+                                        <tbody>
+                                            @forelse ($cautions as $caution)
+                                                <tr>
+                                                    <td>
+                                                        <a href="{{ route('locative.locations.show', $caution->contratLocation->location_id) }}" class="text-reset fw-medium">
+                                                            {{ $caution->contratLocation->bien->titre ?? '—' }}
+                                                        </a>
+                                                    </td>
+                                                    <td>{{ number_format($caution->part_bailleur, 0, ',', ' ') }} FCFA</td>
+                                                    <td class="{{ $caution->montant_retenu > 0 ? 'text-danger' : '' }}">{{ $caution->montant_retenu > 0 ? number_format($caution->montant_retenu, 0, ',', ' ').' FCFA' : '—' }}</td>
+                                                    <td>{{ $caution->motif_retenue ?: '—' }}</td>
+                                                    <td class="fw-medium">{{ number_format($caution->montantARestituer(), 0, ',', ' ') }} FCFA</td>
+                                                    <td>
+                                                        @if ($caution->statut === 'detenue')
+                                                            <span class="badge bg-warning-subtle text-warning">Détenue</span>
+                                                        @elseif ($caution->statut === 'partiellement_restituee')
+                                                            <span class="badge bg-info-subtle text-info">Partiellement restituée</span>
+                                                        @else
+                                                            <span class="badge bg-success-subtle text-success">Restituée</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr><td colspan="6" class="text-center text-muted py-5">Aucune caution enregistrée pour ce locataire.</td></tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="card-action-title mb-0">Dépenses à sa charge</h6>
+                                <span class="fw-medium text-danger">Total : {{ number_format($depensesLocataire->sum(fn ($d) => $d->montantImpute()), 0, ',', ' ') }} FCFA</span>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-box table-responsive">
+                                    <table class="table text-nowrap align-middle mb-0">
+                                        <thead><tr><th>Numéro</th><th>Bien / location</th><th>Catégorie</th><th>Montant</th><th>Statut</th></tr></thead>
+                                        <tbody>
+                                            @forelse ($depensesLocataire as $depense)
+                                                <tr>
+                                                    <td class="fw-medium">
+                                                        @can('finance.consulter')
+                                                            <a href="{{ route('finance.depenses.show', $depense) }}" class="text-reset">{{ $depense->numero }}</a>
+                                                        @else
+                                                            {{ $depense->numero }}
+                                                        @endcan
+                                                    </td>
+                                                    <td>
+                                                        @if ($depense->contratLocation)
+                                                            <a href="{{ route('locative.locations.show', $depense->contratLocation->location_id) }}" class="text-reset">{{ $depense->bien->titre ?? '—' }}</a>
+                                                        @else
+                                                            {{ $depense->bien->titre ?? '—' }}
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $depense->categorie->nom ?? '—' }}</td>
+                                                    <td>{{ number_format($depense->montantImpute(), 0, ',', ' ') }} FCFA</td>
+                                                    <td>{{ $depense->libelleStatut() }}</td>
+                                                </tr>
+                                            @empty
+                                                <tr><td colspan="5" class="text-center text-muted py-5">Aucune dépense à la charge de ce locataire.</td></tr>
                                             @endforelse
                                         </tbody>
                                     </table>

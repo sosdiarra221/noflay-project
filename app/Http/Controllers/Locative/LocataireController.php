@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Locative;
 use App\Events\LocataireCree;
 use App\Http\Controllers\Controller;
 use App\Models\ContratLocation;
+use App\Models\DepenseLocation;
 use App\Models\Locataire;
 use App\Models\Reglage;
 use App\Services\Locative\NumeroService;
@@ -37,6 +38,7 @@ class LocataireController extends Controller
             'locations.contrats.bien',
             'locations.contrats.echeances.paiements',
             'locations.contrats.fichesLocatives',
+            'locations.contrats.caution',
         ]);
 
         $contrats = $locataire->locations->flatMap->contrats;
@@ -74,9 +76,20 @@ class LocataireController extends Controller
 
         $contratsActifs = ContratLocation::whereIn('id', $contrats->pluck('id'))->where('statut', 'actif')->get();
 
+        // Argent que l'agence doit au locataire : la part de caution/garantie restant à
+        // restituer (hors montants déjà rendus ou retenus pour dégâts justifiés).
+        $cautions = $contrats->filter(fn ($c) => $c->caution)->map(fn ($c) => $c->caution);
+        $montantDuAuLocataire = (float) $cautions->where('statut', '!=', 'restituee')->sum(fn ($c) => $c->montantARestituer());
+
+        $depensesLocataire = DepenseLocation::whereIn('contrat_location_id', $contrats->pluck('id'))
+            ->where('qui_supporte', 'locataire')
+            ->with('bien', 'categorie', 'contratLocation.location')
+            ->latest()
+            ->get();
+
         $reglage = Reglage::courant();
 
-        return view('locative.locataires.show', compact('locataire', 'contrats', 'echeances', 'paiements', 'fiches', 'stats', 'tendance', 'contratsActifs', 'reglage'));
+        return view('locative.locataires.show', compact('locataire', 'contrats', 'echeances', 'paiements', 'fiches', 'stats', 'tendance', 'contratsActifs', 'reglage', 'cautions', 'montantDuAuLocataire', 'depensesLocataire'));
     }
 
     public function store(Request $request)

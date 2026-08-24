@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Locative;
 
 use App\Http\Controllers\Controller;
 use App\Models\Bailleur;
+use App\Services\Finance\CompteBailleurService;
 use App\Services\Locative\NumeroService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -28,11 +29,17 @@ class BailleurController extends Controller
         return view('locative.bailleurs.index', compact('bailleurs'));
     }
 
-    public function show(Bailleur $bailleur)
+    public function show(Bailleur $bailleur, CompteBailleurService $compteBailleurService)
     {
         $bailleur->load(['gerances' => fn ($q) => $q->latest(), 'biens' => fn ($q) => $q->latest()]);
 
-        return view('locative.bailleurs.show', compact('bailleur'));
+        $compte = null;
+        $reversements = collect();
+        if (Gate::allows('locative.finances')) {
+            ['resume' => $compte, 'reversements' => $reversements] = $compteBailleurService->calculer($bailleur);
+        }
+
+        return view('locative.bailleurs.show', compact('bailleur', 'compte', 'reversements'));
     }
 
     public function store(Request $request)

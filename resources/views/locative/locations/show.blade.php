@@ -122,6 +122,26 @@
             </div>
         </div>
 
+        <div class="mb-6">
+            <ul class="nav nav-pills" id="locationTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#biens-tab-pane" type="button">Biens loués</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#loyers-tab-pane" type="button">Loyers &amp; paiements</button>
+                </li>
+                @can('locative.finances')
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#depenses-tab-pane" type="button">
+                            Dépenses <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $depenses->count() }}</span>
+                        </button>
+                    </li>
+                @endcan
+            </ul>
+        </div>
+
+        <div class="tab-content">
+        <div class="tab-pane fade show active" id="biens-tab-pane">
         <div class="row g-4">
             @foreach ($location->contrats as $contrat)
                 <div class="col-md-6 col-xl-4">
@@ -172,6 +192,107 @@
                     </div>
                 </div>
             @endforeach
+        </div>
+        </div>
+
+        {{-- Loyers & paiements --}}
+        <div class="tab-pane fade" id="loyers-tab-pane">
+            <div class="card">
+                <div class="card-header"><h6 class="mb-0">Historique des loyers <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $echeances->count() }}</span></h6></div>
+                <div class="card-body p-0">
+                    <div class="table-box table-responsive">
+                        <table class="table text-nowrap align-middle mb-0">
+                            <thead><tr><th>Période</th><th>Bien</th><th>Attendu</th><th>Payé</th><th>Statut</th></tr></thead>
+                            <tbody>
+                                @php $classesLoc = ['paye' => 'success', 'partiellement_paye' => 'warning', 'en_retard' => 'danger', 'a_venir' => 'secondary', 'echu' => 'danger', 'annule' => 'dark']; @endphp
+                                @forelse ($echeances as $echeance)
+                                    <tr>
+                                        <td>{{ ucfirst(\Carbon\Carbon::createFromDate($echeance->annee, $echeance->mois, 1)->translatedFormat('F Y')) }}</td>
+                                        <td>{{ $echeance->contratLocation->bien->titre ?? '—' }}</td>
+                                        <td>{{ number_format($echeance->montant_attendu, 0, ',', ' ') }} FCFA</td>
+                                        <td>{{ number_format($echeance->montant_paye, 0, ',', ' ') }} FCFA</td>
+                                        <td><span class="badge bg-{{ $classesLoc[$echeance->statut] ?? 'secondary' }}-subtle text-{{ $classesLoc[$echeance->statut] ?? 'secondary' }} text-capitalize">{{ str_replace('_', ' ', $echeance->statut) }}</span></td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="5" class="text-center text-muted py-5">Aucune échéance pour cette location.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h6 class="mb-0">Paiements enregistrés <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $paiements->count() }}</span></h6></div>
+                <div class="card-body p-0">
+                    <div class="table-box table-responsive">
+                        <table class="table text-nowrap align-middle mb-0">
+                            <thead><tr><th>Numéro</th><th>Date</th><th>Bien</th><th>Mode</th><th>Montant</th><th>Statut</th><th></th></tr></thead>
+                            <tbody>
+                                @forelse ($paiements as $paiement)
+                                    <tr>
+                                        <td class="fw-medium">{{ $paiement->numero }}</td>
+                                        <td>{{ $paiement->date_paiement->format('d/m/Y') }}</td>
+                                        <td>{{ $paiement->contratLocation->bien->titre ?? '—' }}</td>
+                                        <td>{{ $paiement->modePaiement->nom ?? '—' }}</td>
+                                        <td>{{ number_format($paiement->montant, 0, ',', ' ') }} FCFA</td>
+                                        <td>
+                                            @if ($paiement->statut === 'annule')
+                                                <span class="badge bg-danger-subtle text-danger">Annulé</span>
+                                            @else
+                                                <span class="badge bg-success-subtle text-success">Valide</span>
+                                            @endif
+                                        </td>
+                                        <td><a href="{{ route('locative.paiements.apercu', $paiement) }}" target="_blank" class="btn btn-light-warning icon-btn-sm" title="Voir le reçu"><i class="bi bi-receipt"></i></a></td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="7" class="text-center text-muted py-5">Aucun paiement pour cette location.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Dépenses --}}
+        @can('locative.finances')
+            <div class="tab-pane fade" id="depenses-tab-pane">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">Dépenses liées à cette location</h6>
+                        <span class="fw-medium text-danger">Total payé : {{ number_format($stats['total_depenses'], 0, ',', ' ') }} FCFA</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-box table-responsive">
+                            <table class="table text-nowrap align-middle mb-0">
+                                <thead><tr><th>Numéro</th><th>Bien</th><th>Catégorie</th><th>Montant</th><th>Qui supporte</th><th>Statut</th></tr></thead>
+                                <tbody>
+                                    @forelse ($depenses as $depense)
+                                        <tr>
+                                            <td class="fw-medium">
+                                                @can('finance.consulter')
+                                                    <a href="{{ route('finance.depenses.show', $depense) }}" class="text-reset">{{ $depense->numero }}</a>
+                                                @else
+                                                    {{ $depense->numero }}
+                                                @endcan
+                                            </td>
+                                            <td>{{ $depense->bien->titre ?? '—' }}</td>
+                                            <td>{{ $depense->categorie->nom ?? '—' }}</td>
+                                            <td>{{ number_format($depense->montantImpute(), 0, ',', ' ') }} FCFA</td>
+                                            <td><span class="badge bg-secondary-subtle text-secondary text-capitalize">{{ $depense->qui_supporte }}</span></td>
+                                            <td>{{ $depense->libelleStatut() }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr><td colspan="6" class="text-center text-muted py-5">Aucune dépense enregistrée pour cette location.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endcan
         </div>
 
         @foreach ($location->contrats as $contrat)
