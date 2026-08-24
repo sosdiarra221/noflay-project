@@ -29,19 +29,7 @@
                         <i class="bi bi-moon-stars"></i>
                     </button>
                 </div>
-                <div class="dropdown pe-dropdown-mega d-none d-md-block">
-                    <button class="btn header-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-bell"></i>
-                    </button>
-                    <div class="dropdown-menu dropdown-mega-md header-dropdown-menu pe-noti-dropdown-menu p-0">
-                        <div class="p-3 border-bottom">
-                            <h6 class="d-flex align-items-center mb-0">Alertes</h6>
-                        </div>
-                        <div class="p-3">
-                            <p class="text-muted text-center mb-0">Aucune alerte pour le moment.</p>
-                        </div>
-                    </div>
-                </div>
+                @include('partials.notifications-bell')
                 <div class="dropdown pe-dropdown-mega d-none d-md-block">
                     <button class="header-profile-btn btn gap-1 text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="header-btn btn position-relative">

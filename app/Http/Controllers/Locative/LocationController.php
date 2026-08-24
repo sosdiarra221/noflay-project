@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Locative;
 
+use App\Events\LocationCreee;
 use App\Http\Controllers\Controller;
 use App\Models\Bien;
 use App\Models\Caution;
@@ -162,6 +163,8 @@ class LocationController extends Controller
 
             return $location;
         });
+
+        event(new LocationCreee($location));
 
         // Génération automatique du (des) document(s) contractuel(s) — module Gestion Document.
         //

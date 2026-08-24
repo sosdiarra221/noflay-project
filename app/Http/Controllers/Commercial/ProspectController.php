@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Commercial;
 
+use App\Events\ProspectCree;
 use App\Http\Controllers\Controller;
 use App\Models\Commercial\Partenaire;
 use App\Models\Commercial\Prospect;
@@ -76,6 +77,8 @@ class ProspectController extends Controller
             'commentaire' => 'Prospect créé',
             'user_id' => auth()->id(),
         ]);
+
+        event(new ProspectCree($prospect));
 
         return redirect()->route('commercial.prospects.show', $prospect)->with('success', 'Prospect créé avec succès.');
     }

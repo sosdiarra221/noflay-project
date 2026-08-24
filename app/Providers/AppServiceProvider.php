@@ -40,6 +40,12 @@ class AppServiceProvider extends ServiceProvider
         // Un administrateur passe outre toutes les vérifications.
         Gate::before(fn ($user, $ability) => $user->aLeRole(Role::ADMINISTRATEUR) ? true : null);
 
+        // Centre de notifications : tout événement métier (paiement reçu, nouveau contrat,
+        // loyer en retard...) implémentant EvenementMetier déclenche automatiquement une
+        // notification vers ses destinataires, sans jamais coder cela dans un contrôleur.
+        // App\Listeners\EnvoyerNotificationMetier est auto-découvert par Laravel (son unique
+        // méthode handle() est typée EvenementMetier) : aucun Event::listen() explicite requis.
+
         // Date longue en français, ex: "Lundi 01 Septembre 2026".
         Carbon::macro('versionLongue', function () {
             /** @var \Illuminate\Support\Carbon $this */

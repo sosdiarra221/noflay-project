@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Locative;
 
+use App\Events\LocataireCree;
 use App\Http\Controllers\Controller;
 use App\Models\ContratLocation;
 use App\Models\Locataire;
@@ -85,6 +86,8 @@ class LocataireController extends Controller
         $data['numero'] = NumeroService::genererNumero(Locataire::class, 'LOCT');
 
         $locataire = Locataire::create($data);
+
+        event(new LocataireCree($locataire));
 
         return back()->with('success', 'Locataire créé avec succès.')->with('locataire_cree_id', $locataire->id);
     }

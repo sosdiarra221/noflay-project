@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Finance;
 
 use App\Http\Controllers\Controller;
+use App\Events\VersementEffectue;
 use App\Models\Reglage;
 use App\Models\ReversementBailleur;
 use App\Services\Locative\NumeroService;
@@ -77,13 +78,15 @@ class ReversementFinanceController extends Controller
         if ($reversement) {
             $reversement->update($valeurs);
         } else {
-            ReversementBailleur::create($valeurs + [
+            $reversement = ReversementBailleur::create($valeurs + [
                 'numero' => NumeroService::genererNumero(ReversementBailleur::class, 'REV'),
                 'bailleur_id' => $data['bailleur_id'],
                 'periode_annee' => $data['periode_annee'],
                 'periode_mois' => $data['periode_mois'],
             ]);
         }
+
+        event(new VersementEffectue($reversement));
 
         return back()->with('success', 'Reversement marqué comme versé avec succès.');
     }

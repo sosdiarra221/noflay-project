@@ -85,4 +85,15 @@ class User extends Authenticatable
     {
         return $this->role && in_array($this->role->nom, $noms, true);
     }
+
+    /**
+     * Destinataires par défaut des notifications métier : la Direction (Administrateur +
+     * Directeur), seule habilitée à consulter le module Direction & Administration.
+     */
+    public static function direction()
+    {
+        return static::whereHas('role', fn ($q) => $q->whereIn('nom', [Role::ADMINISTRATEUR, Role::DIRECTEUR]))
+            ->where('statut', 'actif')
+            ->get();
+    }
 }

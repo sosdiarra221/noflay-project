@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Finance;
 
+use App\Events\DepenseCreee;
+use App\Events\DepenseInterventionDemarree;
 use App\Http\Controllers\Controller;
 use App\Models\Bailleur;
 use App\Models\Bien;
@@ -113,6 +115,8 @@ class DepenseController extends Controller
             'date_validation' => $statut === DepenseLocation::STATUT_APPROUVEE ? now() : null,
         ]);
 
+        event(new DepenseCreee($depense));
+
         return redirect()->route('finance.depenses.show', $depense)->with('success', 'Dépense « '.$depense->numero.' » créée avec succès.');
     }
 
@@ -168,6 +172,8 @@ class DepenseController extends Controller
         $this->verifierStatut($depense, [DepenseLocation::STATUT_APPROUVEE]);
 
         $depense->update(['statut' => DepenseLocation::STATUT_INTERVENTION]);
+
+        event(new DepenseInterventionDemarree($depense));
 
         return back()->with('success', 'Intervention marquée en cours.');
     }

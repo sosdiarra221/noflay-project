@@ -7,6 +7,7 @@ use App\Models\ContratLocation;
 use App\Models\EcheanceLoyer;
 use App\Models\Locataire;
 use App\Models\Paiement;
+use App\Events\PaiementRecu;
 use App\Models\Reglage;
 use App\Services\Finance\VentilationService;
 use App\Services\Locative\EcheanceLoyerService;
@@ -64,7 +65,7 @@ class EcheanceLoyerController extends Controller
             $contrat = $echeance->contratLocation;
             $ventilation = $ventilationService->ventilerLoyer($contrat, (float) $data['montant']);
 
-            Paiement::create([
+            $paiement = Paiement::create([
                 'numero' => NumeroService::genererNumero(Paiement::class, 'PAY'),
                 'echeance_loyer_id' => $echeance->id,
                 'contrat_location_id' => $contrat->id,
@@ -80,6 +81,8 @@ class EcheanceLoyerController extends Controller
             ]);
 
             $echeance->recalculerMontantPaye();
+
+            event(new PaiementRecu($paiement));
         });
 
         return back()->with('success', 'Paiement enregistré avec succès.');

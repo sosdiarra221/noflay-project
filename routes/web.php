@@ -25,6 +25,7 @@ use App\Http\Controllers\Locative\DocumentController;
 use App\Http\Controllers\Locative\EncaissementController;
 use App\Http\Controllers\Locative\FicheLocativeController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\Administration\AdministrationDashboardController;
 use App\Http\Controllers\Administration\UtilisateurController;
@@ -289,6 +290,13 @@ Route::prefix('administration')->name('administration.')->group(function () {
 
     Route::get('securite', [SecuriteController::class, 'index'])->name('securite.index');
     Route::put('securite', [SecuriteController::class, 'update'])->name('securite.update');
+});
+
+Route::prefix('notifications')->name('notifications.')->group(function () {
+    Route::get('/', [NotificationController::class, 'index'])->name('index');
+    Route::get('recentes', [NotificationController::class, 'recentes'])->name('recentes');
+    Route::post('{id}/lu', [NotificationController::class, 'marquerLu'])->name('marquer-lu');
+    Route::post('tout-lu', [NotificationController::class, 'marquerToutLu'])->name('marquer-tout-lu');
 });
 
 Route::prefix('profil')->name('profil.')->group(function () {
