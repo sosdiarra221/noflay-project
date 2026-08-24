@@ -73,6 +73,47 @@
 
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="infos-tab-pane">
+                        @if ($rapport && $compte)
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-header bg-primary-subtle">
+                                    <h6 class="card-action-title mb-0 text-primary"><i class="bi bi-file-earmark-text me-2"></i>Rapport de situation — {{ $bailleur->nom_complet }}</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p>
+                                        <strong>{{ $bailleur->nom_complet }}</strong> ({{ $bailleur->type === 'entreprise' ? 'entreprise' : 'particulier' }}) a confié à l'agence
+                                        <strong>{{ $bailleur->biens->count() }} bien{{ $bailleur->biens->count() > 1 ? 's' : '' }}</strong> en gérance
+                                        {{ $rapport['premiere_gerance'] && $rapport['premiere_gerance']->date_debut ? 'depuis le '.$rapport['premiere_gerance']->date_debut->format('d/m/Y').' (mandat '.$rapport['premiere_gerance']->numero.')' : '' }}.
+                                        Sur ce parc, <strong>{{ $rapport['biens_occupes'] }}</strong> bien{{ $rapport['biens_occupes'] > 1 ? 's sont' : ' est' }} actuellement loué{{ $rapport['biens_occupes'] > 1 ? 's' : '' }}
+                                        (<strong>{{ $rapport['contrats_actifs'] }}</strong> contrat{{ $rapport['contrats_actifs'] > 1 ? 's' : '' }} de location en cours){{ $rapport['biens_disponibles'] > 0 ? ' et '.$rapport['biens_disponibles'].' reste'.($rapport['biens_disponibles'] > 1 ? 'nt' : '').' disponible'.($rapport['biens_disponibles'] > 1 ? 's' : '').' à la location' : '' }}.
+                                    </p>
+                                    <p>
+                                        Depuis le début de la relation, l'agence a encaissé pour son compte un total de
+                                        <strong>{{ number_format($compte['loyers_encaisses'], 0, ',', ' ') }} FCFA</strong> de loyers.
+                                        Sur cette somme, l'agence a prélevé <strong>{{ number_format($compte['commission_agence'], 0, ',', ' ') }} FCFA</strong> de commission de gestion,
+                                        et <strong>{{ number_format($compte['travaux_depenses'], 0, ',', ' ') }} FCFA</strong> ont été mis à sa charge au titre des dépenses et travaux réglés sur ses biens.
+                                        Il lui a déjà été versé <strong>{{ number_format($compte['deja_reverse'], 0, ',', ' ') }} FCFA</strong> à ce jour, ce qui laisse
+                                        un solde de <strong class="{{ $compte['a_reverser'] > 0 ? 'text-success' : '' }}">{{ number_format($compte['a_reverser'], 0, ',', ' ') }} FCFA</strong> encore à lui reverser{{ $compte['arriere_anterieur'] > 0 ? ', dont '.number_format($compte['arriere_anterieur'], 0, ',', ' ').' FCFA d\'arriéré accumulé sur les mois précédents' : ', entièrement issu du mois en cours (aucun arriéré des mois précédents)' }}.
+                                    </p>
+                                    @if ($rapport['loyer_mensuel_total'] > 0)
+                                        <p>
+                                            Sur la base des contrats actuellement actifs, le parc de {{ $bailleur->nom_complet }} génère
+                                            <strong>{{ number_format($rapport['loyer_mensuel_total'], 0, ',', ' ') }} FCFA</strong> de loyer chaque mois.
+                                            L'agence en retient en moyenne <strong>{{ number_format($rapport['commission_mensuelle'], 0, ',', ' ') }} FCFA</strong>
+                                            (soit environ <strong>{{ $rapport['taux_moyen'] }} %</strong>) au titre de sa commission de gestion,
+                                            ce qui laisse un <strong>net théorique de {{ number_format($rapport['net_mensuel_theorique'], 0, ',', ' ') }} FCFA à reverser au bailleur chaque mois</strong>,
+                                            avant prise en compte des dépenses ou travaux éventuels du mois.
+                                        </p>
+                                    @endif
+                                    @if ($compte['depenses_en_attente'] > 0)
+                                        <p class="mb-0 text-warning-emphasis">
+                                            <i class="bi bi-exclamation-triangle me-1"></i>
+                                            Par ailleurs, des dépenses pour un total de <strong>{{ number_format($compte['depenses_en_attente'], 0, ',', ' ') }} FCFA</strong>
+                                            sont en attente de validation ou de paiement et viendront réduire d'autant le solde à lui reverser une fois réglées.
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
                         <div class="row g-4">
                             <div class="col-lg-6">
                                 <div class="card">

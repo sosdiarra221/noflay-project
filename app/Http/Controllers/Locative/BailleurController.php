@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Locative;
 
 use App\Http\Controllers\Controller;
 use App\Models\Bailleur;
+use App\Models\ContratLocation;
 use App\Services\Finance\CompteBailleurService;
+use App\Services\Finance\VentilationService;
 use App\Services\Locative\NumeroService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -29,18 +31,56 @@ class BailleurController extends Controller
         return view('locative.bailleurs.index', compact('bailleurs'));
     }
 
-    public function show(Bailleur $bailleur, CompteBailleurService $compteBailleurService)
+    public function show(Bailleur $bailleur, CompteBailleurService $compteBailleurService, VentilationService $ventilationService)
     {
         $bailleur->load(['gerances' => fn ($q) => $q->latest(), 'biens' => fn ($q) => $q->latest()]);
 
         $compte = null;
         $reversements = collect();
         $versements = collect();
+        $rapport = null;
         if (Gate::allows('locative.finances')) {
             ['resume' => $compte, 'reversements' => $reversements, 'versements' => $versements] = $compteBailleurService->calculer($bailleur);
+            $rapport = $this->construireRapportNarratif($bailleur, $compte, $ventilationService);
         }
 
-        return view('locative.bailleurs.show', compact('bailleur', 'compte', 'reversements', 'versements'));
+        return view('locative.bailleurs.show', compact('bailleur', 'compte', 'reversements', 'versements', 'rapport'));
+    }
+
+    /**
+     * Prépare les chiffres du "portrait mensuel" théorique du bailleur (loyer total actif,
+     * commission de gestion moyenne, net mensuel à reverser) pour alimenter le rapport en texte
+     * de la fiche bailleur, en s'appuyant sur les contrats de location actuellement actifs.
+     */
+    protected function construireRapportNarratif(Bailleur $bailleur, array $compte, VentilationService $ventilationService): array
+    {
+        $contratsActifs = ContratLocation::where('bailleur_id', $bailleur->id)
+            ->where('statut', 'actif')
+            ->with('bien.gerance')
+            ->get();
+
+        $loyerMensuelTotal = (float) $contratsActifs->sum('loyer_mensuel');
+        $commissionMensuelle = (float) $contratsActifs->sum(
+            fn (ContratLocation $contrat) => $ventilationService->ventilerLoyer($contrat, (float) $contrat->loyer_mensuel)['part_commission_agence']
+        );
+        $netMensuelTheorique = round($loyerMensuelTotal - $commissionMensuelle, 2);
+        $tauxMoyen = $loyerMensuelTotal > 0 ? round($commissionMensuelle / $loyerMensuelTotal * 100, 1) : 0;
+
+        $premiereGerance = $bailleur->gerances->sortBy('date_debut')->first();
+
+        $biensOccupes = $bailleur->biens->where('statut', 'occupe')->count();
+        $biensDisponibles = $bailleur->biens->whereIn('statut', ['disponible', 'reserve', 'en_attente_entree'])->count();
+
+        return [
+            'contrats_actifs' => $contratsActifs->count(),
+            'loyer_mensuel_total' => $loyerMensuelTotal,
+            'commission_mensuelle' => $commissionMensuelle,
+            'net_mensuel_theorique' => $netMensuelTheorique,
+            'taux_moyen' => $tauxMoyen,
+            'premiere_gerance' => $premiereGerance,
+            'biens_occupes' => $biensOccupes,
+            'biens_disponibles' => $biensDisponibles,
+        ];
     }
 
     public function store(Request $request)
