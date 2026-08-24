@@ -6,3 +6,4 @@
 <!-- Air Datepicker (format jj/mm/aaaa) -->
 <script src="assets/libs/air-datepicker/air-datepicker.js"></script>
 <script src="assets/js/date-format-fr.js"></script>
+<script src="assets/js/fullscreen-toggle.js"></script>

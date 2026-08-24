@@ -1,0 +1,22 @@
+/* Met en évidence l'élément de menu actif (sidebar + menu horizontal) avec un
+   cadre orange et un texte blanc, pour le différencier clairement des autres
+   liens — appliqué sur l'ensemble des modules du projet. */
+
+.pe-app-sidebar .pe-app-sidebar-menu .pe-nav-link.active,
+#horizontal-menu .pe-nav-link.active {
+    background-color: #ff7a1a !important;
+    color: #ffffff !important;
+    border-radius: 8px;
+}
+
+.pe-app-sidebar .pe-app-sidebar-menu .pe-nav-link.active .pe-nav-icon,
+.pe-app-sidebar .pe-app-sidebar-menu .pe-nav-link.active .pe-nav-content,
+#horizontal-menu .pe-nav-link.active .pe-nav-icon,
+#horizontal-menu .pe-nav-link.active .pe-nav-content {
+    color: #ffffff !important;
+}
+
+.pe-app-sidebar .pe-app-sidebar-menu .pe-nav-link.active::before,
+.pe-app-sidebar .pe-app-sidebar-menu .pe-nav-link.active:before {
+    background-color: #ff7a1a !important;
+}

@@ -162,6 +162,9 @@
                 <button class="btn header-btn d-none d-md-block" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                     <i class="bi bi-gear"></i>
                 </button>
+                <button type="button" class="btn header-btn" id="toggleFullscreen" title="Plein écran">
+                    <i class="bi bi-arrows-fullscreen"></i>
+                </button>
                 <div class="dark-mode-btn" id="toggleMode">
                     <button class="btn header-btn active" id="lightModeBtn">
                         <i class="bi bi-brightness-high"></i>

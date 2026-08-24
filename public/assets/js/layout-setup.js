@@ -229,52 +229,79 @@ horizontalToggle?.addEventListener("click", () => {
 });
 
 // Function to handle sidebar menu active links
-let currentUrl = window.location.pathname; // Get the current URL
+// Note : les liens sont générés par Laravel (route()) sous forme d'URL absolues
+// (http://host/...), donc la comparaison doit se faire sur location.href et non
+// sur location.pathname (qui ne "contient" jamais une URL absolue plus longue).
+let currentUrl = window.location.href; // Get the current URL
 const menuLinks = document.querySelectorAll("#sidebar .pe-main-menu .pe-nav-link"); // Select all menu links
-if (currentUrl === "/")
-    currentUrl = "/index.html";
+if (window.location.pathname === "/")
+    currentUrl = window.location.origin + "/index.html";
 const currentLayout = htmlElement.getAttribute("data-layout");
 const currentSidebar = htmlElement.getAttribute("data-sidebar");
 
+// Correspondance exacte (ou sous-page, ex: /locative/bailleurs/12 pour le lien
+// /locative/bailleurs) plutôt qu'un simple "includes" : évite qu'un lien racine
+// de module (ex: /locative) reste actif en même temps qu'une page plus précise
+// qui commence par le même préfixe.
+const estLienActif = (lien) => {
+    if (! lien || lien === "#" || lien.startsWith("javascript:")) return false;
+    const lienSansSlash = lien.replace(/\/$/, "");
+    return currentUrl === lienSansSlash || currentUrl.startsWith(lienSansSlash + "/") || currentUrl.startsWith(lienSansSlash + "?");
+};
+
+// Parmi tous les liens qui correspondent (un lien de module racine comme /locative
+// correspond forcément à toutes ses sous-pages), ne retient que le plus précis
+// (href le plus long) pour n'illuminer qu'une seule entrée à la fois.
+let meilleurLienSidebar = null;
 menuLinks.forEach((link) => {
-    const linkHref = link.getAttribute("href"); // Get the href attribute of the link
-
-    // Check if the current URL contains the link's href
-    if (currentUrl.includes(linkHref)) {
-        link.classList.add("active"); // Add active class to the link
-
-        // Function to open all parent dropdowns
-        const openParentDropdowns = (element) => {
-            let parentDropdown = element.closest(".pe-has-sub");
-            while (parentDropdown) {
-                const collapseId = parentDropdown
-                    .querySelector(".pe-nav-link")
-                    .getAttribute("aria-controls");
-                const collapseElement = document.getElementById(collapseId);
-                if (collapseElement) {
-                    parentDropdown.children[0].classList.add("active"); // Add active class to the parent link
-                    if (currentLayout !== "horizontal" && currentSidebar !== "icon") {
-                        collapseElement.classList.add("show"); // Open the dropdown
-                        parentDropdown.children[0].setAttribute("aria-expanded", "true"); // Add active class to the parent link
-                        parentDropdown
-                            .querySelector(".pe-nav-arrow")
-                            .classList.add("open"); // Add open class to the arrow
-                    }
-                }
-                parentDropdown = parentDropdown.parentElement.closest(".pe-has-sub"); // Move to the next parent dropdown
-            }
-        };
-        // Open all parent dropdowns for the active link
-        openParentDropdowns(link);
+    const linkHref = link.getAttribute("href");
+    if (estLienActif(linkHref) && (! meilleurLienSidebar || linkHref.length > meilleurLienSidebar.getAttribute("href").length)) {
+        meilleurLienSidebar = link;
     }
 });
+
+if (meilleurLienSidebar) {
+    meilleurLienSidebar.classList.add("active"); // Add active class to the link
+
+    // Function to open all parent dropdowns
+    const openParentDropdowns = (element) => {
+        let parentDropdown = element.closest(".pe-has-sub");
+        while (parentDropdown) {
+            const collapseId = parentDropdown
+                .querySelector(".pe-nav-link")
+                .getAttribute("aria-controls");
+            const collapseElement = document.getElementById(collapseId);
+            if (collapseElement) {
+                parentDropdown.children[0].classList.add("active"); // Add active class to the parent link
+                if (currentLayout !== "horizontal" && currentSidebar !== "icon") {
+                    collapseElement.classList.add("show"); // Open the dropdown
+                    parentDropdown.children[0].setAttribute("aria-expanded", "true"); // Add active class to the parent link
+                    parentDropdown
+                        .querySelector(".pe-nav-arrow")
+                        .classList.add("open"); // Add open class to the arrow
+                }
+            }
+            parentDropdown = parentDropdown.parentElement.closest(".pe-has-sub"); // Move to the next parent dropdown
+        }
+    };
+    // Open all parent dropdowns for the active link
+    openParentDropdowns(meilleurLienSidebar);
+}
 
 // active horizontal menu
 const horizontalMenuLinks = document.querySelectorAll("#horizontal-menu .pe-nav-link");
 
+let meilleurLienHorizontal = null;
 horizontalMenuLinks.forEach((link) => {
-    const linkHref = link.getAttribute("href"); // Get the href attribute of the link
-    if (currentUrl.includes(linkHref)) {
+    const linkHref = link.getAttribute("href");
+    if (estLienActif(linkHref) && (! meilleurLienHorizontal || linkHref.length > meilleurLienHorizontal.getAttribute("href").length)) {
+        meilleurLienHorizontal = link;
+    }
+});
+
+if (meilleurLienHorizontal) {
+    const link = meilleurLienHorizontal;
+    {
         link.classList.add("active");
         const parentDropdown = link.closest(".pe-has-sub");
         if (parentDropdown) {
@@ -297,7 +324,7 @@ horizontalMenuLinks.forEach((link) => {
             }
         }
     }
-})
+}
 
 // rest layout to default
 const resetBtn = document.getElementById("resetBtn"); // Get the resetBtn

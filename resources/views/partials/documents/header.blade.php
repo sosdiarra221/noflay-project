@@ -21,6 +21,9 @@
                 </div>
             </div>
             <div class="flex-shrink-0 d-flex align-items-center gap-1">
+                <button type="button" class="btn header-btn" id="toggleFullscreen" title="Plein écran">
+                    <i class="bi bi-arrows-fullscreen"></i>
+                </button>
                 <div class="dark-mode-btn" id="toggleMode">
                     <button class="btn header-btn active" id="lightModeBtn">
                         <i class="bi bi-brightness-high"></i>
