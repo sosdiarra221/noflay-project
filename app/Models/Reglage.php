@@ -11,6 +11,7 @@ class Reglage extends Model
         'ninea',
         'taux_tva_defaut',
         'taux_tom_defaut',
+        'commission_regime',
         'logo',
         'email',
         'telephone',

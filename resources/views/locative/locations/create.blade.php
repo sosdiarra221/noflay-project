@@ -18,18 +18,45 @@
             </div>
         @endif
 
-        <form action="{{ route('locative.locations.store') }}" method="POST">
+        <form action="{{ route('locative.locations.store') }}" method="POST" id="formNouvelleLocation">
             @csrf
 
             <div class="row">
                 <div class="col-12">
                     <div class="card">
-                        <div class="card-header"><h6 class="card-title mb-0 fw-semibold">1. Locataire</h6></div>
+                        <div class="card-header"><h6 class="card-title mb-0 fw-semibold">1. Type de location</h6></div>
+                        <div class="card-body">
+                            <p class="text-muted mb-3 fs-12">Détermine le modèle de contrat généré automatiquement (module Gestion Document).</p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-check border rounded-3 p-3 h-100">
+                                        <input class="form-check-input" type="radio" name="type_location" id="typeHabitation" value="habitation" @checked(old('type_location', 'habitation') === 'habitation')>
+                                        <label class="form-check-label w-100" for="typeHabitation">
+                                            <span class="d-block fw-semibold"><i class="bi bi-house-door me-1"></i>Usage habitation</span>
+                                            <span class="text-muted fs-12">Location d'un logement (studio, appartement, villa...)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check border rounded-3 p-3 h-100">
+                                        <input class="form-check-input" type="radio" name="type_location" id="typeCommercial" value="commercial" @checked(old('type_location') === 'commercial')>
+                                        <label class="form-check-label w-100" for="typeCommercial">
+                                            <span class="d-block fw-semibold"><i class="bi bi-shop me-1"></i>Usage commercial</span>
+                                            <span class="text-muted fs-12">Local commercial, bureau, boutique, entrepôt...</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header"><h6 class="card-title mb-0 fw-semibold">2. Locataire</h6></div>
                         <div class="card-body">
                             <div class="row g-3 align-items-end">
                                 <div class="col-md-8">
                                     <label class="form-label">Locataire<span class="text-danger ms-1">*</span></label>
-                                    <select class="form-select" name="locataire_id" required>
+                                    <select class="form-select" name="locataire_id" id="selectLocataire" required>
                                         <option value="">Sélectionner un locataire...</option>
                                         @foreach ($locataires as $locataire)
                                             <option value="{{ $locataire->id }}" @selected(old('locataire_id', session('locataire_cree_id')) == $locataire->id)>
@@ -48,7 +75,7 @@
                     </div>
 
                     <div class="card">
-                        <div class="card-header"><h6 class="card-title mb-0 fw-semibold">2. Conditions de location</h6></div>
+                        <div class="card-header"><h6 class="card-title mb-0 fw-semibold">3. Conditions de location</h6></div>
                         <div class="card-body">
                             <div class="row g-3">
                                 <div class="col-md-3">
@@ -78,8 +105,8 @@
 
                     <div class="card">
                         <div class="card-header">
-                            <h6 class="card-title mb-0 fw-semibold">3. Biens à louer</h6>
-                            <p class="text-muted mb-0 fs-12">Cochez un ou plusieurs biens disponibles. Le loyer proposé est pré-rempli depuis la fiche du bien, modifiable si besoin.</p>
+                            <h6 class="card-title mb-0 fw-semibold">4. Biens à louer</h6>
+                            <p class="text-muted mb-0 fs-12">Cochez un ou plusieurs biens disponibles. Le loyer proposé est pré-rempli depuis la fiche du bien, modifiable si besoin. Configurez la caution via le bouton dédié.</p>
                         </div>
                         <div class="card-body p-0">
                             <div class="table-box table-responsive">
@@ -90,7 +117,8 @@
                                             <th>Bien</th>
                                             <th>Bailleur</th>
                                             <th>Loyer mensuel</th>
-                                            <th>Dépôt de garantie</th>
+                                            <th>Taxes</th>
+                                            <th>Caution / frais d'agence</th>
                                             <th>Charges</th>
                                         </tr>
                                     </thead>
@@ -114,8 +142,23 @@
                                                         name="conditions[{{ $bien->id }}][loyer_mensuel]" value="{{ $bien->loyer_mensuel }}">
                                                 </td>
                                                 <td>
-                                                    <input type="number" step="0.01" min="0" class="form-control" style="width: 140px"
-                                                        name="conditions[{{ $bien->id }}][depot_garantie]" value="0">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="conditions[{{ $bien->id }}][appliquer_tva]" value="1" id="tva{{ $bien->id }}">
+                                                        <label class="form-check-label fs-12" for="tva{{ $bien->id }}">TVA</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="conditions[{{ $bien->id }}][appliquer_tom]" value="1" id="tom{{ $bien->id }}">
+                                                        <label class="form-check-label fs-12" for="tom{{ $bien->id }}">TOM</label>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <input type="hidden" class="champ-depot-garantie" name="conditions[{{ $bien->id }}][depot_garantie]" value="0">
+                                                    <input type="hidden" class="champ-depot-part-bailleur" name="conditions[{{ $bien->id }}][depot_garantie_part_bailleur]" value="0">
+                                                    <input type="hidden" class="champ-depot-part-agence" name="conditions[{{ $bien->id }}][depot_garantie_part_agence]" value="0">
+                                                    <button type="button" class="btn btn-sm btn-light-primary btn-configurer-caution" data-bs-toggle="modal" data-bs-target="#cautionModal{{ $bien->id }}">
+                                                        <i class="bi bi-shield-lock me-1"></i>Configurer
+                                                    </button>
+                                                    <div class="fs-11 text-muted mt-1 resume-caution">Non configurée</div>
                                                 </td>
                                                 <td>
                                                     <input type="number" step="0.01" min="0" class="form-control" style="width: 120px"
@@ -123,7 +166,7 @@
                                                 </td>
                                             </tr>
                                         @empty
-                                            <tr><td colspan="6" class="text-center text-muted py-5">Aucun bien disponible pour le moment.</td></tr>
+                                            <tr><td colspan="7" class="text-center text-muted py-5">Aucun bien disponible pour le moment.</td></tr>
                                         @endforelse
                                     </tbody>
                                 </table>
@@ -154,11 +197,113 @@
             </div>
         </div>
 
+        @foreach ($biensDisponibles as $bien)
+            <div class="modal fade" id="cautionModal{{ $bien->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Caution — {{ $bien->titre }}</h5>
+                            <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="text-muted fs-12">Montant encaissé à la signature, réparti entre la caution/garantie conservée pour le bailleur (restituable au locataire, hors dégâts) et les frais d'agence (revenu immédiat de l'agence, non restituables).</p>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">Montant total encaissé à la signature</label>
+                                    <input type="number" step="0.01" min="0" class="form-control champ-caution-total" data-bien="{{ $bien->id }}" value="0">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Part bailleur (caution/garantie)</label>
+                                    <input type="number" step="0.01" min="0" class="form-control champ-caution-bailleur" data-bien="{{ $bien->id }}" value="0">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Part agence (frais d'agence)</label>
+                                    <input type="number" step="0.01" min="0" class="form-control champ-caution-agence" data-bien="{{ $bien->id }}" value="0">
+                                </div>
+                                <div class="col-12">
+                                    <div class="alert alert-light border fs-12 mb-0 champ-caution-alerte" data-bien="{{ $bien->id }}">
+                                        La part bailleur et la part agence doivent correspondre au total.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                            <button type="button" class="btn btn-primary btn-valider-caution" data-bien="{{ $bien->id }}" data-bs-dismiss="modal">Valider</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+
     </div>
     </main>
 @endsection
 
 @section('js')
+    <link rel="stylesheet" href="{{ asset('assets/libs/choices.js/public/assets/styles/choices.min.css') }}">
+    <script src="{{ asset('assets/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
     @include('locative._form-type-toggle-script')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectLocataire = document.getElementById('selectLocataire');
+            if (selectLocataire) {
+                new Choices(selectLocataire, {
+                    searchEnabled: true,
+                    itemSelectText: '',
+                    placeholderValue: 'Sélectionner un locataire...',
+                    searchPlaceholderValue: 'Rechercher un locataire...',
+                });
+            }
+
+            function formaterFcfa(valeur) {
+                return new Intl.NumberFormat('fr-FR').format(Math.round(valeur || 0)) + ' FCFA';
+            }
+
+            document.querySelectorAll('.btn-valider-caution').forEach(function (bouton) {
+                bouton.addEventListener('click', function () {
+                    const bienId = bouton.dataset.bien;
+                    const total = parseFloat(document.querySelector(`.champ-caution-total[data-bien="${bienId}"]`).value) || 0;
+                    const bailleur = parseFloat(document.querySelector(`.champ-caution-bailleur[data-bien="${bienId}"]`).value) || 0;
+                    const agence = parseFloat(document.querySelector(`.champ-caution-agence[data-bien="${bienId}"]`).value) || 0;
+
+                    const ligne = document.getElementById('bien' + bienId).closest('tr');
+                    ligne.querySelector('.champ-depot-garantie').value = total;
+                    ligne.querySelector('.champ-depot-part-bailleur').value = bailleur;
+                    ligne.querySelector('.champ-depot-part-agence').value = agence;
+
+                    const resume = ligne.querySelector('.resume-caution');
+                    if (total > 0) {
+                        resume.innerHTML = formaterFcfa(total) + '<br>Bailleur : ' + formaterFcfa(bailleur) + ' — Agence : ' + formaterFcfa(agence);
+                        if (Math.round(bailleur + agence) !== Math.round(total)) {
+                            resume.classList.add('text-danger');
+                        } else {
+                            resume.classList.remove('text-danger');
+                        }
+                    } else {
+                        resume.textContent = 'Non configurée';
+                        resume.classList.remove('text-danger');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.champ-caution-total').forEach(function (champTotal) {
+                champTotal.addEventListener('input', function () {
+                    const bienId = champTotal.dataset.bien;
+                    const champBailleur = document.querySelector(`.champ-caution-bailleur[data-bien="${bienId}"]`);
+                    if (champBailleur && ! champBailleur.dataset.touche) {
+                        champBailleur.value = champTotal.value;
+                        document.querySelector(`.champ-caution-agence[data-bien="${bienId}"]`).value = 0;
+                    }
+                });
+            });
+
+            document.querySelectorAll('.champ-caution-bailleur, .champ-caution-agence').forEach(function (champ) {
+                champ.addEventListener('input', function () {
+                    champ.dataset.touche = '1';
+                });
+            });
+        });
+    </script>
 @endsection

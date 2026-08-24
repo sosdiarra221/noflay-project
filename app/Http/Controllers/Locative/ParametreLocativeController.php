@@ -24,6 +24,7 @@ class ParametreLocativeController extends Controller
         $data = $request->validate([
             'taux_tva_defaut' => ['required', 'numeric', 'min:0', 'max:100'],
             'taux_tom_defaut' => ['required', 'numeric', 'min:0', 'max:100'],
+            'commission_regime' => ['required', 'in:HT,TTC'],
         ]);
 
         Reglage::courant()->update($data);

@@ -134,7 +134,12 @@
                                 <span class="badge bg-success-subtle text-success text-capitalize">{{ str_replace('_', ' ', $contrat->statut) }}</span>
                             </div>
                             <h6 class="mb-1">{{ $contrat->bien->titre ?? '—' }}</h6>
-                            <p class="text-muted fs-12 mb-3">{{ $contrat->bien->categorie->nom ?? '—' }} — {{ $contrat->numero }}</p>
+                            <p class="text-muted fs-12 mb-2">{{ $contrat->bien->categorie->nom ?? '—' }} — {{ $contrat->numero }}</p>
+                            <div class="d-flex flex-wrap gap-1 mb-3">
+                                <span class="badge bg-light-subtle text-dark border">{{ $contrat->typeLocationLabel() }}</span>
+                                @if ($contrat->appliquer_tva)<span class="badge bg-primary-subtle text-primary">TVA</span>@endif
+                                @if ($contrat->appliquer_tom)<span class="badge bg-secondary-subtle text-secondary">TOM</span>@endif
+                            </div>
                             <ul class="list-unstyled mb-3 fs-13">
                                 <li class="d-flex justify-content-between border-bottom py-2">
                                     <span class="text-muted">Loyer mensuel</span>
@@ -144,6 +149,16 @@
                                     <span class="text-muted">Période</span>
                                     <span class="fw-medium">{{ $contrat->date_debut->format('d/m/Y') }}@if ($contrat->date_fin) → {{ $contrat->date_fin->format('d/m/Y') }} @endif</span>
                                 </li>
+                                @if ($contrat->caution)
+                                    <li class="d-flex justify-content-between border-bottom py-2">
+                                        <span class="text-muted">Caution (bailleur)</span>
+                                        <span class="fw-medium">{{ number_format($contrat->caution->part_bailleur, 0, ',', ' ') }} FCFA</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between border-bottom py-2">
+                                        <span class="text-muted">Frais d'agence (entrée)</span>
+                                        <span class="fw-medium">{{ number_format($contrat->caution->part_agence, 0, ',', ' ') }} FCFA</span>
+                                    </li>
+                                @endif
                                 <li class="d-flex justify-content-between py-2">
                                     <span class="text-muted">Échéances</span>
                                     <span class="fw-medium">{{ $contrat->echeances->count() }}</span>

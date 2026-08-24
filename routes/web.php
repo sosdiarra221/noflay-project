@@ -38,7 +38,9 @@ use App\Http\Controllers\Documents\DocumentsDashboardController;
 use App\Http\Controllers\Documents\DocumentTemplateController;
 use App\Http\Controllers\Documents\DocumentTemplateVersionController;
 use App\Http\Controllers\Documents\DocumentController as DocumentGenereController;
+use App\Http\Controllers\Finance\CautionController;
 use App\Http\Controllers\Finance\FinanceDashboardController;
+use App\Http\Controllers\Finance\JournalCaisseController;
 use App\Http\Controllers\Finance\RevenuController;
 use App\Http\Controllers\Finance\ReversementFinanceController;
 use App\Http\Controllers\Finance\TaxeController;
@@ -225,6 +227,11 @@ Route::prefix('finance')->name('finance.')->group(function () {
     Route::get('reversements/{reversement}/bordereau/telecharger', [ReversementFinanceController::class, 'telechargerBordereau'])->name('reversements.bordereau-telecharger');
 
     Route::get('taxes', [TaxeController::class, 'index'])->name('taxes.index');
+
+    Route::get('cautions', [CautionController::class, 'index'])->name('cautions.index');
+    Route::post('cautions/{caution}/restituer', [CautionController::class, 'restituer'])->name('cautions.restituer');
+
+    Route::get('journal-caisse', [JournalCaisseController::class, 'index'])->name('journal-caisse.index');
 });
 
 Route::get('{any}', [DashboardController::class, 'index'])->where('any', '.*'); // Catch-all route for the dashboard.

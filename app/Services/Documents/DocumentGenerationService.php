@@ -22,15 +22,21 @@ class DocumentGenerationService
     /**
      * Détermine le type de document à générer pour un contrat de location.
      *
-     * Heuristique (choix assumé — l'application n'a pas aujourd'hui de champ explicite
-     * "habitation vs commercial" sur Bien/ContratLocation) : on se base sur le nom de la
-     * catégorie du bien loué. Les catégories usuellement associées à un usage commercial
-     * ("Local commercial", "Bureau", "Boutique"...) orientent vers LOCATION_COMMERCIAL ;
-     * toute autre catégorie (ou absence de catégorie) est traitée comme une location
-     * d'habitation. À ajuster si le modèle Bien gagne un jour un champ dédié.
+     * Le contrat porte désormais un champ explicite `type_location` (choisi par l'utilisateur
+     * à la création de la location) : on s'y fie en priorité. À défaut (contrats créés avant
+     * l'introduction de ce champ), on retombe sur l'heuristique historique basée sur le nom de
+     * la catégorie du bien loué.
      */
     public function typePourContratLocation(ContratLocation $contrat): string
     {
+        if ($contrat->type_location === 'commercial') {
+            return DocumentType::LOCATION_COMMERCIAL;
+        }
+
+        if ($contrat->type_location === 'habitation') {
+            return DocumentType::LOCATION_HABITATION;
+        }
+
         $nomCategorie = mb_strtolower($contrat->bien?->categorie?->nom ?? '');
 
         $motsClesCommercial = ['local commercial', 'bureau', 'boutique', 'commerce', 'magasin', 'entrepot', 'entrepôt'];

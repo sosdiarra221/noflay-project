@@ -8,6 +8,7 @@ use App\Models\EcheanceLoyer;
 use App\Models\Locataire;
 use App\Models\Paiement;
 use App\Models\Reglage;
+use App\Services\Finance\VentilationService;
 use App\Services\Locative\EcheanceLoyerService;
 use App\Services\Locative\NumeroService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -49,7 +50,7 @@ class EcheanceLoyerController extends Controller
         return view('locative.echeances.index', compact('echeances', 'locataires', 'contrats', 'periodesDisponibles'));
     }
 
-    public function encaisser(Request $request, EcheanceLoyer $echeance)
+    public function encaisser(Request $request, EcheanceLoyer $echeance, VentilationService $ventilationService)
     {
         $data = $request->validate([
             'montant' => ['required', 'numeric', 'min:0.01'],
@@ -59,11 +60,18 @@ class EcheanceLoyerController extends Controller
             'note' => ['nullable', 'string'],
         ]);
 
-        DB::transaction(function () use ($data, $echeance) {
+        DB::transaction(function () use ($data, $echeance, $ventilationService) {
+            $contrat = $echeance->contratLocation;
+            $ventilation = $ventilationService->ventilerLoyer($contrat, (float) $data['montant']);
+
             Paiement::create([
                 'numero' => NumeroService::genererNumero(Paiement::class, 'PAY'),
                 'echeance_loyer_id' => $echeance->id,
+                'contrat_location_id' => $contrat->id,
+                'type' => Paiement::TYPE_LOYER,
                 'montant' => $data['montant'],
+                'part_bailleur' => $ventilation['part_bailleur'],
+                'part_commission_agence' => $ventilation['part_commission_agence'],
                 'mode_paiement_id' => $data['mode_paiement_id'],
                 'date_paiement' => $data['date_paiement'],
                 'reference' => $data['reference'] ?? null,

@@ -38,6 +38,18 @@
                     <span class="pe-nav-content">Taxes collectées</span>
                 </a>
             </li>
+            <li class="pe-slide pe-has-sub">
+                <a href="{{ route('finance.cautions.index') }}" class="pe-nav-link">
+                    <i class="bi bi-shield-lock pe-nav-icon"></i>
+                    <span class="pe-nav-content">Cautions / garanties</span>
+                </a>
+            </li>
+            <li class="pe-slide pe-has-sub">
+                <a href="{{ route('finance.journal-caisse.index') }}" class="pe-nav-link">
+                    <i class="bi bi-journal-text pe-nav-icon"></i>
+                    <span class="pe-nav-content">Journal de caisse</span>
+                </a>
+            </li>
             <li class="pe-menu-title">
                 Configuration
             </li>

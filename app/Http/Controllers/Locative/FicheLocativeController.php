@@ -35,8 +35,11 @@ class FicheLocativeController extends Controller
             ->sum(fn ($echeance) => max($echeance->montant_attendu - $echeance->montant_paye, 0));
 
         $fraisAgence = $data['frais_agence'] ?? 0;
-        $tauxTom = $data['taux_tom'] ?? 0;
-        $tauxTva = $data['taux_tva'] ?? 0;
+        // La TVA/TOM ne s'applique que si le contrat de location l'a explicitement activé
+        // (configuré à la création de la location) : sinon, le taux est forcé à 0 quel que
+        // soit ce qui a été saisi dans le formulaire.
+        $tauxTom = $contrat->appliquer_tom ? ($data['taux_tom'] ?? 0) : 0;
+        $tauxTva = $contrat->appliquer_tva ? ($data['taux_tva'] ?? 0) : 0;
         $montantTom = round($contrat->loyer_mensuel * $tauxTom / 100, 2);
         $montantTva = round($contrat->loyer_mensuel * $tauxTva / 100, 2);
         $montantTotal = $contrat->loyer_mensuel + $arrieres + $fraisAgence + $montantTom + $montantTva;

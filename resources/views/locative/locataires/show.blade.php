@@ -382,14 +382,20 @@
                                 @if ($contratsActifs->count() > 1)
                                     <div class="col-12">
                                         <label class="form-label">Contrat concerné<span class="text-danger ms-1">*</span></label>
-                                        <select class="form-select" name="contrat_location_id" required>
+                                        <select class="form-select" id="selectContratFiche" name="contrat_location_id" required>
                                             @foreach ($contratsActifs as $contrat)
-                                                <option value="{{ $contrat->id }}">{{ $contrat->bien->titre ?? $contrat->numero }}</option>
+                                                <option value="{{ $contrat->id }}"
+                                                    data-tva="{{ $contrat->appliquer_tva ? 1 : 0 }}"
+                                                    data-tom="{{ $contrat->appliquer_tom ? 1 : 0 }}">
+                                                    {{ $contrat->bien->titre ?? $contrat->numero }}
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>
                                 @else
                                     <input type="hidden" name="contrat_location_id" value="{{ $contratsActifs->first()->id }}">
+                                    <input type="hidden" id="contratFicheUniqueTva" value="{{ $contratsActifs->first()->appliquer_tva ? 1 : 0 }}">
+                                    <input type="hidden" id="contratFicheUniqueTom" value="{{ $contratsActifs->first()->appliquer_tom ? 1 : 0 }}">
                                 @endif
                                 <div class="col-6">
                                     <label class="form-label">Mois<span class="text-danger ms-1">*</span></label>
@@ -413,11 +419,13 @@
                                 </div>
                                 <div class="col-4">
                                     <label class="form-label">TOM (%)</label>
-                                    <input type="number" step="0.01" min="0" max="100" class="form-control" name="taux_tom" value="{{ $reglage->taux_tom_defaut }}">
+                                    <input type="number" step="0.01" min="0" max="100" class="form-control" id="champTauxTom" name="taux_tom" value="{{ $reglage->taux_tom_defaut }}">
+                                    <div class="fs-11 text-muted" id="noteTom"></div>
                                 </div>
                                 <div class="col-4">
                                     <label class="form-label">TVA (%)</label>
-                                    <input type="number" step="0.01" min="0" max="100" class="form-control" name="taux_tva" value="{{ $reglage->taux_tva_defaut }}">
+                                    <input type="number" step="0.01" min="0" max="100" class="form-control" id="champTauxTva" name="taux_tva" value="{{ $reglage->taux_tva_defaut }}">
+                                    <div class="fs-11 text-muted" id="noteTva"></div>
                                 </div>
                             </div>
                         </div>
@@ -439,6 +447,38 @@
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const defautTva = {{ (float) $reglage->taux_tva_defaut }};
+            const defautTom = {{ (float) $reglage->taux_tom_defaut }};
+            const champTva = document.getElementById('champTauxTva');
+            const champTom = document.getElementById('champTauxTom');
+            const noteTva = document.getElementById('noteTva');
+            const noteTom = document.getElementById('noteTom');
+            const selectContrat = document.getElementById('selectContratFiche');
+
+            function appliquerFlags(actifTva, actifTom) {
+                if (! champTva || ! champTom) return;
+                champTva.value = actifTva ? defautTva : 0;
+                champTva.readOnly = ! actifTva;
+                noteTva.textContent = actifTva ? '' : "TVA non activée pour ce contrat.";
+                champTom.value = actifTom ? defautTom : 0;
+                champTom.readOnly = ! actifTom;
+                noteTom.textContent = actifTom ? '' : "TOM non activée pour ce contrat.";
+            }
+
+            if (selectContrat) {
+                selectContrat.addEventListener('change', function () {
+                    const option = selectContrat.options[selectContrat.selectedIndex];
+                    appliquerFlags(option.dataset.tva === '1', option.dataset.tom === '1');
+                });
+                selectContrat.dispatchEvent(new Event('change'));
+            } else {
+                const uniqueTva = document.getElementById('contratFicheUniqueTva');
+                const uniqueTom = document.getElementById('contratFicheUniqueTom');
+                if (uniqueTva && uniqueTom) {
+                    appliquerFlags(uniqueTva.value === '1', uniqueTom.value === '1');
+                }
+            }
+
             const tendanceData = {!! json_encode([
                 'categories' => $tendance->pluck('libelle'),
                 'attendu' => $tendance->pluck('attendu'),

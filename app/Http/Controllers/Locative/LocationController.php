@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Locative;
 
 use App\Http\Controllers\Controller;
 use App\Models\Bien;
+use App\Models\Caution;
 use App\Models\ContratLocation;
 use App\Models\Locataire;
 use App\Models\Location;
 use App\Models\ModePaiement;
+use App\Models\Paiement;
 use App\Services\Documents\DocumentGenerationService;
 use App\Services\Locative\EcheanceLoyerService;
 use App\Services\Locative\NumeroService;
@@ -47,7 +49,7 @@ class LocationController extends Controller
 
     public function show(Location $location)
     {
-        $location->load(['locataire', 'contrats.bien.categorie', 'contrats.echeances']);
+        $location->load(['locataire', 'contrats.bien.categorie', 'contrats.echeances', 'contrats.caution']);
 
         $echeances = $location->contrats->flatMap->echeances;
 
@@ -64,6 +66,7 @@ class LocationController extends Controller
     public function store(Request $request, EcheanceLoyerService $echeanceService, DocumentGenerationService $documentGenerationService)
     {
         $data = $request->validate([
+            'type_location' => ['required', 'in:habitation,commercial'],
             'locataire_id' => ['required', 'exists:locataires,id'],
             'biens' => ['required', 'array', 'min:1'],
             'biens.*' => ['exists:biens,id'],
@@ -73,7 +76,11 @@ class LocationController extends Controller
             'mode_paiement_prefere_id' => ['nullable', 'exists:modes_paiement,id'],
             'conditions' => ['required', 'array'],
             'conditions.*.loyer_mensuel' => ['required', 'numeric', 'min:0'],
+            'conditions.*.appliquer_tva' => ['nullable'],
+            'conditions.*.appliquer_tom' => ['nullable'],
             'conditions.*.depot_garantie' => ['nullable', 'numeric', 'min:0'],
+            'conditions.*.depot_garantie_part_bailleur' => ['nullable', 'numeric', 'min:0'],
+            'conditions.*.depot_garantie_part_agence' => ['nullable', 'numeric', 'min:0'],
             'conditions.*.charges' => ['nullable', 'numeric', 'min:0'],
         ]);
 
@@ -95,18 +102,26 @@ class LocationController extends Controller
             $index = 1;
             foreach ($biensSelectionnes as $bien) {
                 $conditions = $data['conditions'][$bien->id] ?? [];
+                $depotGarantie = (float) ($conditions['depot_garantie'] ?? 0);
+                $partBailleur = (float) ($conditions['depot_garantie_part_bailleur'] ?? 0);
+                $partAgence = (float) ($conditions['depot_garantie_part_agence'] ?? 0);
 
                 $contrat = ContratLocation::create([
                     'numero' => NumeroService::genererNumeroBail($location->numero, $index),
                     'location_id' => $location->id,
                     'bien_id' => $bien->id,
                     'bailleur_id' => $bien->bailleur_id,
+                    'type_location' => $data['type_location'],
                     'date_debut' => $data['date_debut'],
                     'date_fin' => $data['date_fin'] ?? null,
                     'loyer_mensuel' => $conditions['loyer_mensuel'],
-                    'depot_garantie' => $conditions['depot_garantie'] ?? 0,
+                    'depot_garantie' => $depotGarantie,
+                    'depot_garantie_part_bailleur' => $depotGarantie > 0 ? $partBailleur : null,
+                    'depot_garantie_part_agence' => $depotGarantie > 0 ? $partAgence : null,
                     'jour_echeance' => $data['jour_echeance'],
                     'charges' => $conditions['charges'] ?? 0,
+                    'appliquer_tva' => ! empty($conditions['appliquer_tva']),
+                    'appliquer_tom' => ! empty($conditions['appliquer_tom']),
                     'mode_paiement_prefere_id' => $data['mode_paiement_prefere_id'] ?? null,
                     'statut' => 'actif',
                 ]);
@@ -114,6 +129,33 @@ class LocationController extends Controller
                 $bien->update(['statut' => 'occupe']);
 
                 $echeanceService->genererPourContrat($contrat);
+
+                // Ventilation automatique de l'encaissement à la signature (règle fondamentale du
+                // flux financier : jamais un simple "+montant en caisse", toujours une répartition
+                // explicite caution/frais d'agence). La caution reste la propriété du bailleur et
+                // est suivie dans un compte séparé, distinct du chiffre d'affaires de l'agence.
+                if ($depotGarantie > 0) {
+                    Caution::create([
+                        'contrat_location_id' => $contrat->id,
+                        'montant_total' => $depotGarantie,
+                        'part_bailleur' => $partBailleur,
+                        'part_agence' => $partAgence,
+                        'statut' => 'detenue',
+                    ]);
+
+                    Paiement::create([
+                        'numero' => NumeroService::genererNumero(Paiement::class, 'PAY'),
+                        'contrat_location_id' => $contrat->id,
+                        'type' => Paiement::TYPE_ENTREE,
+                        'montant' => $depotGarantie,
+                        'part_caution' => $partBailleur,
+                        'part_frais_agence' => $partAgence,
+                        'mode_paiement_id' => $data['mode_paiement_prefere_id'] ?? null,
+                        'date_paiement' => $data['date_debut'],
+                        'note' => "Encaissement à la signature — caution/garantie et frais d'agence",
+                        'enregistre_par_id' => auth()->id(),
+                    ]);
+                }
 
                 $index++;
             }

@@ -271,6 +271,20 @@
                                             <span class="input-group-text">%</span>
                                         </div>
                                     </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Régime de la commission de gestion<span class="text-danger ms-1">*</span></label>
+                                        <select class="form-select" name="commission_regime" required>
+                                            <option value="HT" @selected(old('commission_regime', $reglage->commission_regime) === 'HT')>Hors taxes (HT) — TVA ajoutée en sus</option>
+                                            <option value="TTC" @selected(old('commission_regime', $reglage->commission_regime) === 'TTC')>Toutes taxes comprises (TTC) — TVA incluse dans le taux</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <p class="text-muted fs-12 mb-0">
+                                            Détermine comment la TVA est calculée sur la commission de gestion de l'agence (ex. commission 10 % sur 100 000 FCFA = 10 000 FCFA) :
+                                            en régime <strong>HT</strong>, la TVA à 18 % s'ajoute (10 000 → 11 800 FCFA TTC) ;
+                                            en régime <strong>TTC</strong>, la TVA est déjà incluse dans les 10 000 FCFA (TVA = 10 000 × 18/118 ≈ 1 525 FCFA, commission HT ≈ 8 475 FCFA).
+                                        </p>
+                                    </div>
                                     <div class="col-12">
                                         <button type="submit" class="btn btn-primary">Enregistrer</button>
                                     </div>

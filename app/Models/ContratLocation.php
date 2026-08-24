@@ -18,12 +18,17 @@ class ContratLocation extends Model
         'location_id',
         'bien_id',
         'bailleur_id',
+        'type_location',
         'date_debut',
         'date_fin',
         'loyer_mensuel',
         'depot_garantie',
+        'depot_garantie_part_bailleur',
+        'depot_garantie_part_agence',
         'jour_echeance',
         'charges',
+        'appliquer_tva',
+        'appliquer_tom',
         'periodicite',
         'mode_paiement_prefere_id',
         'statut',
@@ -37,7 +42,11 @@ class ContratLocation extends Model
         'date_fin' => 'date',
         'loyer_mensuel' => 'decimal:2',
         'depot_garantie' => 'decimal:2',
+        'depot_garantie_part_bailleur' => 'decimal:2',
+        'depot_garantie_part_agence' => 'decimal:2',
         'charges' => 'decimal:2',
+        'appliquer_tva' => 'boolean',
+        'appliquer_tom' => 'boolean',
     ];
 
     public function location()
@@ -68,6 +77,25 @@ class ContratLocation extends Model
     public function fichesLocatives()
     {
         return $this->hasMany(FicheLocative::class);
+    }
+
+    public function caution()
+    {
+        return $this->hasOne(Caution::class);
+    }
+
+    public function paiements()
+    {
+        return $this->hasMany(Paiement::class);
+    }
+
+    public function typeLocationLabel(): string
+    {
+        return match ($this->type_location) {
+            'commercial' => 'Usage commercial',
+            'habitation' => 'Usage habitation',
+            default => '—',
+        };
     }
 
     public function supprimePar()
