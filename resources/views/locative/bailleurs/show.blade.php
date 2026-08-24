@@ -136,35 +136,16 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row g-4">
-                            <div class="col-lg-6">
-                                <div class="card">
-                                    <div class="card-header"><h6 class="card-action-title mb-0">Coordonnées</h6></div>
-                                    <div class="card-body">
-                                        <div class="row mb-3"><div class="col-4 text-muted">Téléphone</div><div class="col-8 fw-medium">{{ $bailleur->telephone ?: '—' }}</div></div>
-                                        <div class="row mb-3"><div class="col-4 text-muted">WhatsApp</div><div class="col-8 fw-medium">{{ $bailleur->whatsapp ?: '—' }}</div></div>
-                                        <div class="row mb-3"><div class="col-4 text-muted">Email</div><div class="col-8 fw-medium">{{ $bailleur->email ?: '—' }}</div></div>
-                                        <div class="row"><div class="col-4 text-muted">Adresse</div><div class="col-8 fw-medium">{{ $bailleur->adresse ?: '—' }}</div></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="card">
-                                    <div class="card-header"><h6 class="card-action-title mb-0">Identité</h6></div>
-                                    <div class="card-body">
-                                        <div class="row mb-3"><div class="col-4 text-muted">Pièce d'identité</div><div class="col-8 fw-medium">{{ $bailleur->piece_identite_type ?: '—' }} {{ $bailleur->piece_identite_numero }}</div></div>
-                                        <div class="row mb-3"><div class="col-4 text-muted">NINEA</div><div class="col-8 fw-medium">{{ $bailleur->ninea ?: '—' }}</div></div>
-                                        <div class="row"><div class="col-4 text-muted">Coordonnées de paiement</div><div class="col-8 fw-medium">{{ $bailleur->coordonnees_paiement ?: '—' }}</div></div>
-                                    </div>
-                                </div>
-                                @if ($bailleur->notes)
+                        @if ($bailleur->notes)
+                            <div class="row g-4">
+                                <div class="col-12">
                                     <div class="card">
                                         <div class="card-header"><h6 class="card-action-title mb-0">Notes</h6></div>
                                         <div class="card-body"><p class="mb-0">{{ $bailleur->notes }}</p></div>
                                     </div>
-                                @endif
+                                </div>
                             </div>
-                        </div>
+                        @endif
                     </div>
 
                     @if ($compte)

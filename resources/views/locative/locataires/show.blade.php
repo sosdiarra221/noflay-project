@@ -262,33 +262,16 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row g-4">
-                            <div class="col-lg-6">
-                                <div class="card">
-                                    <div class="card-header"><h6 class="card-action-title mb-0">Coordonnées</h6></div>
-                                    <div class="card-body">
-                                        <div class="row mb-3"><div class="col-4 text-muted">Téléphone</div><div class="col-8 fw-medium">{{ $locataire->telephone ?: '—' }}</div></div>
-                                        <div class="row mb-3"><div class="col-4 text-muted">WhatsApp</div><div class="col-8 fw-medium">{{ $locataire->whatsapp ?: '—' }}</div></div>
-                                        <div class="row mb-3"><div class="col-4 text-muted">Email</div><div class="col-8 fw-medium">{{ $locataire->email ?: '—' }}</div></div>
-                                        <div class="row"><div class="col-4 text-muted">Adresse</div><div class="col-8 fw-medium">{{ $locataire->adresse ?: '—' }}</div></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="card">
-                                    <div class="card-header"><h6 class="card-action-title mb-0">Identité</h6></div>
-                                    <div class="card-body">
-                                        <div class="row"><div class="col-4 text-muted">Pièce d'identité</div><div class="col-8 fw-medium">{{ $locataire->piece_identite_type ?: '—' }} {{ $locataire->piece_identite_numero }}</div></div>
-                                    </div>
-                                </div>
-                                @if ($locataire->notes)
+                        @if ($locataire->notes)
+                            <div class="row g-4">
+                                <div class="col-12">
                                     <div class="card">
                                         <div class="card-header"><h6 class="card-action-title mb-0">Notes</h6></div>
                                         <div class="card-body"><p class="mb-0">{{ $locataire->notes }}</p></div>
                                     </div>
-                                @endif
+                                </div>
                             </div>
-                        </div>
+                        @endif
                     </div>
 
                     {{-- Locations & contrats --}}
