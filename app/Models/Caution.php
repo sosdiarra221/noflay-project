@@ -45,6 +45,11 @@ class Caution extends Model
         return $this->belongsTo(User::class, 'restituee_par_id');
     }
 
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+
     /**
      * Seule la part bailleur (la vraie caution/garantie) est restituable : la part agence
      * correspond aux frais d'agence à l'entrée, déjà acquis à l'agence dès l'encaissement.

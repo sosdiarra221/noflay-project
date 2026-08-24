@@ -3,7 +3,7 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h6 class="card-title mb-0 fw-semibold">Documents <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $documents->count() }}</span></h6>
-        @can('locative.documents')
+        @can(in_array($typeDocument, ['depense', 'caution']) ? 'finance.gerer' : 'locative.documents')
             <button type="button" class="btn btn-light-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ajouterDocumentModal{{ $typeDocument }}{{ $documentable->id }}">
                 <i class="bi bi-upload me-1"></i>Ajouter un document
             </button>
@@ -35,7 +35,7 @@
                             <td>
                                 <div class="hstack gap-2">
                                     <a href="{{ route('locative.documents.telecharger', $document) }}" class="btn btn-light-info icon-btn-sm"><i class="bi bi-download"></i></a>
-                                    @can('locative.documents')
+                                    @can(in_array($typeDocument, ['depense', 'caution']) ? 'finance.gerer' : 'locative.documents')
                                         <form action="{{ route('locative.documents.destroy', $document) }}" method="POST" onsubmit="return confirm('Supprimer ce document ?');">
                                             @csrf
                                             @method('DELETE')
@@ -54,7 +54,7 @@
     </div>
 </div>
 
-@can('locative.documents')
+@can(in_array($typeDocument, ['depense', 'caution']) ? 'finance.gerer' : 'locative.documents')
     <div class="modal fade" id="ajouterDocumentModal{{ $typeDocument }}{{ $documentable->id }}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">

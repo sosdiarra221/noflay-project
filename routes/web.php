@@ -39,9 +39,11 @@ use App\Http\Controllers\Documents\DocumentsDashboardController;
 use App\Http\Controllers\Documents\DocumentTemplateController;
 use App\Http\Controllers\Documents\DocumentTemplateVersionController;
 use App\Http\Controllers\Documents\DocumentController as DocumentGenereController;
+use App\Http\Controllers\Finance\BailleurFinanceController;
 use App\Http\Controllers\Finance\CautionController;
 use App\Http\Controllers\Finance\DepenseController;
 use App\Http\Controllers\Finance\FinanceDashboardController;
+use App\Http\Controllers\Finance\LocataireFinanceController;
 use App\Http\Controllers\Finance\JournalCaisseController;
 use App\Http\Controllers\Finance\RevenuController;
 use App\Http\Controllers\Finance\ReversementFinanceController;
@@ -250,6 +252,12 @@ Route::prefix('finance')->name('finance.')->group(function () {
     Route::post('depenses/{depense}/marquer-a-payer', [DepenseController::class, 'marquerAPayer'])->name('depenses.marquer-a-payer');
     Route::post('depenses/{depense}/payer', [DepenseController::class, 'payer'])->name('depenses.payer');
     Route::post('depenses/{depense}/cloturer', [DepenseController::class, 'cloturer'])->name('depenses.cloturer');
+
+    Route::get('locataires', [LocataireFinanceController::class, 'index'])->name('locataires.index');
+    Route::get('locataires/{locataire}', [LocataireFinanceController::class, 'show'])->name('locataires.show');
+
+    Route::get('bailleurs', [BailleurFinanceController::class, 'index'])->name('bailleurs.index');
+    Route::get('bailleurs/{bailleur}', [BailleurFinanceController::class, 'show'])->name('bailleurs.show');
 });
 
 Route::get('{any}', [DashboardController::class, 'index'])->where('any', '.*'); // Catch-all route for the dashboard.

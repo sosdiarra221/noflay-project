@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Locative;
 
 use App\Http\Controllers\Controller;
 use App\Models\Bailleur;
+use App\Models\Caution;
 use App\Models\ContratGerance;
 use App\Models\ContratLocation;
 use App\Models\DepenseLocation;
@@ -21,11 +22,14 @@ class DocumentController extends Controller
         'contrat' => ContratLocation::class,
         'locataire' => Locataire::class,
         'depense' => DepenseLocation::class,
+        'caution' => Caution::class,
     ];
+
+    protected array $typesFinance = ['depense', 'caution'];
 
     public function store(Request $request, string $type, int $id)
     {
-        Gate::authorize($type === 'depense' ? 'finance.gerer' : 'locative.documents');
+        Gate::authorize(in_array($type, $this->typesFinance, true) ? 'finance.gerer' : 'locative.documents');
 
         $classe = $this->modeles[$type] ?? abort(404);
         $documentable = $classe::findOrFail($id);
@@ -59,7 +63,8 @@ class DocumentController extends Controller
 
     public function destroy(Document $document)
     {
-        Gate::authorize($document->documentable_type === DepenseLocation::class ? 'finance.gerer' : 'locative.documents');
+        $estFinance = in_array($document->documentable_type, [DepenseLocation::class, Caution::class], true);
+        Gate::authorize($estFinance ? 'finance.gerer' : 'locative.documents');
 
         $document->delete();
 

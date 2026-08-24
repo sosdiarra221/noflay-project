@@ -9,7 +9,7 @@ class Document extends Model
 {
     use SoftDeletes;
 
-    const TYPES = ['Papier Juridique', 'Reçu', 'Papier Administrative', 'Facture', 'Quittance de loyer'];
+    const TYPES = ['Papier Juridique', 'Reçu', 'Papier Administrative', 'Facture', 'Quittance de loyer', 'État des lieux', 'Devis', 'Photo'];
 
     protected $fillable = [
         'documentable_type',

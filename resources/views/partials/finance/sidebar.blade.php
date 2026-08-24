@@ -51,6 +51,18 @@
                 </a>
             </li>
             <li class="pe-slide pe-has-sub">
+                <a href="{{ route('finance.locataires.index') }}" class="pe-nav-link">
+                    <i class="bi bi-person-badge pe-nav-icon"></i>
+                    <span class="pe-nav-content">Comptes locataires</span>
+                </a>
+            </li>
+            <li class="pe-slide pe-has-sub">
+                <a href="{{ route('finance.bailleurs.index') }}" class="pe-nav-link">
+                    <i class="bi bi-building pe-nav-icon"></i>
+                    <span class="pe-nav-content">Comptes bailleurs</span>
+                </a>
+            </li>
+            <li class="pe-slide pe-has-sub">
                 <a href="{{ route('finance.journal-caisse.index') }}" class="pe-nav-link">
                     <i class="bi bi-journal-text pe-nav-icon"></i>
                     <span class="pe-nav-content">Journal de caisse</span>
