@@ -122,6 +122,64 @@
             </div>
         </div>
 
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-primary-subtle">
+                <h6 class="card-action-title mb-0 text-primary"><i class="bi bi-file-earmark-text me-2"></i>Rapport de situation — {{ $location->numero }}</h6>
+            </div>
+            <div class="card-body" style="max-height: 260px; overflow-y: auto;">
+                <p>
+                    La location <strong>{{ $location->numero }}</strong> concerne <strong>{{ $location->locataire->nom_complet }}</strong>
+                    sur <strong>{{ $location->contrats->count() }}</strong> bien{{ $location->contrats->count() > 1 ? 's' : '' }}
+                    ({{ $location->contrats->pluck('bien.titre')->filter()->implode(', ') }})
+                    @if ($rapport['date_debut_min'])
+                        , loué{{ $location->contrats->count() > 1 ? 's' : '' }} depuis le <strong>{{ $rapport['date_debut_min']->format('d/m/Y') }}</strong>
+                    @endif
+                    , pour un loyer total de <strong>{{ number_format($stats['loyer_total'], 0, ',', ' ') }} FCFA</strong> par mois.
+                </p>
+                <p>
+                    Sur l'ensemble des échéances émises, <strong>{{ number_format($stats['total_paye'], 0, ',', ' ') }} FCFA</strong> ont été encaissés
+                    sur <strong>{{ number_format($stats['total_attendu'], 0, ',', ' ') }} FCFA</strong> attendus
+                    @if ($rapport['taux_recouvrement'] !== null)
+                        (taux de recouvrement d'environ <strong>{{ $rapport['taux_recouvrement'] }} %</strong>)
+                    @endif
+                    , soit <strong class="{{ $rapport['solde_restant'] > 0 ? 'text-danger' : 'text-success' }}">{{ number_format($rapport['solde_restant'], 0, ',', ' ') }} FCFA</strong> encore impayé{{ $rapport['solde_restant'] > 0 ? '' : ' (à jour)' }}.
+                    Sur {{ $echeances->count() }} échéance{{ $echeances->count() > 1 ? 's' : '' }} au total, <strong>{{ $rapport['echeances_payees'] }}</strong> {{ $rapport['echeances_payees'] > 1 ? 'sont soldées' : 'est soldée' }},
+                    <strong>{{ $rapport['echeances_partielles'] }}</strong> partiellement payée{{ $rapport['echeances_partielles'] > 1 ? 's' : '' }}
+                    @if ($stats['echeances_en_retard'] > 0)
+                        et <strong class="text-danger">{{ $stats['echeances_en_retard'] }}</strong> en retard de paiement
+                    @endif
+                    .
+                </p>
+                @if ($rapport['caution_totale_bailleur'] > 0 || $rapport['caution_totale_agence'] > 0)
+                    <p>
+                        Au titre de la caution / garantie versée à la signature, l'agence détient <strong>{{ number_format($rapport['caution_totale_bailleur'], 0, ',', ' ') }} FCFA</strong>
+                        pour le compte du bailleur (restituable en fin de location) et a perçu <strong>{{ number_format($rapport['caution_totale_agence'], 0, ',', ' ') }} FCFA</strong> de frais d'agence à l'entrée
+                        @if ($rapport['cautions_restituees'] > 0)
+                            ({{ $rapport['cautions_restituees'] }} caution{{ $rapport['cautions_restituees'] > 1 ? 's' : '' }} déjà restituée{{ $rapport['cautions_restituees'] > 1 ? 's' : '' }})
+                        @endif
+                        .
+                    </p>
+                @endif
+                @if ($rapport['charges_total'] > 0)
+                    <p>
+                        Les charges locatives (électricité, eau, wifi...) suivies pour cette location représentent <strong>{{ number_format($rapport['charges_total'], 0, ',', ' ') }} FCFA</strong>
+                        @if ($rapport['charges_a_payer'] > 0)
+                            , dont <strong class="text-warning-emphasis">{{ $rapport['charges_a_payer'] }}</strong> encore à payer
+                        @endif
+                        .
+                    </p>
+                @endif
+                @can('locative.finances')
+                    @if ($rapport['depenses_count'] > 0)
+                        <p class="mb-0">
+                            Par ailleurs, <strong>{{ $rapport['depenses_count'] }}</strong> dépense{{ $rapport['depenses_count'] > 1 ? 's ont' : ' a' }} été enregistrée{{ $rapport['depenses_count'] > 1 ? 's' : '' }} sur cette location,
+                            pour un total payé de <strong>{{ number_format($rapport['depenses_total'], 0, ',', ' ') }} FCFA</strong>.
+                        </p>
+                    @endif
+                @endcan
+            </div>
+        </div>
+
         <div class="mb-6">
             <ul class="nav nav-pills" id="locationTab" role="tablist">
                 <li class="nav-item" role="presentation">

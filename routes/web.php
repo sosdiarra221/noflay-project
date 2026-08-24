@@ -146,6 +146,9 @@ Route::prefix('locative')->name('locative.')->group(function () {
     Route::get('contrats/{contrat}/pdf', [ContratLocationController::class, 'pdf'])->name('contrats.pdf');
     Route::get('contrats/{contrat}/apercu', [ContratLocationController::class, 'apercu'])->name('contrats.apercu');
     Route::post('contrats/{contrat}/generer-loyers', [ContratLocationController::class, 'genererLoyers'])->name('contrats.generer-loyers');
+    Route::post('contrats/{contrat}/suspendre', [ContratLocationController::class, 'suspendre'])->name('contrats.suspendre');
+    Route::post('contrats/{contrat}/resilier', [ContratLocationController::class, 'resilier'])->name('contrats.resilier');
+    Route::post('contrats/{contrat}/renouveler', [ContratLocationController::class, 'renouveler'])->name('contrats.renouveler');
 
     Route::get('echeances', [EcheanceLoyerController::class, 'index'])->name('echeances.index');
     Route::post('echeances/generer', [EcheanceLoyerController::class, 'generer'])->name('echeances.generer');

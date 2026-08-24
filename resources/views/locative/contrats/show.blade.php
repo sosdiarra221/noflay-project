@@ -28,15 +28,40 @@
             <div class="card-body">
                 <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
                     <div>
-                        <h5 class="mb-1">{{ $contrat->numero }} <span class="badge bg-success-subtle text-success text-capitalize ms-1">{{ $contrat->statut }}</span></h5>
+                        @php
+                            $classesStatutContrat = ['actif' => 'success', 'suspendu' => 'warning', 'expire' => 'secondary', 'resilie' => 'danger', 'archive' => 'dark'];
+                        @endphp
+                        <h5 class="mb-1">{{ $contrat->numero }} <span class="badge bg-{{ $classesStatutContrat[$contrat->statut] ?? 'secondary' }}-subtle text-{{ $classesStatutContrat[$contrat->statut] ?? 'secondary' }} text-capitalize ms-1">{{ $contrat->statut }}</span></h5>
                         <p class="text-muted mb-0">
                             {{ $contrat->bien->titre }} — {{ $contrat->location->locataire->nom_complet }} — {{ number_format($contrat->loyer_mensuel, 0, ',', ' ') }} FCFA / mois
                         </p>
+                        @if ($contrat->renouveleDepuis)
+                            <p class="text-muted fs-12 mb-0"><i class="bi bi-arrow-repeat me-1"></i>Renouvellement du contrat <a href="{{ route('locative.contrats.show', $contrat->renouveleDepuis) }}">{{ $contrat->renouveleDepuis->numero }}</a></p>
+                        @endif
+                        @if ($contrat->renouveleVers)
+                            <p class="text-muted fs-12 mb-0"><i class="bi bi-arrow-repeat me-1"></i>Renouvelé sous le contrat <a href="{{ route('locative.contrats.show', $contrat->renouveleVers) }}">{{ $contrat->renouveleVers->numero }}</a></p>
+                        @endif
+                        @if ($contrat->statut === 'resilie' && $contrat->motif_resiliation)
+                            <p class="text-danger fs-12 mb-0"><i class="bi bi-info-circle me-1"></i>Résilié le {{ $contrat->date_fin?->format('d/m/Y') }} — {{ $contrat->motif_resiliation }}</p>
+                        @endif
                     </div>
-                    <div class="d-flex gap-2">
+                    <div class="d-flex flex-wrap gap-2">
                         <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#bailContratModal"><i class="bi bi-file-earmark-pdf me-1"></i>Contrat de bail</button>
                         <button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#editContratModal"><i class="bi bi-pencil-square me-1"></i>Modifier</button>
                         <button type="button" class="btn btn-light-warning" data-bs-toggle="modal" data-bs-target="#genererLoyersModal"><i class="bi bi-calendar-plus me-1"></i>Générer les loyers</button>
+                        @if (in_array($contrat->statut, ['actif', 'suspendu']))
+                            <button type="button" class="btn btn-light-secondary" data-bs-toggle="modal" data-bs-target="#suspendreContratModal">
+                                @if ($contrat->statut === 'suspendu')
+                                    <i class="bi bi-play-circle me-1"></i>Réactiver
+                                @else
+                                    <i class="bi bi-pause-circle me-1"></i>Suspendre
+                                @endif
+                            </button>
+                            <button type="button" class="btn btn-light-danger" data-bs-toggle="modal" data-bs-target="#resilierContratModal"><i class="bi bi-x-octagon me-1"></i>Résilier</button>
+                        @endif
+                        @if (! $contrat->renouveleVers)
+                            <button type="button" class="btn btn-light-success" data-bs-toggle="modal" data-bs-target="#renouvelerContratModal"><i class="bi bi-arrow-repeat me-1"></i>Renouveler</button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -254,6 +279,106 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
                             <button type="submit" class="btn btn-primary">Générer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Suspendre / réactiver le contrat -->
+        <div class="modal fade" id="suspendreContratModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <form action="{{ route('locative.contrats.suspendre', $contrat) }}" method="POST">
+                        @csrf
+                        <div class="modal-header">
+                            <h5 class="modal-title">{{ $contrat->statut === 'suspendu' ? 'Réactiver le contrat' : 'Suspendre le contrat' }}</h5>
+                            <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            @if ($contrat->statut === 'suspendu')
+                                <p class="mb-0">Le contrat <strong>{{ $contrat->numero }}</strong> repassera au statut « actif » et le suivi des loyers reprendra normalement.</p>
+                            @else
+                                <p class="mb-0">Le contrat <strong>{{ $contrat->numero }}</strong> passera au statut « suspendu » : le bien reste occupé mais aucune nouvelle échéance ne sera générée tant que le contrat n'est pas réactivé.</p>
+                            @endif
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-warning">Confirmer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Résilier le contrat -->
+        <div class="modal fade" id="resilierContratModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <form action="{{ route('locative.contrats.resilier', $contrat) }}" method="POST">
+                        @csrf
+                        <div class="modal-header">
+                            <h5 class="modal-title">Résilier le contrat {{ $contrat->numero }}</h5>
+                            <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                Cette action met fin au contrat entre {{ $contrat->location->locataire->nom_complet }} et l'agence. Le bien redeviendra disponible à la location et le dossier sera archivé.
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">Date effective de résiliation<span class="text-danger ms-1">*</span></label>
+                                    <input type="date" class="form-control" name="date_fin" value="{{ now()->format('Y-m-d') }}" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Motif de la résiliation<span class="text-danger ms-1">*</span></label>
+                                    <textarea class="form-control" name="motif_resiliation" rows="4" required placeholder="Ex : départ du locataire, non-respect des conditions, accord amiable..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-danger">Résilier le contrat</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Renouveler le contrat -->
+        <div class="modal fade" id="renouvelerContratModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <form action="{{ route('locative.contrats.renouveler', $contrat) }}" method="POST">
+                        @csrf
+                        <div class="modal-header">
+                            <h5 class="modal-title">Renouveler le contrat {{ $contrat->numero }}</h5>
+                            <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="text-muted">
+                                Un nouveau contrat sera créé pour {{ $contrat->bien->titre }} avec les nouvelles conditions ci-dessous.
+                                Le contrat actuel ({{ $contrat->numero }}) passera au statut « expiré ».
+                            </p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Nouvelle date de début<span class="text-danger ms-1">*</span></label>
+                                    <input type="date" class="form-control" name="date_debut" value="{{ ($contrat->date_fin ?? now())->copy()->addDay()->format('Y-m-d') }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Nouvelle date de fin</label>
+                                    <input type="date" class="form-control" name="date_fin">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Loyer mensuel<span class="text-danger ms-1">*</span></label>
+                                    <input type="number" step="0.01" min="0" class="form-control" name="loyer_mensuel" value="{{ $contrat->loyer_mensuel }}" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-success">Renouveler le contrat</button>
                         </div>
                     </form>
                 </div>

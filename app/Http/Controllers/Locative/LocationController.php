@@ -75,7 +75,38 @@ class LocationController extends Controller
             'total_depenses' => $depenses->whereIn('statut', DepenseLocation::STATUTS_PAYEES)->sum(fn ($d) => $d->montantImpute()),
         ];
 
-        return view('locative.locations.show', compact('location', 'stats', 'echeances', 'paiements', 'depenses', 'charges'));
+        $rapport = $this->construireRapportSituation($location, $stats, $echeances, $depenses, $charges);
+
+        return view('locative.locations.show', compact('location', 'stats', 'echeances', 'paiements', 'depenses', 'charges', 'rapport'));
+    }
+
+    /**
+     * Prépare les chiffres du rapport de situation en texte de la fiche location : biens loués
+     * depuis quand, taux de recouvrement des loyers, échéances en retard, cautions détenues,
+     * charges et dépenses — pour donner une vue synthétique en langage naturel.
+     */
+    protected function construireRapportSituation(Location $location, array $stats, $echeances, $depenses, $charges): array
+    {
+        $datesDebut = $location->contrats->pluck('date_debut')->filter();
+        $soldeRestant = max($stats['total_attendu'] - $stats['total_paye'], 0);
+
+        $cautions = $location->contrats->pluck('caution')->filter();
+
+        return [
+            'date_debut_min' => $datesDebut->isNotEmpty() ? $datesDebut->min() : null,
+            'solde_restant' => $soldeRestant,
+            'taux_recouvrement' => $stats['total_attendu'] > 0 ? round($stats['total_paye'] / $stats['total_attendu'] * 100, 1) : null,
+            'echeances_payees' => $echeances->where('statut', 'paye')->count(),
+            'echeances_partielles' => $echeances->where('statut', 'partiellement_paye')->count(),
+            'echeances_a_venir' => $echeances->where('statut', 'a_venir')->count(),
+            'caution_totale_bailleur' => (float) $cautions->sum('part_bailleur'),
+            'caution_totale_agence' => (float) $cautions->sum('part_agence'),
+            'cautions_restituees' => $cautions->where('statut', 'restituee')->count(),
+            'charges_total' => (float) $charges->sum('montant'),
+            'charges_a_payer' => $charges->where('statut', 'a_payer')->count(),
+            'depenses_total' => $stats['total_depenses'],
+            'depenses_count' => $depenses->count(),
+        ];
     }
 
     public function store(Request $request, EcheanceLoyerService $echeanceService, DocumentGenerationService $documentGenerationService)

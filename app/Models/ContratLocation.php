@@ -35,6 +35,8 @@ class ContratLocation extends Model
         'notes',
         'supprime_par_id',
         'motif_suppression',
+        'motif_resiliation',
+        'renouvele_depuis_id',
     ];
 
     protected $casts = [
@@ -101,6 +103,16 @@ class ContratLocation extends Model
     public function supprimePar()
     {
         return $this->belongsTo(User::class, 'supprime_par_id');
+    }
+
+    public function renouveleDepuis()
+    {
+        return $this->belongsTo(ContratLocation::class, 'renouvele_depuis_id');
+    }
+
+    public function renouveleVers()
+    {
+        return $this->hasOne(ContratLocation::class, 'renouvele_depuis_id');
     }
 
     public function documents()
