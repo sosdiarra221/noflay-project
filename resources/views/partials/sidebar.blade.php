@@ -338,6 +338,14 @@
                     </a>
                 </li>
             @endcan
+            @can('finance.consulter')
+                <li class="pe-slide pe-has-sub">
+                    <a href="{{ route('finance.dashboard') }}" class="pe-nav-link">
+                        <i class="bi bi-cash-coin pe-nav-icon"></i>
+                        <span class="pe-nav-content">Finance</span>
+                    </a>
+                </li>
+            @endcan
             <li class="pe-menu-title">
                 Administration
             </li>

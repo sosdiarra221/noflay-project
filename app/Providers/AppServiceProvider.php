@@ -27,6 +27,10 @@ class AppServiceProvider extends ServiceProvider
         // Module Gestion Document : réservé à la Direction (modèles contractuels sensibles).
         'documents.gerer' => [Role::ADMINISTRATEUR, Role::DIRECTEUR],
         'documents.templates' => [Role::ADMINISTRATEUR, Role::DIRECTEUR],
+
+        // Module Finance : consultation élargie, opérations de versement réservées à la Direction/Comptabilité.
+        'finance.consulter' => [Role::ADMINISTRATEUR, Role::DIRECTEUR, Role::COMPTABLE],
+        'finance.gerer' => [Role::ADMINISTRATEUR, Role::DIRECTEUR, Role::COMPTABLE],
     ];
 
     /**

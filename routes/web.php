@@ -38,6 +38,10 @@ use App\Http\Controllers\Documents\DocumentsDashboardController;
 use App\Http\Controllers\Documents\DocumentTemplateController;
 use App\Http\Controllers\Documents\DocumentTemplateVersionController;
 use App\Http\Controllers\Documents\DocumentController as DocumentGenereController;
+use App\Http\Controllers\Finance\FinanceDashboardController;
+use App\Http\Controllers\Finance\RevenuController;
+use App\Http\Controllers\Finance\ReversementFinanceController;
+use App\Http\Controllers\Finance\TaxeController;
 
 Route::get('connexion', [AuthController::class, 'showLogin'])->name('login');
 Route::post('connexion', [AuthController::class, 'login'])->name('login.store');
@@ -206,6 +210,21 @@ Route::prefix('gestion-documents')->name('documents.')->group(function () {
     Route::get('generes/{document}/apercu', [DocumentGenereController::class, 'apercu'])->name('generes.apercu');
     Route::get('generes/{document}/telecharger', [DocumentGenereController::class, 'telecharger'])->name('generes.telecharger');
     Route::get('generes/{document}/historique', [DocumentGenereController::class, 'historique'])->name('generes.historique');
+});
+
+// Module Finance — sous-application avec son propre dashboard et son propre menu.
+Route::prefix('finance')->name('finance.')->group(function () {
+    Route::get('/', [FinanceDashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('revenus', [RevenuController::class, 'index'])->name('revenus.index');
+
+    Route::get('reversements', [ReversementFinanceController::class, 'index'])->name('reversements.index');
+    Route::post('reversements/marquer-verse', [ReversementFinanceController::class, 'marquerVerse'])->name('reversements.marquer-verse');
+    Route::get('reversements/historique', [ReversementFinanceController::class, 'historique'])->name('reversements.historique');
+    Route::get('reversements/{reversement}/bordereau', [ReversementFinanceController::class, 'apercuBordereau'])->name('reversements.bordereau');
+    Route::get('reversements/{reversement}/bordereau/telecharger', [ReversementFinanceController::class, 'telechargerBordereau'])->name('reversements.bordereau-telecharger');
+
+    Route::get('taxes', [TaxeController::class, 'index'])->name('taxes.index');
 });
 
 Route::get('{any}', [DashboardController::class, 'index'])->where('any', '.*'); // Catch-all route for the dashboard.
