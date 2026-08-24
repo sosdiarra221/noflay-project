@@ -552,7 +552,7 @@
                 <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Contrat de bail — {{ $contrat->numero }}</h5>
+                            <h5 class="modal-title">Contrat de location — {{ $contrat->numero }}</h5>
                             <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
                         </div>
                         <div class="modal-body p-0">

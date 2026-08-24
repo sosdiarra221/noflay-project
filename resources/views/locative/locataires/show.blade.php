@@ -192,6 +192,7 @@
                             $periodeDebut = $echeances->min(fn ($e) => sprintf('%04d-%02d', $e->annee, $e->mois));
                             $periodeFin = $echeances->max(fn ($e) => sprintf('%04d-%02d', $e->annee, $e->mois));
                             $profilLabel = ['bon' => 'Bon payeur', 'a_surveiller' => 'À surveiller', 'mauvais' => 'Mauvais payeur'][$stats['profil']] ?? 'Bon payeur';
+                            $profilCouleur = ['bon' => 'success', 'a_surveiller' => 'warning', 'mauvais' => 'danger'][$stats['profil']] ?? 'success';
                             $cautionsAvecMotif = $cautions->where('statut', '!=', 'restituee')->where('motif_retenue', '!=', null);
                             $resteAPayer = max($stats['total_du'] - $stats['total_paye'], 0);
                             $tauxReglementMontant = $stats['total_du'] > 0 ? round($stats['total_paye'] / $stats['total_du'] * 100, 1) : 100;
@@ -209,24 +210,24 @@
                                     dont <strong>{{ $contratsActifs->count() }}</strong> actuellement actif{{ $contratsActifs->count() > 1 ? 's' : '' }}.
                                 </p>
                                 <p>
-                                    À ce jour, le montant total des loyers exigibles s'élève à <strong>{{ number_format($stats['total_du'], 0, ',', ' ') }} FCFA</strong>{{ $periodeDebut && $periodeFin ? ' sur la période de '.\Carbon\Carbon::createFromFormat('Y-m', $periodeDebut)->translatedFormat('F Y').' à '.\Carbon\Carbon::createFromFormat('Y-m', $periodeFin)->translatedFormat('F Y') : '' }}.
-                                    Sur cette somme, <strong>{{ number_format($stats['total_paye'], 0, ',', ' ') }} FCFA</strong> ont déjà été réglés, soit un taux de règlement d'environ <strong>{{ $tauxReglementMontant }} %</strong>.
+                                    À ce jour, le montant total des loyers exigibles s'élève à <strong class="text-primary">{{ number_format($stats['total_du'], 0, ',', ' ') }} FCFA</strong>{{ $periodeDebut && $periodeFin ? ' sur la période de '.\Carbon\Carbon::createFromFormat('Y-m', $periodeDebut)->translatedFormat('F Y').' à '.\Carbon\Carbon::createFromFormat('Y-m', $periodeFin)->translatedFormat('F Y') : '' }}.
+                                    Sur cette somme, <strong class="text-success">{{ number_format($stats['total_paye'], 0, ',', ' ') }} FCFA</strong> ont déjà été réglés, soit un taux de règlement d'environ <strong>{{ $tauxReglementMontant }} %</strong>.
                                 </p>
                                 <p>
-                                    {{ $resteAPayer > 0 ? 'Le solde impayé s\'élève actuellement à '.number_format($resteAPayer, 0, ',', ' ').' FCFA, correspondant aux loyers restant dus à l\'agence.' : 'Le locataire est à jour : aucun solde impayé.' }}
-                                    Au regard de sa situation de paiement, le locataire est actuellement classé dans la catégorie « <strong>{{ $profilLabel }}</strong> ».
+                                    {!! $resteAPayer > 0 ? 'Le solde impayé s\'élève actuellement à <strong class="text-danger">'.number_format($resteAPayer, 0, ',', ' ').' FCFA</strong>, correspondant aux loyers restant dus à l\'agence.' : 'Le locataire est à jour : aucun solde impayé.' !!}
+                                    Au regard de sa situation de paiement, le locataire est actuellement classé dans la catégorie <span class="badge bg-{{ $profilCouleur }}-subtle text-{{ $profilCouleur }}">{{ $profilLabel }}</span>.
                                 </p>
                                 @if ($cautions->isNotEmpty())
                                     <p class="{{ $depensesLocataire->isNotEmpty() ? '' : 'mb-0' }}">
                                         Concernant les cautions et garanties versées à la signature {{ $contrats->count() > 1 ? 'des contrats' : 'du contrat' }},
-                                        {{ $montantDuAuLocataire > 0 ? 'un montant de '.number_format($montantDuAuLocataire, 0, ',', ' ').' FCFA reste à restituer à la locataire par l\'agence' : 'toutes les cautions concernées ont déjà été restituées' }}{{ $cautionsAvecMotif->isNotEmpty() ? ' (motif de retenue partielle : '.$cautionsAvecMotif->pluck('motif_retenue')->implode(' ; ').')' : '' }},
+                                        {!! $montantDuAuLocataire > 0 ? 'un montant de <strong class="text-danger">'.number_format($montantDuAuLocataire, 0, ',', ' ').' FCFA</strong> reste à restituer à la locataire par l\'agence' : 'toutes les cautions concernées ont déjà été restituées' !!}{{ $cautionsAvecMotif->isNotEmpty() ? ' (motif de retenue partielle : '.$cautionsAvecMotif->pluck('motif_retenue')->implode(' ; ').')' : '' }},
                                         sous réserve des éventuelles conditions de restitution prévues au contrat.
                                     </p>
                                 @endif
                                 @if ($depensesLocataire->isNotEmpty())
                                     <p class="mb-0">
                                         Par ailleurs, <strong>{{ $depensesLocataire->count() }}</strong> dépense{{ $depensesLocataire->count() > 1 ? 's sont' : ' est' }} à sa charge,
-                                        pour un total de <strong>{{ number_format($depensesLocataire->sum(fn ($d) => $d->montantImpute()), 0, ',', ' ') }} FCFA</strong>.
+                                        pour un total de <strong class="text-warning-emphasis">{{ number_format($depensesLocataire->sum(fn ($d) => $d->montantImpute()), 0, ',', ' ') }} FCFA</strong>.
                                     </p>
                                 @endif
                             </div>
@@ -245,7 +246,7 @@
                                                     <li class="d-flex justify-content-between border-bottom py-2"><span class="text-muted">Total loyers dus</span><span class="fw-medium">{{ number_format($stats['total_du'], 0, ',', ' ') }} FCFA</span></li>
                                                     <li class="d-flex justify-content-between border-bottom py-2"><span class="text-muted">Loyers réglés</span><span class="fw-medium text-success">{{ number_format($stats['total_paye'], 0, ',', ' ') }} FCFA</span></li>
                                                     <li class="d-flex justify-content-between border-bottom py-2"><span class="text-muted">Arriéré</span><span class="fw-medium {{ $stats['arrieres'] > 0 ? 'text-danger' : '' }}">{{ number_format($stats['arrieres'], 0, ',', ' ') }} FCFA</span></li>
-                                                    <li class="d-flex justify-content-between border-bottom py-2"><span class="text-muted">Caution à restituer</span><span class="fw-medium">{{ number_format($montantDuAuLocataire, 0, ',', ' ') }} FCFA</span></li>
+                                                    <li class="d-flex justify-content-between border-bottom py-2"><span class="text-muted">Caution à restituer</span><span class="fw-medium {{ $montantDuAuLocataire > 0 ? 'text-danger' : '' }}">{{ number_format($montantDuAuLocataire, 0, ',', ' ') }} FCFA</span></li>
                                                     <li class="d-flex justify-content-between py-2"><span class="text-muted">Contrats actifs / biens loués</span><span class="fw-medium">{{ $contratsActifs->count() }} / {{ $nbBiensLoues }}</span></li>
                                                 </ul>
                                             </div>

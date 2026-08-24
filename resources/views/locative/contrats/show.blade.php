@@ -46,7 +46,7 @@
                         @endif
                     </div>
                     <div class="d-flex flex-wrap gap-2">
-                        <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#bailContratModal"><i class="bi bi-file-earmark-pdf me-1"></i>Contrat de bail</button>
+                        <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#bailContratModal"><i class="bi bi-file-earmark-pdf me-1"></i>Contrat de location</button>
                         <button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#editContratModal"><i class="bi bi-pencil-square me-1"></i>Modifier</button>
                         <button type="button" class="btn btn-light-warning" data-bs-toggle="modal" data-bs-target="#genererLoyersModal"><i class="bi bi-calendar-plus me-1"></i>Générer les loyers</button>
                         @if (in_array($contrat->statut, ['actif', 'suspendu']))
@@ -79,6 +79,39 @@
 
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="infos-pane">
+                        @php
+                            $dateFinPrevue = $contrat->date_fin ?? $contrat->echeances->max('date_echeance');
+                            $dureeContrat = $dateFinPrevue ? $contrat->date_debut->diffForHumans($dateFinPrevue, ['parts' => 2, 'syntax' => \Carbon\CarbonInterface::DIFF_ABSOLUTE]) : null;
+                            $classesStatutRapport = ['actif' => 'success', 'suspendu' => 'warning', 'expire' => 'secondary', 'resilie' => 'danger', 'archive' => 'dark'];
+                            $statutCouleurRapport = $classesStatutRapport[$contrat->statut] ?? 'secondary';
+                            $echeancesPayees = $contrat->echeances->where('statut', 'paye')->count();
+                            $echeancesEnRetard = $contrat->echeances->where('statut', 'en_retard')->count();
+                        @endphp
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-primary-subtle">
+                                <h6 class="card-action-title mb-0 text-primary"><i class="bi bi-file-earmark-text me-2"></i>Rapport de situation — {{ $contrat->numero }}</h6>
+                            </div>
+                            <div class="card-body" style="max-height: 260px; overflow-y: auto;">
+                                <p>
+                                    Le contrat <strong>{{ $contrat->numero }}</strong> lie <strong>{{ $contrat->bailleur->nom_complet }}</strong> (bailleur) et <strong>{{ $contrat->location->locataire->nom_complet }}</strong> (locataire)
+                                    pour la location de <strong>{{ $contrat->bien->titre }}</strong>, à {{ strtolower($contrat->typeLocationLabel()) }}.
+                                    Il est actuellement au statut <span class="badge bg-{{ $statutCouleurRapport }}-subtle text-{{ $statutCouleurRapport }}">{{ ucfirst($contrat->statut) }}</span>.
+                                </p>
+                                <p>
+                                    Il est entré en vigueur le <strong>{{ $contrat->date_debut->format('d/m/Y') }}</strong>{!! $contrat->date_fin
+                                        ? ' pour une durée de <strong>'.$dureeContrat.'</strong>, jusqu\'au <strong>'.$contrat->date_fin->format('d/m/Y').'</strong>.'
+                                        : ($dateFinPrevue ? ', sans date de fin fixée au contrat ; sur la base des échéances déjà générées, sa date de fin prévue se situe au <strong>'.$dateFinPrevue->format('d/m/Y').'</strong> (durée théorique d\'environ <strong>'.$dureeContrat.'</strong>).' : ', sans date de fin fixée (durée indéterminée).') !!}
+                                    Le loyer mensuel s'élève à <strong class="text-primary">{{ number_format($contrat->loyer_mensuel, 0, ',', ' ') }} FCFA</strong>{{ $contrat->depot_garantie > 0 ? ', avec un dépôt de garantie de '.number_format($contrat->depot_garantie, 0, ',', ' ').' FCFA versé à la signature' : '' }}.
+                                </p>
+                                <p class="mb-0">
+                                    Sur <strong>{{ $contrat->echeances->count() }}</strong> échéance{{ $contrat->echeances->count() > 1 ? 's' : '' }} générée{{ $contrat->echeances->count() > 1 ? 's' : '' }},
+                                    <strong class="text-success">{{ $echeancesPayees }}</strong> {{ $echeancesPayees > 1 ? 'sont soldées' : 'est soldée' }}{!! $echeancesEnRetard > 0 ? ' et <strong class="text-danger">'.$echeancesEnRetard.'</strong> en retard de paiement' : '' !!}.
+                                    @if ($contrat->motif_resiliation)
+                                        <br>Motif de résiliation : {{ $contrat->motif_resiliation }}.
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
                         <div class="row g-4">
                             <div class="col-lg-6">
                                 <div class="card">
@@ -87,7 +120,9 @@
                                         <div class="row mb-3"><div class="col-5 text-muted">Bien</div><div class="col-7 fw-medium">{{ $contrat->bien->titre }}</div></div>
                                         <div class="row mb-3"><div class="col-5 text-muted">Bailleur</div><div class="col-7 fw-medium">{{ $contrat->bailleur->nom_complet }}</div></div>
                                         <div class="row mb-3"><div class="col-5 text-muted">Locataire</div><div class="col-7 fw-medium">{{ $contrat->location->locataire->nom_complet }}</div></div>
-                                        <div class="row"><div class="col-5 text-muted">Période</div><div class="col-7 fw-medium">{{ $contrat->date_debut->format('d/m/Y') }} @if ($contrat->date_fin) → {{ $contrat->date_fin->format('d/m/Y') }} @endif</div></div>
+                                        <div class="row mb-3"><div class="col-5 text-muted">Date de début</div><div class="col-7 fw-medium">{{ $contrat->date_debut->format('d/m/Y') }}</div></div>
+                                        <div class="row mb-3"><div class="col-5 text-muted">Durée</div><div class="col-7 fw-medium">{{ $dureeContrat ?? '—' }}</div></div>
+                                        <div class="row"><div class="col-5 text-muted">Date de fin {{ $contrat->date_fin ? '' : 'prévue' }}</div><div class="col-7 fw-medium">{{ $dateFinPrevue ? $dateFinPrevue->format('d/m/Y') : '—' }}</div></div>
                                     </div>
                                 </div>
                             </div>
@@ -452,7 +487,7 @@
             <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Contrat de bail — {{ $contrat->numero }}</h5>
+                        <h5 class="modal-title">Contrat de location — {{ $contrat->numero }}</h5>
                         <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
                     </div>
                     @if ($documentGenere)

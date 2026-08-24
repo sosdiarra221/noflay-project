@@ -107,6 +107,12 @@ class BailleurController extends Controller
     {
         Gate::authorize('locative.operations-sensibles');
 
+        if (ContratLocation::where('bailleur_id', $bailleur->id)->where('statut', 'actif')->exists()) {
+            return back()->withErrors([
+                'bailleur' => 'Ce bailleur a au moins un contrat de location actif : il ne peut pas être supprimé tant que ce(s) contrat(s) ne sont pas résiliés ou expirés.',
+            ]);
+        }
+
         $request->validate([
             'motif_suppression' => ['required', 'string', 'max:255'],
         ]);

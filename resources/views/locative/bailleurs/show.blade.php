@@ -13,6 +13,16 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
+        @if ($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <ul class="mb-0 ps-3">
+                    @foreach ($errors->all() as $erreur)
+                        <li>{{ $erreur }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
         <div class="card overflow-hidden">
             <div class="card-body h-176px"
@@ -42,6 +52,13 @@
                                 <span class="badge bg-secondary-subtle text-secondary fs-13 px-3 py-2">{{ $bailleur->gerances->count() }} Gérances</span>
                             </div>
                         </div>
+                        @can('locative.operations-sensibles')
+                            <div class="flex-shrink-0">
+                                <button type="button" class="btn btn-light-danger" data-bs-toggle="modal" data-bs-target="#deleteBailleurModal">
+                                    <i class="bi bi-trash3 me-1"></i>Supprimer
+                                </button>
+                            </div>
+                        @endcan
                     </div>
                 </div>
             </div>
@@ -87,26 +104,26 @@
                                         avec <strong>{{ $rapport['contrats_actifs'] }}</strong> contrat{{ $rapport['contrats_actifs'] > 1 ? 's' : '' }} de location en cours{{ $rapport['biens_disponibles'] > 0 ? ' et '.$rapport['biens_disponibles'].' bien'.($rapport['biens_disponibles'] > 1 ? 's' : '').' encore disponible'.($rapport['biens_disponibles'] > 1 ? 's' : '').' à la location' : '' }}.
                                     </p>
                                     <p>
-                                        Depuis le début de la relation, l'agence a encaissé pour le compte du bailleur un montant cumulé de <strong>{{ number_format($compte['loyers_encaisses'], 0, ',', ' ') }} FCFA</strong> au titre des loyers.
-                                        Sur cette somme, <strong>{{ number_format($compte['commission_agence'], 0, ',', ' ') }} FCFA</strong> ont été prélevés au titre des commissions de gestion,
-                                        tandis que <strong>{{ number_format($compte['travaux_depenses'], 0, ',', ' ') }} FCFA</strong> ont été affectés aux dépenses et travaux engagés sur ses biens.
+                                        Depuis le début de la relation, l'agence a encaissé pour le compte du bailleur un montant cumulé de <strong class="text-primary">{{ number_format($compte['loyers_encaisses'], 0, ',', ' ') }} FCFA</strong> au titre des loyers.
+                                        Sur cette somme, <strong class="text-success">{{ number_format($compte['commission_agence'], 0, ',', ' ') }} FCFA</strong> ont été prélevés au titre des commissions de gestion,
+                                        tandis que <strong class="text-warning-emphasis">{{ number_format($compte['travaux_depenses'], 0, ',', ' ') }} FCFA</strong> ont été affectés aux dépenses et travaux engagés sur ses biens.
                                     </p>
                                     <p>
-                                        À ce jour, l'agence a déjà reversé au bailleur <strong>{{ number_format($compte['deja_reverse'], 0, ',', ' ') }} FCFA</strong>.
+                                        À ce jour, l'agence a déjà reversé au bailleur <strong class="text-success">{{ number_format($compte['deja_reverse'], 0, ',', ' ') }} FCFA</strong>.
                                         Après prise en compte des encaissements, commissions, dépenses et règlements déjà effectués, le solde restant à reverser s'élève à
-                                        <strong class="{{ $compte['a_reverser'] > 0 ? 'text-success' : '' }}">{{ number_format($compte['a_reverser'], 0, ',', ' ') }} FCFA</strong>{{ $compte['arriere_anterieur'] > 0 ? ', dont '.number_format($compte['arriere_anterieur'], 0, ',', ' ').' FCFA correspondent à des sommes restant dues au titre des mois précédents' : '' }}.
+                                        <strong class="{{ $compte['a_reverser'] > 0 ? 'text-danger' : 'text-success' }}">{{ number_format($compte['a_reverser'], 0, ',', ' ') }} FCFA</strong>{!! $compte['arriere_anterieur'] > 0 ? ', dont <strong class="text-danger">'.number_format($compte['arriere_anterieur'], 0, ',', ' ').' FCFA</strong> correspondent à des sommes restant dues au titre des mois précédents' : '' !!}.
                                     </p>
                                     @if ($rapport['loyer_mensuel_total'] > 0)
                                         <p class="{{ $compte['depenses_en_attente'] > 0 ? '' : 'mb-0' }}">
-                                            Les contrats actuellement actifs génèrent un montant total de <strong>{{ number_format($rapport['loyer_mensuel_total'], 0, ',', ' ') }} FCFA</strong> de loyers mensuels pour l'ensemble du parc immobilier.
-                                            Sur ce montant, l'agence prélève en moyenne <strong>{{ number_format($rapport['commission_mensuelle'], 0, ',', ' ') }} FCFA</strong> par mois, correspondant à une commission de gestion de <strong>{{ $rapport['taux_moyen'] }} %</strong>.
-                                            Le montant net théorique à reverser au bailleur est donc de <strong>{{ number_format($rapport['net_mensuel_theorique'], 0, ',', ' ') }} FCFA</strong> par mois, avant déduction d'éventuelles dépenses, travaux ou autres charges imputables aux biens durant le mois concerné.
+                                            Les contrats actuellement actifs génèrent un montant total de <strong class="text-primary">{{ number_format($rapport['loyer_mensuel_total'], 0, ',', ' ') }} FCFA</strong> de loyers mensuels pour l'ensemble du parc immobilier.
+                                            Sur ce montant, l'agence prélève en moyenne <strong class="text-success">{{ number_format($rapport['commission_mensuelle'], 0, ',', ' ') }} FCFA</strong> par mois, correspondant à une commission de gestion de <strong>{{ $rapport['taux_moyen'] }} %</strong>.
+                                            Le montant net théorique à reverser au bailleur est donc de <strong class="text-danger">{{ number_format($rapport['net_mensuel_theorique'], 0, ',', ' ') }} FCFA</strong> par mois, avant déduction d'éventuelles dépenses, travaux ou autres charges imputables aux biens durant le mois concerné.
                                         </p>
                                     @endif
                                     @if ($compte['depenses_en_attente'] > 0)
                                         <p class="mb-0 text-warning-emphasis">
                                             <i class="bi bi-exclamation-triangle me-1"></i>
-                                            Par ailleurs, des dépenses pour un total de <strong>{{ number_format($compte['depenses_en_attente'], 0, ',', ' ') }} FCFA</strong>
+                                            Par ailleurs, des dépenses pour un total de <strong class="text-warning-emphasis">{{ number_format($compte['depenses_en_attente'], 0, ',', ' ') }} FCFA</strong>
                                             sont en attente de validation ou de paiement et viendront réduire d'autant le solde à lui reverser une fois réglées.
                                         </p>
                                     @endif
@@ -184,9 +201,9 @@
                                     </div>
                                 </div>
                                 <div class="col">
-                                    <div class="card border h-100 {{ $compte['a_reverser'] > 0 ? 'border-success' : '' }}">
+                                    <div class="card border h-100 {{ $compte['a_reverser'] > 0 ? 'border-danger' : '' }}">
                                         <div class="card-body">
-                                            <h5 class="mb-1 {{ $compte['a_reverser'] > 0 ? 'text-success' : '' }}">{{ number_format($compte['a_reverser'], 0, ',', ' ') }}</h5>
+                                            <h5 class="mb-1 {{ $compte['a_reverser'] > 0 ? 'text-danger' : 'text-success' }}">{{ number_format($compte['a_reverser'], 0, ',', ' ') }}</h5>
                                             <p class="text-muted mb-0 fs-12">Reste à recevoir (FCFA)</p>
                                         </div>
                                     </div>
@@ -195,7 +212,7 @@
                             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
                                 <p class="text-muted fs-12 mb-0">
                                     Solde du compte bailleur : loyers encaissés pour son compte, moins la commission de gestion de l'agence, moins les travaux/dépenses mis à sa charge, moins ce qui lui a déjà été versé — le résultat est le montant qu'il lui reste à recevoir
-                                    (dont <strong>{{ number_format($compte['du_mois_courant'], 0, ',', ' ') }} FCFA</strong> pour le mois en cours et <strong class="{{ $compte['arriere_anterieur'] > 0 ? 'text-danger' : '' }}">{{ number_format($compte['arriere_anterieur'], 0, ',', ' ') }} FCFA</strong> d'arriéré des mois précédents).
+                                    (dont <strong class="text-danger">{{ number_format($compte['du_mois_courant'], 0, ',', ' ') }} FCFA</strong> pour le mois en cours et <strong class="{{ $compte['arriere_anterieur'] > 0 ? 'text-danger' : '' }}">{{ number_format($compte['arriere_anterieur'], 0, ',', ' ') }} FCFA</strong> d'arriéré des mois précédents).
                                     @can('finance.consulter')
                                         <a href="{{ route('finance.bailleurs.show', $bailleur) }}">Voir le détail complet dans le module Finance</a>
                                     @endcan
@@ -328,6 +345,44 @@
                 </div>
             </div>
         </div>
+
+        @can('locative.operations-sensibles')
+            <div class="modal fade" id="deleteBailleurModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <form action="{{ route('locative.bailleurs.destroy', $bailleur) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <div class="modal-header">
+                                <h5 class="modal-title">Supprimer le bailleur</h5>
+                                <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
+                            </div>
+                            <div class="modal-body">
+                                @if ($rapport && $rapport['contrats_actifs'] > 0)
+                                    <div class="alert alert-danger mb-0">
+                                        <i class="bi bi-exclamation-octagon me-1"></i>
+                                        Impossible de supprimer <strong>{{ $bailleur->nom_complet }}</strong> : {{ $rapport['contrats_actifs'] }} contrat{{ $rapport['contrats_actifs'] > 1 ? 's' : '' }} de location {{ $rapport['contrats_actifs'] > 1 ? 'sont encore actifs' : 'est encore actif' }} sur ses biens. Résiliez ou laissez expirer {{ $rapport['contrats_actifs'] > 1 ? 'ces contrats' : 'ce contrat' }} avant de pouvoir supprimer ce bailleur.
+                                    </div>
+                                @else
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>
+                                        Cette opération archive le bailleur <strong>{{ $bailleur->nom_complet }}</strong>. Un motif est obligatoire.
+                                    </div>
+                                    <label class="form-label">Motif de suppression<span class="text-danger ms-1">*</span></label>
+                                    <textarea class="form-control" name="motif_suppression" rows="2" required></textarea>
+                                @endif
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ $rapport && $rapport['contrats_actifs'] > 0 ? 'Fermer' : 'Annuler' }}</button>
+                                @if (! $rapport || $rapport['contrats_actifs'] === 0)
+                                    <button type="submit" class="btn btn-danger">Confirmer la suppression</button>
+                                @endif
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @endcan
 
     </div>
     </main>
