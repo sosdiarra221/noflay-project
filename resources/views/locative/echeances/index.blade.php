@@ -121,14 +121,14 @@
                                             </td>
                                             <td>
                                                 <div class="hstack gap-2">
-                                                    <button type="button" class="btn btn-light-info icon-btn-sm" data-bs-toggle="modal" data-bs-target="#apercuEcheanceModal{{ $echeance->id }}"><i class="bi bi-eye"></i></button>
+                                                    <button type="button" class="btn btn-light-info icon-btn-sm" data-bs-toggle="modal" data-bs-target="#apercuEcheanceModal{{ $echeance->id }}" title="Aperçu de l'échéance"><i class="bi bi-eye"></i></button>
                                                     @if ($echeance->statut !== 'paye' && $echeance->statut !== 'annule')
-                                                        <button type="button" class="btn btn-light-success icon-btn-sm" data-bs-toggle="modal" data-bs-target="#encaisserEcheanceModal{{ $echeance->id }}"><i class="bi bi-cash-coin"></i></button>
+                                                        <button type="button" class="btn btn-light-success icon-btn-sm" data-bs-toggle="modal" data-bs-target="#encaisserEcheanceModal{{ $echeance->id }}" title="Encaisser le loyer"><i class="bi bi-cash-coin"></i></button>
                                                     @endif
                                                     @if ($echeance->montant_paye > 0)
-                                                        <button type="button" class="btn btn-light-warning icon-btn-sm" data-bs-toggle="modal" data-bs-target="#quittanceModal{{ $echeance->id }}"><i class="bi bi-receipt"></i></button>
+                                                        <button type="button" class="btn btn-light-warning icon-btn-sm" data-bs-toggle="modal" data-bs-target="#quittanceModal{{ $echeance->id }}" title="Voir le reçu / la quittance"><i class="bi bi-receipt"></i></button>
                                                     @endif
-                                                    <a href="{{ route('locative.contrats.show', $echeance->contratLocation) }}" class="btn btn-light-primary icon-btn-sm"><i class="bi bi-arrow-up-right-circle"></i></a>
+                                                    <a href="{{ route('locative.contrats.show', $echeance->contratLocation) }}" class="btn btn-light-primary icon-btn-sm" title="Voir le contrat"><i class="bi bi-arrow-up-right-circle"></i></a>
                                                 </div>
                                             </td>
                                         </tr>
