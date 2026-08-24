@@ -80,28 +80,27 @@
                                 </div>
                                 <div class="card-body">
                                     <p>
-                                        <strong>{{ $bailleur->nom_complet }}</strong> ({{ $bailleur->type === 'entreprise' ? 'entreprise' : 'particulier' }}) a confié à l'agence
-                                        <strong>{{ $bailleur->biens->count() }} bien{{ $bailleur->biens->count() > 1 ? 's' : '' }}</strong> en gérance
-                                        {{ $rapport['premiere_gerance'] && $rapport['premiere_gerance']->date_debut ? 'depuis le '.$rapport['premiere_gerance']->date_debut->format('d/m/Y').' (mandat '.$rapport['premiere_gerance']->numero.')' : '' }}.
-                                        Sur ce parc, <strong>{{ $rapport['biens_occupes'] }}</strong> bien{{ $rapport['biens_occupes'] > 1 ? 's sont' : ' est' }} actuellement loué{{ $rapport['biens_occupes'] > 1 ? 's' : '' }}
-                                        (<strong>{{ $rapport['contrats_actifs'] }}</strong> contrat{{ $rapport['contrats_actifs'] > 1 ? 's' : '' }} de location en cours){{ $rapport['biens_disponibles'] > 0 ? ' et '.$rapport['biens_disponibles'].' reste'.($rapport['biens_disponibles'] > 1 ? 'nt' : '').' disponible'.($rapport['biens_disponibles'] > 1 ? 's' : '').' à la location' : '' }}.
+                                        <strong>{{ $bailleur->nom_complet }}</strong>, {{ $bailleur->type === 'entreprise' ? 'client entreprise,' : 'client particulier,' }}
+                                        a confié à l'agence la gestion de <strong>{{ $bailleur->biens->count() }}</strong> bien{{ $bailleur->biens->count() > 1 ? 's' : '' }} immobilier{{ $bailleur->biens->count() > 1 ? 's' : '' }}
+                                        {{ $rapport['premiere_gerance'] && $rapport['premiere_gerance']->date_debut ? 'depuis le '.$rapport['premiere_gerance']->date_debut->format('d/m/Y') : '' }}{{ $rapport['premiere_gerance'] ? ', dans le cadre du mandat de gérance '.$rapport['premiere_gerance']->numero : '' }}.
+                                        À ce jour, {{ $rapport['biens_occupes'] > 1 ? 'les' : 'le' }} <strong>{{ $rapport['biens_occupes'] }}</strong> bien{{ $rapport['biens_occupes'] > 1 ? 's sont' : ' est' }} actuellement loué{{ $rapport['biens_occupes'] > 1 ? 's' : '' }},
+                                        avec <strong>{{ $rapport['contrats_actifs'] }}</strong> contrat{{ $rapport['contrats_actifs'] > 1 ? 's' : '' }} de location en cours{{ $rapport['biens_disponibles'] > 0 ? ' et '.$rapport['biens_disponibles'].' bien'.($rapport['biens_disponibles'] > 1 ? 's' : '').' encore disponible'.($rapport['biens_disponibles'] > 1 ? 's' : '').' à la location' : '' }}.
                                     </p>
                                     <p>
-                                        Depuis le début de la relation, l'agence a encaissé pour son compte un total de
-                                        <strong>{{ number_format($compte['loyers_encaisses'], 0, ',', ' ') }} FCFA</strong> de loyers.
-                                        Sur cette somme, l'agence a prélevé <strong>{{ number_format($compte['commission_agence'], 0, ',', ' ') }} FCFA</strong> de commission de gestion,
-                                        et <strong>{{ number_format($compte['travaux_depenses'], 0, ',', ' ') }} FCFA</strong> ont été mis à sa charge au titre des dépenses et travaux réglés sur ses biens.
-                                        Il lui a déjà été versé <strong>{{ number_format($compte['deja_reverse'], 0, ',', ' ') }} FCFA</strong> à ce jour, ce qui laisse
-                                        un solde de <strong class="{{ $compte['a_reverser'] > 0 ? 'text-success' : '' }}">{{ number_format($compte['a_reverser'], 0, ',', ' ') }} FCFA</strong> encore à lui reverser{{ $compte['arriere_anterieur'] > 0 ? ', dont '.number_format($compte['arriere_anterieur'], 0, ',', ' ').' FCFA d\'arriéré accumulé sur les mois précédents' : ', entièrement issu du mois en cours (aucun arriéré des mois précédents)' }}.
+                                        Depuis le début de la relation, l'agence a encaissé pour le compte du bailleur un montant cumulé de <strong>{{ number_format($compte['loyers_encaisses'], 0, ',', ' ') }} FCFA</strong> au titre des loyers.
+                                        Sur cette somme, <strong>{{ number_format($compte['commission_agence'], 0, ',', ' ') }} FCFA</strong> ont été prélevés au titre des commissions de gestion,
+                                        tandis que <strong>{{ number_format($compte['travaux_depenses'], 0, ',', ' ') }} FCFA</strong> ont été affectés aux dépenses et travaux engagés sur ses biens.
+                                    </p>
+                                    <p>
+                                        À ce jour, l'agence a déjà reversé au bailleur <strong>{{ number_format($compte['deja_reverse'], 0, ',', ' ') }} FCFA</strong>.
+                                        Après prise en compte des encaissements, commissions, dépenses et règlements déjà effectués, le solde restant à reverser s'élève à
+                                        <strong class="{{ $compte['a_reverser'] > 0 ? 'text-success' : '' }}">{{ number_format($compte['a_reverser'], 0, ',', ' ') }} FCFA</strong>{{ $compte['arriere_anterieur'] > 0 ? ', dont '.number_format($compte['arriere_anterieur'], 0, ',', ' ').' FCFA correspondent à des sommes restant dues au titre des mois précédents' : '' }}.
                                     </p>
                                     @if ($rapport['loyer_mensuel_total'] > 0)
-                                        <p>
-                                            Sur la base des contrats actuellement actifs, le parc de {{ $bailleur->nom_complet }} génère
-                                            <strong>{{ number_format($rapport['loyer_mensuel_total'], 0, ',', ' ') }} FCFA</strong> de loyer chaque mois.
-                                            L'agence en retient en moyenne <strong>{{ number_format($rapport['commission_mensuelle'], 0, ',', ' ') }} FCFA</strong>
-                                            (soit environ <strong>{{ $rapport['taux_moyen'] }} %</strong>) au titre de sa commission de gestion,
-                                            ce qui laisse un <strong>net théorique de {{ number_format($rapport['net_mensuel_theorique'], 0, ',', ' ') }} FCFA à reverser au bailleur chaque mois</strong>,
-                                            avant prise en compte des dépenses ou travaux éventuels du mois.
+                                        <p class="{{ $compte['depenses_en_attente'] > 0 ? '' : 'mb-0' }}">
+                                            Les contrats actuellement actifs génèrent un montant total de <strong>{{ number_format($rapport['loyer_mensuel_total'], 0, ',', ' ') }} FCFA</strong> de loyers mensuels pour l'ensemble du parc immobilier.
+                                            Sur ce montant, l'agence prélève en moyenne <strong>{{ number_format($rapport['commission_mensuelle'], 0, ',', ' ') }} FCFA</strong> par mois, correspondant à une commission de gestion de <strong>{{ $rapport['taux_moyen'] }} %</strong>.
+                                            Le montant net théorique à reverser au bailleur est donc de <strong>{{ number_format($rapport['net_mensuel_theorique'], 0, ',', ' ') }} FCFA</strong> par mois, avant déduction d'éventuelles dépenses, travaux ou autres charges imputables aux biens durant le mois concerné.
                                         </p>
                                     @endif
                                     @if ($compte['depenses_en_attente'] > 0)
@@ -114,6 +113,29 @@
                                 </div>
                             </div>
                         @endif
+                        <div class="row g-4">
+                            <div class="col-lg-6">
+                                <div class="card">
+                                    <div class="card-header"><h6 class="card-action-title mb-0">Situation mensuelle actuelle</h6></div>
+                                    <div class="card-body">
+                                        @if ($rapport['loyer_mensuel_total'] > 0)
+                                            <div id="chartSituationMensuelleBailleur"></div>
+                                            <p class="text-muted fs-12 text-center mb-0">Loyer mensuel du parc : <strong>{{ number_format($rapport['loyer_mensuel_total'], 0, ',', ' ') }} FCFA</strong></p>
+                                        @else
+                                            <p class="text-muted text-center mb-0 py-5">Aucun contrat actif — pas de loyer mensuel en cours.</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card">
+                                    <div class="card-header"><h6 class="card-action-title mb-0">Situation financière synthétique</h6></div>
+                                    <div class="card-body">
+                                        <div id="chartSyntheseBailleur"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="row g-4">
                             <div class="col-lg-6">
                                 <div class="card">
@@ -331,5 +353,48 @@
 @endsection
 
 @section('js')
+    <script src="{{ asset('assets/libs/apexcharts/apexcharts.min.js') }}"></script>
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
+    @if ($rapport && $compte)
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                @if ($rapport['loyer_mensuel_total'] > 0)
+                    new ApexCharts(document.querySelector('#chartSituationMensuelleBailleur'), {
+                        chart: { type: 'bar', height: 180, stacked: true, toolbar: { show: false } },
+                        series: [
+                            { name: 'Net bailleur', data: [{{ (float) $rapport['net_mensuel_theorique'] }}] },
+                            { name: 'Commission agence', data: [{{ (float) $rapport['commission_mensuelle'] }}] },
+                        ],
+                        xaxis: { categories: ['Loyer mensuel'] },
+                        colors: ['#0ab39c', '#f7b84b'],
+                        plotOptions: { bar: { horizontal: true, borderRadius: 4, barHeight: '45%' } },
+                        dataLabels: { enabled: true, formatter: (val) => new Intl.NumberFormat('fr-FR').format(val) + ' F' },
+                        legend: { position: 'bottom' },
+                    }).render();
+                @endif
+
+                new ApexCharts(document.querySelector('#chartSyntheseBailleur'), {
+                    chart: { type: 'bar', height: 260, toolbar: { show: false } },
+                    series: [{
+                        name: 'Montant (FCFA)',
+                        data: [
+                            {{ (float) $compte['loyers_encaisses'] }},
+                            {{ (float) $compte['commission_agence'] }},
+                            {{ (float) $compte['travaux_depenses'] }},
+                            {{ (float) $compte['deja_reverse'] }},
+                            {{ (float) $compte['a_reverser'] }},
+                        ],
+                    }],
+                    xaxis: {
+                        categories: ['Loyers encaissés', 'Commission agence', 'Dépenses/travaux', 'Déjà reversé', 'Solde à reverser'],
+                        labels: { formatter: (val) => new Intl.NumberFormat('fr-FR', { notation: 'compact' }).format(val) },
+                    },
+                    plotOptions: { bar: { horizontal: true, borderRadius: 4, distributed: true, barHeight: '55%' } },
+                    legend: { show: false },
+                    dataLabels: { enabled: true, formatter: (val) => new Intl.NumberFormat('fr-FR').format(val) },
+                    colors: ['#405189', '#f7b84b', '#f06548', '#299cdb', {!! $compte['a_reverser'] > 0 ? "'#0ab39c'" : "'#878a99'" !!}],
+                }).render();
+            });
+        </script>
+    @endif
 @endsection

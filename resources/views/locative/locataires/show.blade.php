@@ -189,6 +189,12 @@
                         @php
                             $premiereLocationLe = $contrats->pluck('date_debut')->filter()->min();
                             $nbBiensLoues = $contrats->pluck('bien_id')->unique()->count();
+                            $periodeDebut = $echeances->min(fn ($e) => sprintf('%04d-%02d', $e->annee, $e->mois));
+                            $periodeFin = $echeances->max(fn ($e) => sprintf('%04d-%02d', $e->annee, $e->mois));
+                            $profilLabel = ['bon' => 'Bon payeur', 'a_surveiller' => 'À surveiller', 'mauvais' => 'Mauvais payeur'][$stats['profil']] ?? 'Bon payeur';
+                            $cautionsAvecMotif = $cautions->where('statut', '!=', 'restituee')->where('motif_retenue', '!=', null);
+                            $resteAPayer = max($stats['total_du'] - $stats['total_paye'], 0);
+                            $tauxReglementMontant = $stats['total_du'] > 0 ? round($stats['total_paye'] / $stats['total_du'] * 100, 1) : 100;
                         @endphp
                         <div class="card border-0 shadow-sm mb-4">
                             <div class="card-header bg-primary-subtle">
@@ -196,18 +202,25 @@
                             </div>
                             <div class="card-body" style="max-height: 260px; overflow-y: auto;">
                                 <p>
-                                    <strong>{{ $locataire->nom_complet }}</strong> ({{ $locataire->type_locataire === 'entreprise' ? 'entreprise' : 'particulier' }}) est locataire de <strong>{{ $nbBiensLoues }}</strong> bien{{ $nbBiensLoues > 1 ? 's' : '' }} auprès de l'agence{{ $premiereLocationLe ? ', depuis le '.$premiereLocationLe->format('d/m/Y') : '' }},
-                                    au travers de <strong>{{ $contrats->count() }}</strong> contrat{{ $contrats->count() > 1 ? 's' : '' }} de location dont <strong>{{ $contratsActifs->count() }}</strong> actuellement actif{{ $contratsActifs->count() > 1 ? 's' : '' }}.
+                                    <strong>{{ $locataire->nom_complet }}</strong>, {{ $locataire->type_locataire === 'entreprise' ? 'cliente entreprise' : 'client particulier' }},
+                                    est locataire de <strong>{{ $nbBiensLoues }}</strong> bien{{ $nbBiensLoues > 1 ? 's' : '' }} géré{{ $nbBiensLoues > 1 ? 's' : '' }} par l'agence{{ $premiereLocationLe ? ' depuis le '.$premiereLocationLe->format('d/m/Y') : '' }}.
+                                    Sa relation contractuelle avec l'agence repose sur <strong>{{ $contrats->count() }}</strong> contrat{{ $contrats->count() > 1 ? 's' : '' }} de location
+                                    ({!! $contrats->map(fn ($c) => '<a href="'.route('locative.contrats.show', $c).'">'.e($c->numero).'</a>')->implode(', ') !!}),
+                                    dont <strong>{{ $contratsActifs->count() }}</strong> actuellement actif{{ $contratsActifs->count() > 1 ? 's' : '' }}.
                                 </p>
                                 <p>
-                                    Sur l'ensemble de la relation, le total des loyers dus s'élève à <strong>{{ number_format($stats['total_du'], 0, ',', ' ') }} FCFA</strong>, dont <strong>{{ number_format($stats['total_paye'], 0, ',', ' ') }} FCFA</strong> ont déjà été réglés
-                                    (taux de règlement à échéance d'environ <strong>{{ $stats['taux_paiement'] }} %</strong>).
-                                    {{ $stats['arrieres'] > 0 ? 'Il reste actuellement un arriéré de '.number_format($stats['arrieres'], 0, ',', ' ').' FCFA dû à l\'agence, ce qui classe ce locataire dans le profil « '.($stats['profil'] === 'a_surveiller' ? 'à surveiller' : 'mauvais payeur').' ».' : 'Aucun arriéré : ce locataire est à jour de ses paiements et classé « bon payeur ».' }}
+                                    À ce jour, le montant total des loyers exigibles s'élève à <strong>{{ number_format($stats['total_du'], 0, ',', ' ') }} FCFA</strong>{{ $periodeDebut && $periodeFin ? ' sur la période de '.\Carbon\Carbon::createFromFormat('Y-m', $periodeDebut)->translatedFormat('F Y').' à '.\Carbon\Carbon::createFromFormat('Y-m', $periodeFin)->translatedFormat('F Y') : '' }}.
+                                    Sur cette somme, <strong>{{ number_format($stats['total_paye'], 0, ',', ' ') }} FCFA</strong> ont déjà été réglés, soit un taux de règlement d'environ <strong>{{ $tauxReglementMontant }} %</strong>.
+                                </p>
+                                <p>
+                                    {{ $resteAPayer > 0 ? 'Le solde impayé s\'élève actuellement à '.number_format($resteAPayer, 0, ',', ' ').' FCFA, correspondant aux loyers restant dus à l\'agence.' : 'Le locataire est à jour : aucun solde impayé.' }}
+                                    Au regard de sa situation de paiement, le locataire est actuellement classé dans la catégorie « <strong>{{ $profilLabel }}</strong> ».
                                 </p>
                                 @if ($cautions->isNotEmpty())
-                                    <p class="{{ $montantDuAuLocataire > 0 ? '' : 'mb-0' }}">
-                                        Au titre des cautions/garanties versées à la signature de ses contrats,
-                                        {{ $montantDuAuLocataire > 0 ? 'l\'agence lui doit encore la restitution de '.number_format($montantDuAuLocataire, 0, ',', ' ').' FCFA.' : 'toutes les cautions concernées ont déjà été restituées.' }}
+                                    <p class="{{ $depensesLocataire->isNotEmpty() ? '' : 'mb-0' }}">
+                                        Concernant les cautions et garanties versées à la signature {{ $contrats->count() > 1 ? 'des contrats' : 'du contrat' }},
+                                        {{ $montantDuAuLocataire > 0 ? 'un montant de '.number_format($montantDuAuLocataire, 0, ',', ' ').' FCFA reste à restituer à la locataire par l\'agence' : 'toutes les cautions concernées ont déjà été restituées' }}{{ $cautionsAvecMotif->isNotEmpty() ? ' (motif de retenue partielle : '.$cautionsAvecMotif->pluck('motif_retenue')->implode(' ; ').')' : '' }},
+                                        sous réserve des éventuelles conditions de restitution prévues au contrat.
                                     </p>
                                 @endif
                                 @if ($depensesLocataire->isNotEmpty())
@@ -221,6 +234,37 @@
                         <div class="row g-4">
                             <div class="col-lg-6">
                                 <div class="card">
+                                    <div class="card-header"><h6 class="card-action-title mb-0">Situation financière synthétique</h6></div>
+                                    <div class="card-body">
+                                        <div class="row align-items-center g-3">
+                                            <div class="col-5">
+                                                <div id="chartSyntheseLocataire"></div>
+                                            </div>
+                                            <div class="col-7">
+                                                <ul class="list-unstyled mb-0">
+                                                    <li class="d-flex justify-content-between border-bottom py-2"><span class="text-muted">Total loyers dus</span><span class="fw-medium">{{ number_format($stats['total_du'], 0, ',', ' ') }} FCFA</span></li>
+                                                    <li class="d-flex justify-content-between border-bottom py-2"><span class="text-muted">Loyers réglés</span><span class="fw-medium text-success">{{ number_format($stats['total_paye'], 0, ',', ' ') }} FCFA</span></li>
+                                                    <li class="d-flex justify-content-between border-bottom py-2"><span class="text-muted">Arriéré</span><span class="fw-medium {{ $stats['arrieres'] > 0 ? 'text-danger' : '' }}">{{ number_format($stats['arrieres'], 0, ',', ' ') }} FCFA</span></li>
+                                                    <li class="d-flex justify-content-between border-bottom py-2"><span class="text-muted">Caution à restituer</span><span class="fw-medium">{{ number_format($montantDuAuLocataire, 0, ',', ' ') }} FCFA</span></li>
+                                                    <li class="d-flex justify-content-between py-2"><span class="text-muted">Contrats actifs / biens loués</span><span class="fw-medium">{{ $contratsActifs->count() }} / {{ $nbBiensLoues }}</span></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card">
+                                    <div class="card-header"><h6 class="card-action-title mb-0">Loyers attendus vs payés — 12 derniers mois</h6></div>
+                                    <div class="card-body">
+                                        <div id="chartTendanceLocataire"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-lg-6">
+                                <div class="card">
                                     <div class="card-header"><h6 class="card-action-title mb-0">Coordonnées</h6></div>
                                     <div class="card-body">
                                         <div class="row mb-3"><div class="col-4 text-muted">Téléphone</div><div class="col-8 fw-medium">{{ $locataire->telephone ?: '—' }}</div></div>
@@ -229,6 +273,8 @@
                                         <div class="row"><div class="col-4 text-muted">Adresse</div><div class="col-8 fw-medium">{{ $locataire->adresse ?: '—' }}</div></div>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="col-lg-6">
                                 <div class="card">
                                     <div class="card-header"><h6 class="card-action-title mb-0">Identité</h6></div>
                                     <div class="card-body">
@@ -241,14 +287,6 @@
                                         <div class="card-body"><p class="mb-0">{{ $locataire->notes }}</p></div>
                                     </div>
                                 @endif
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="card">
-                                    <div class="card-header"><h6 class="card-action-title mb-0">Loyers attendus vs payés — 12 derniers mois</h6></div>
-                                    <div class="card-body">
-                                        <div id="chartTendanceLocataire"></div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -687,6 +725,16 @@
                 plotOptions: { bar: { borderRadius: 4, columnWidth: '55%' } },
                 dataLabels: { enabled: false },
                 legend: { position: 'top' },
+            }).render();
+
+            new ApexCharts(document.querySelector('#chartSyntheseLocataire'), {
+                chart: { type: 'donut', height: 220 },
+                series: [{{ (float) $stats['total_paye'] }}, {{ (float) $resteAPayer }}],
+                labels: ['Payé', 'Restant dû'],
+                colors: ['#0ab39c', {!! $stats['arrieres'] > 0 ? "'#f06548'" : "'#f7b84b'" !!}],
+                dataLabels: { enabled: false },
+                legend: { show: false },
+                plotOptions: { pie: { donut: { size: '70%', labels: { show: true, total: { show: true, label: 'Taux', formatter: () => '{{ $stats['taux_paiement'] }}%' } } } } },
             }).render();
         });
     </script>
