@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Locative;
 use App\Http\Controllers\Controller;
 use App\Models\ContratLocation;
 use App\Models\Locataire;
+use App\Models\Reglage;
 use App\Services\Locative\NumeroService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -72,7 +73,9 @@ class LocataireController extends Controller
 
         $contratsActifs = ContratLocation::whereIn('id', $contrats->pluck('id'))->where('statut', 'actif')->get();
 
-        return view('locative.locataires.show', compact('locataire', 'contrats', 'echeances', 'paiements', 'fiches', 'stats', 'tendance', 'contratsActifs'));
+        $reglage = Reglage::courant();
+
+        return view('locative.locataires.show', compact('locataire', 'contrats', 'echeances', 'paiements', 'fiches', 'stats', 'tendance', 'contratsActifs', 'reglage'));
     }
 
     public function store(Request $request)

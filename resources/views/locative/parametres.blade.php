@@ -28,6 +28,11 @@
                                 type="button" role="tab" aria-controls="modes-tab-pane"
                                 aria-selected="false">Modes de paiement</button>
                         </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="taxes-tab" data-bs-toggle="tab" data-bs-target="#taxes-tab-pane"
+                                type="button" role="tab" aria-controls="taxes-tab-pane"
+                                aria-selected="false">Taxes &amp; autres</button>
+                        </li>
                     </ul>
                 </div>
 
@@ -236,6 +241,42 @@
                                 </div>
                             </div>
                         @endforeach
+                    </div>
+
+                    {{-- Onglet Taxes & autres --}}
+                    <div class="tab-pane fade" id="taxes-tab-pane" role="tabpanel" aria-labelledby="taxes-tab" tabindex="0">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0 fw-semibold">Taxes &amp; autres — taux par défaut</h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">
+                                    Ces taux sont proposés par défaut lors de la génération des fiches proforma de loyer.
+                                    Ils restent modifiables au cas par cas pour chaque fiche.
+                                </p>
+                                <form action="{{ route('locative.parametres.taxes') }}" method="POST" class="row g-4">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="col-md-4">
+                                        <label class="form-label">TVA par défaut (%)<span class="text-danger ms-1">*</span></label>
+                                        <div class="input-group">
+                                            <input type="number" step="0.01" min="0" max="100" class="form-control" name="taux_tva_defaut" value="{{ old('taux_tva_defaut', $reglage->taux_tva_defaut) }}" required>
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">TOM par défaut (%)<span class="text-danger ms-1">*</span></label>
+                                        <div class="input-group">
+                                            <input type="number" step="0.01" min="0" max="100" class="form-control" name="taux_tom_defaut" value="{{ old('taux_tom_defaut', $reglage->taux_tom_defaut) }}" required>
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
 
                 </div>

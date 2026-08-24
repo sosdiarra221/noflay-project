@@ -68,6 +68,7 @@ Route::prefix('locative')->name('locative.')->group(function () {
     Route::get('/', [LocativeDashboardController::class, 'index'])->name('dashboard');
 
     Route::get('parametres', [ParametreLocativeController::class, 'index'])->name('parametres.index');
+    Route::put('parametres/taxes', [ParametreLocativeController::class, 'updateTaxes'])->name('parametres.taxes');
     Route::post('categories-biens', [CategorieBienController::class, 'store'])->name('categories-biens.store');
     Route::put('categories-biens/{categorie}', [CategorieBienController::class, 'update'])->name('categories-biens.update');
     Route::delete('categories-biens/{categorie}', [CategorieBienController::class, 'destroy'])->name('categories-biens.destroy');

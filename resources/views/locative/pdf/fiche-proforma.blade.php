@@ -65,9 +65,9 @@
                 <td>{{ $fiche->frais_agence > 0 ? 'Frais de gestion applicables' : 'Non applicable pour ce mois' }}</td>
             </tr>
             <tr>
-                <td>Taxe d'habitation (TOM)</td>
-                <td class="col-montant">{{ number_format($fiche->taxe_tom, 0, ',', ' ') }}</td>
-                <td>Selon réglementation en vigueur</td>
+                <td>Taxe d'habitation (TOM) &ndash; {{ rtrim(rtrim(number_format($fiche->taux_tom, 2, ',', ' '), '0'), ',') }}%</td>
+                <td class="col-montant">{{ number_format($fiche->montant_tom ?: $fiche->taxe_tom, 0, ',', ' ') }}</td>
+                <td>Sur le loyer mensuel ({{ number_format($fiche->loyer_mensuel, 0, ',', ' ') }} FCFA)</td>
             </tr>
             <tr>
                 <td>Taxe sur la Valeur Ajoutée (TVA) &ndash; {{ rtrim(rtrim(number_format($fiche->taux_tva, 2, ',', ' '), '0'), ',') }}%</td>

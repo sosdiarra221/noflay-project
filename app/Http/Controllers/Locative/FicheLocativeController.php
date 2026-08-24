@@ -20,7 +20,7 @@ class FicheLocativeController extends Controller
             'annee' => ['required', 'integer', 'min:2020', 'max:2100'],
             'mois' => ['required', 'integer', 'min:1', 'max:12'],
             'frais_agence' => ['nullable', 'numeric', 'min:0'],
-            'taxe_tom' => ['nullable', 'numeric', 'min:0'],
+            'taux_tom' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'taux_tva' => ['nullable', 'numeric', 'min:0', 'max:100'],
         ]);
 
@@ -35,10 +35,11 @@ class FicheLocativeController extends Controller
             ->sum(fn ($echeance) => max($echeance->montant_attendu - $echeance->montant_paye, 0));
 
         $fraisAgence = $data['frais_agence'] ?? 0;
-        $taxeTom = $data['taxe_tom'] ?? 0;
+        $tauxTom = $data['taux_tom'] ?? 0;
         $tauxTva = $data['taux_tva'] ?? 0;
+        $montantTom = round($contrat->loyer_mensuel * $tauxTom / 100, 2);
         $montantTva = round($contrat->loyer_mensuel * $tauxTva / 100, 2);
-        $montantTotal = $contrat->loyer_mensuel + $arrieres + $fraisAgence + $taxeTom + $montantTva;
+        $montantTotal = $contrat->loyer_mensuel + $arrieres + $fraisAgence + $montantTom + $montantTva;
 
         $jour = min($contrat->jour_echeance, $debutMois->copy()->daysInMonth);
 
@@ -51,7 +52,8 @@ class FicheLocativeController extends Controller
             'loyer_mensuel' => $contrat->loyer_mensuel,
             'arrieres' => $arrieres,
             'frais_agence' => $fraisAgence,
-            'taxe_tom' => $taxeTom,
+            'taux_tom' => $tauxTom,
+            'montant_tom' => $montantTom,
             'taux_tva' => $tauxTva,
             'montant_tva' => $montantTva,
             'montant_total' => $montantTotal,

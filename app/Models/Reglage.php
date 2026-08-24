@@ -9,6 +9,8 @@ class Reglage extends Model
     protected $fillable = [
         'nom_societe',
         'ninea',
+        'taux_tva_defaut',
+        'taux_tom_defaut',
         'logo',
         'email',
         'telephone',
@@ -27,6 +29,8 @@ class Reglage extends Model
 
     protected $casts = [
         'smtp_password' => 'encrypted',
+        'taux_tva_defaut' => 'decimal:2',
+        'taux_tom_defaut' => 'decimal:2',
     ];
 
     public function devise()

@@ -412,12 +412,12 @@
                                     <input type="number" step="0.01" min="0" class="form-control" name="frais_agence" value="0">
                                 </div>
                                 <div class="col-4">
-                                    <label class="form-label">Taxe TOM</label>
-                                    <input type="number" step="0.01" min="0" class="form-control" name="taxe_tom" value="0">
+                                    <label class="form-label">TOM (%)</label>
+                                    <input type="number" step="0.01" min="0" max="100" class="form-control" name="taux_tom" value="{{ $reglage->taux_tom_defaut }}">
                                 </div>
                                 <div class="col-4">
                                     <label class="form-label">TVA (%)</label>
-                                    <input type="number" step="0.01" min="0" max="100" class="form-control" name="taux_tva" value="18">
+                                    <input type="number" step="0.01" min="0" max="100" class="form-control" name="taux_tva" value="{{ $reglage->taux_tva_defaut }}">
                                 </div>
                             </div>
                         </div>
