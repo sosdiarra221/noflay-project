@@ -89,13 +89,26 @@ class LocationController extends Controller
     {
         $datesDebut = $location->contrats->pluck('date_debut')->filter();
         $soldeRestant = max($stats['total_attendu'] - $stats['total_paye'], 0);
+        $tauxRecouvrement = $stats['total_attendu'] > 0 ? round($stats['total_paye'] / $stats['total_attendu'] * 100, 1) : null;
 
         $cautions = $location->contrats->pluck('caution')->filter();
+
+        $moisCourant = $echeances->filter(fn ($e) => (int) $e->annee === (int) now()->year && (int) $e->mois === (int) now()->month);
+
+        // Classement "bon / mauvais payeur" au niveau de la location, sur le même principe que
+        // le profil du locataire, mais calculé uniquement sur les échéances de cette location.
+        if ($tauxRecouvrement === null || $tauxRecouvrement >= 90) {
+            $statutRecouvrement = ['cle' => 'bon', 'libelle' => 'Bon payeur', 'icone' => '✅', 'couleur' => 'success'];
+        } elseif ($tauxRecouvrement >= 60) {
+            $statutRecouvrement = ['cle' => 'a_surveiller', 'libelle' => 'À surveiller', 'icone' => '⚠️', 'couleur' => 'warning'];
+        } else {
+            $statutRecouvrement = ['cle' => 'mauvais', 'libelle' => 'Mauvais payeur — recouvrement fortement dégradé', 'icone' => '⚠️', 'couleur' => 'danger'];
+        }
 
         return [
             'date_debut_min' => $datesDebut->isNotEmpty() ? $datesDebut->min() : null,
             'solde_restant' => $soldeRestant,
-            'taux_recouvrement' => $stats['total_attendu'] > 0 ? round($stats['total_paye'] / $stats['total_attendu'] * 100, 1) : null,
+            'taux_recouvrement' => $tauxRecouvrement,
             'echeances_payees' => $echeances->where('statut', 'paye')->count(),
             'echeances_partielles' => $echeances->where('statut', 'partiellement_paye')->count(),
             'echeances_a_venir' => $echeances->where('statut', 'a_venir')->count(),
@@ -106,6 +119,10 @@ class LocationController extends Controller
             'charges_a_payer' => $charges->where('statut', 'a_payer')->count(),
             'depenses_total' => $stats['total_depenses'],
             'depenses_count' => $depenses->count(),
+            'depenses_detail' => $depenses->map(fn ($d) => ($d->categorie->nom ?? 'Dépense').($d->description ? ' : '.$d->description : ''))->implode(' ; '),
+            'statut_recouvrement' => $statutRecouvrement,
+            'mois_courant_appele' => (float) $moisCourant->sum('montant_attendu'),
+            'mois_courant_encaisse' => (float) $moisCourant->sum('montant_paye'),
         ];
     }
 
