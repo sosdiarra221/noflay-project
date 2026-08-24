@@ -88,8 +88,10 @@
                                             <td>{{ $location->created_at->format('d/m/Y') }}</td>
                                             <td>
                                                 <div class="hstack gap-2">
-                                                    <button type="button" class="btn btn-light-info icon-btn-sm" data-bs-toggle="modal" data-bs-target="#apercuLocationModal{{ $location->id }}"><i class="bi bi-eye"></i></button>
-                                                    <a href="{{ route('locative.locations.show', $location) }}" class="btn btn-light-success icon-btn-sm"><i class="bi bi-arrow-up-right-circle"></i></a>
+                                                    <a href="{{ route('locative.locations.show', $location) }}" class="btn btn-light-success btn-sm" title="Voir le détail de la location"><i class="bi bi-eye me-1"></i>Détail</a>
+                                                    @if ($location->contrats->isNotEmpty())
+                                                        <a href="{{ route('locative.contrats.show', $location->contrats->first()) }}" class="btn btn-light-info btn-sm" title="Consulter le contrat"><i class="bi bi-file-earmark-text me-1"></i>Contrat</a>
+                                                    @endif
                                                 </div>
                                             </td>
                                         </tr>
@@ -103,58 +105,6 @@
                 </div>
             </div>
         </div>
-
-        @foreach ($locations as $location)
-            {{-- Aperçu rapide --}}
-            <div class="modal fade" id="apercuLocationModal{{ $location->id }}" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-lg" role="document">
-                    <div class="modal-content rounded-4 shadow">
-                        <div class="modal-header bg-gradient text-white bg-primary">
-                            <h5 class="modal-title">{{ $location->numero }}</h5>
-                            <button type="button" class="btn-close icon-btn-sm btn-close-white" data-bs-dismiss="modal" aria-label="Close">
-                                <i class="ri-close-large-line fw-semibold"></i>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <div class="d-flex gap-2"><i class="bi bi-person fs-16"></i><p class="text-muted mb-2">Locataire</p></div>
-                                    <h6 class="mb-0">{{ $location->locataire->nom_complet }}</h6>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="d-flex gap-2"><i class="bi bi-calendar fs-16"></i><p class="text-muted mb-2">Créée le</p></div>
-                                    <h6 class="mb-0">{{ $location->created_at->format('d/m/Y') }}</h6>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="d-flex gap-2"><i class="bi bi-cash-coin fs-16"></i><p class="text-muted mb-2">Loyer total mensuel</p></div>
-                                    <h6 class="mb-0">{{ number_format($location->contrats->sum('loyer_mensuel'), 0, ',', ' ') }} FCFA</h6>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="d-flex gap-2"><i class="bi bi-building fs-16"></i><p class="text-muted mb-2">Biens loués</p></div>
-                                    <h6 class="mb-0">{{ $location->contrats->count() }}</h6>
-                                </div>
-                                <div class="col-12">
-                                    <hr>
-                                    <p class="text-muted mb-2">Détail des biens</p>
-                                    <ul class="list-unstyled mb-0">
-                                        @foreach ($location->contrats as $contrat)
-                                            <li class="d-flex justify-content-between border-bottom py-2">
-                                                <span>{{ $contrat->bien->titre ?? '—' }}</span>
-                                                <span class="text-muted">{{ number_format($contrat->loyer_mensuel, 0, ',', ' ') }} FCFA/mois</span>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
-                            <a href="{{ route('locative.locations.show', $location) }}" class="btn btn-primary">Ouvrir la fiche</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endforeach
 
     </div>
     </main>
