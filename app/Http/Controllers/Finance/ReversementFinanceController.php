@@ -48,6 +48,7 @@ class ReversementFinanceController extends Controller
             'periode_mois' => ['required', 'integer', 'min:1', 'max:12'],
             'montant_encaisse' => ['required', 'numeric', 'min:0'],
             'montant_frais_gestion' => ['required', 'numeric', 'min:0'],
+            'montant_depenses' => ['nullable', 'numeric', 'min:0'],
             'montant_net' => ['required', 'numeric', 'min:0'],
             'date_versement' => ['required', 'date'],
             'mode_paiement_id' => ['nullable', 'exists:modes_paiement,id'],
@@ -63,6 +64,7 @@ class ReversementFinanceController extends Controller
         $valeurs = [
             'montant_encaisse' => $data['montant_encaisse'],
             'montant_frais_gestion' => $data['montant_frais_gestion'],
+            'montant_depenses' => $data['montant_depenses'] ?? 0,
             'montant_net' => $data['montant_net'],
             'statut' => 'verse',
             'date_versement' => $data['date_versement'],

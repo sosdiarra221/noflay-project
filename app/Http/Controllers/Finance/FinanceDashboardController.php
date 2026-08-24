@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Finance;
 
 use App\Http\Controllers\Controller;
 use App\Models\Bailleur;
+use App\Models\DepenseLocation;
 use App\Models\FicheLocative;
 use App\Models\Paiement;
 use App\Models\ReversementBailleur;
@@ -37,6 +38,13 @@ class FinanceDashboardController extends Controller
         $tvaCollectee = (float) $fichesMois->sum('montant_tva');
         $tomCollectee = (float) $fichesMois->sum('montant_tom');
 
+        $depensesMois = DepenseLocation::whereIn('statut', DepenseLocation::STATUTS_PAYEES)
+            ->whereMonth('date_paiement', now()->month)
+            ->whereYear('date_paiement', now()->year)
+            ->get();
+        $depensesAgence = (float) $depensesMois->where('qui_supporte', 'agence')->sum(fn ($d) => $d->montantImpute());
+        $depensesEnAttente = (float) DepenseLocation::where('statut', DepenseLocation::STATUT_A_PAYER)->get()->sum(fn ($d) => $d->montantImpute());
+
         $kpis = [
             'encaisse' => $totalEncaisse,
             'commissions' => $totalCommissions,
@@ -44,6 +52,8 @@ class FinanceDashboardController extends Controller
             'deja_verse' => $totalVerse,
             'tva_collectee' => $tvaCollectee,
             'tom_collectee' => $tomCollectee,
+            'depenses_agence' => $depensesAgence,
+            'depenses_en_attente' => $depensesEnAttente,
         ];
 
         // Tendance des 12 derniers mois : encaissements bruts.

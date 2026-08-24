@@ -43,6 +43,7 @@
                                         <th>Bailleur</th>
                                         <th>Encaissé</th>
                                         <th>Frais de gestion</th>
+                                        <th>Dépenses déduites</th>
                                         <th>Net à reverser</th>
                                         <th>Statut</th>
                                         <th>Actions</th>
@@ -54,6 +55,7 @@
                                             <td>{{ $ligne['bailleur']->nom_complet }}</td>
                                             <td>{{ number_format($ligne['encaisse'], 0, ',', ' ') }} FCFA</td>
                                             <td>{{ number_format($ligne['frais_gestion'], 0, ',', ' ') }} FCFA</td>
+                                            <td class="text-danger">{{ $ligne['depenses'] > 0 ? '-'.number_format($ligne['depenses'], 0, ',', ' ').' FCFA' : '—' }}</td>
                                             <td class="fw-medium">{{ number_format($ligne['net_a_reverser'], 0, ',', ' ') }} FCFA</td>
                                             <td>
                                                 @if ($ligne['reversement'] && $ligne['reversement']->statut === 'verse')
@@ -75,7 +77,7 @@
                                             </td>
                                         </tr>
                                     @empty
-                                        <tr><td colspan="6" class="text-center text-muted py-5">Aucun encaissement pour cette période.</td></tr>
+                                        <tr><td colspan="7" class="text-center text-muted py-5">Aucun encaissement pour cette période.</td></tr>
                                     @endforelse
                                 </tbody>
                             </table>
@@ -98,12 +100,16 @@
                                     <input type="hidden" name="periode_mois" value="{{ $periode->month }}">
                                     <input type="hidden" name="montant_encaisse" value="{{ $ligne['encaisse'] }}">
                                     <input type="hidden" name="montant_frais_gestion" value="{{ $ligne['frais_gestion'] }}">
+                                    <input type="hidden" name="montant_depenses" value="{{ $ligne['depenses'] }}">
                                     <input type="hidden" name="montant_net" value="{{ $ligne['net_a_reverser'] }}">
                                     <div class="modal-header">
                                         <h5 class="modal-title">Marquer comme versé — {{ $ligne['bailleur']->nom_complet }}</h5>
                                         <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
                                     </div>
                                     <div class="modal-body">
+                                        @if ($ligne['depenses'] > 0)
+                                            <p class="text-muted fs-12 mb-1">Encaissé {{ number_format($ligne['encaisse'], 0, ',', ' ') }} - Frais {{ number_format($ligne['frais_gestion'], 0, ',', ' ') }} - Dépenses {{ number_format($ligne['depenses'], 0, ',', ' ') }}</p>
+                                        @endif
                                         <p class="text-muted">Montant net à reverser : <strong>{{ number_format($ligne['net_a_reverser'], 0, ',', ' ') }} FCFA</strong></p>
                                         <div class="row g-3">
                                             <div class="col-12">

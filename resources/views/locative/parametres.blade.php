@@ -33,6 +33,11 @@
                                 type="button" role="tab" aria-controls="taxes-tab-pane"
                                 aria-selected="false">Taxes &amp; autres</button>
                         </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="depenses-tab" data-bs-toggle="tab" data-bs-target="#depenses-tab-pane"
+                                type="button" role="tab" aria-controls="depenses-tab-pane"
+                                aria-selected="false">Catégories de dépenses</button>
+                        </li>
                     </ul>
                 </div>
 
@@ -293,6 +298,164 @@
                         </div>
                     </div>
 
+                    {{-- Onglet Catégories de dépenses --}}
+                    <div class="tab-pane fade" id="depenses-tab-pane" role="tabpanel" aria-labelledby="depenses-tab" tabindex="0">
+                        <p class="text-muted">Catégories utilisées par le module <strong>Dépenses</strong> du module Finance (entretien, réparation, rénovation, travaux importants, charges communes, urgence, dégradation, administrative, agence...). L'imputation par défaut peut être ajustée au cas par cas lors de la création d'une dépense.</p>
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center">
+                                    <h6 class="card-title mb-0 fw-semibold">
+                                        Catégories de dépenses <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $categoriesDepense->count() }}</span>
+                                    </h6>
+                                    <button type="button" class="btn btn-light-primary" data-bs-toggle="modal"
+                                        data-bs-target="#createCategorieDepenseModal">
+                                        <i class="bi bi-plus-lg me-1"></i>Ajouter une catégorie
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-box table-responsive">
+                                    <table class="table text-nowrap align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Nom</th>
+                                                <th scope="col">Imputation par défaut</th>
+                                                <th scope="col">Statut</th>
+                                                <th scope="col">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse ($categoriesDepense as $categorieDepense)
+                                                <tr>
+                                                    <td>{{ $categorieDepense->nom }}</td>
+                                                    <td>
+                                                        @if ($categorieDepense->imputation_defaut)
+                                                            <span class="badge bg-info-subtle text-info text-capitalize">{{ $categorieDepense->imputation_defaut }}</span>
+                                                        @else
+                                                            <span class="text-muted">—</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if ($categorieDepense->actif)
+                                                            <span class="badge bg-success-subtle text-success">Active</span>
+                                                        @else
+                                                            <span class="badge bg-light-subtle text-body">Inactive</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <div class="hstack gap-2">
+                                                            <button type="button" class="btn btn-light-primary icon-btn-sm"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#editCategorieDepenseModal{{ $categorieDepense->id }}">
+                                                                <i class="bi bi-pencil-square"></i>
+                                                            </button>
+                                                            <form action="{{ route('locative.categories-depense.destroy', $categorieDepense) }}"
+                                                                method="POST"
+                                                                onsubmit="return confirm('Supprimer cette catégorie ?');">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-light-danger icon-btn-sm">
+                                                                    <i class="ri-delete-bin-line"></i>
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="4" class="text-center text-muted py-5">Aucune catégorie de dépense enregistrée.</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        @foreach ($categoriesDepense as $categorieDepense)
+                            <div class="modal fade" id="editCategorieDepenseModal{{ $categorieDepense->id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <form action="{{ route('locative.categories-depense.update', $categorieDepense) }}" method="POST">
+                                            @csrf
+                                            @method('PUT')
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Modifier la catégorie</h5>
+                                                <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close">
+                                                    <i class="ri-close-large-line fw-semibold"></i>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row g-3">
+                                                    <div class="col-12">
+                                                        <label class="form-label">Nom</label>
+                                                        <input type="text" class="form-control" name="nom" value="{{ $categorieDepense->nom }}" required>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label class="form-label">Imputation par défaut</label>
+                                                        <select class="form-select" name="imputation_defaut">
+                                                            <option value="">—</option>
+                                                            <option value="bailleur" @selected($categorieDepense->imputation_defaut === 'bailleur')>Bailleur</option>
+                                                            <option value="locataire" @selected($categorieDepense->imputation_defaut === 'locataire')>Locataire</option>
+                                                            <option value="agence" @selected($categorieDepense->imputation_defaut === 'agence')>Agence</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" value="1" name="actif" id="categorieDepenseActif{{ $categorieDepense->id }}" @checked($categorieDepense->actif)>
+                                                            <label class="form-check-label" for="categorieDepenseActif{{ $categorieDepense->id }}">Catégorie active</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
+                                                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Categorie Depense Modal -->
+        <div class="modal fade" id="createCategorieDepenseModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <form action="{{ route('locative.categories-depense.store') }}" method="POST">
+                        @csrf
+                        <div class="modal-header">
+                            <h5 class="modal-title">Ajouter une catégorie de dépense</h5>
+                            <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close">
+                                <i class="ri-close-large-line fw-semibold"></i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">Nom</label>
+                                    <input type="text" class="form-control" name="nom" placeholder="Ex: Plomberie" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Imputation par défaut</label>
+                                    <select class="form-select" name="imputation_defaut">
+                                        <option value="">—</option>
+                                        <option value="bailleur">Bailleur</option>
+                                        <option value="locataire">Locataire</option>
+                                        <option value="agence">Agence</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
+                            <button type="submit" class="btn btn-primary">Ajouter</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

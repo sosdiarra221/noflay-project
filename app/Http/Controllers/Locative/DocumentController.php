@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Bailleur;
 use App\Models\ContratGerance;
 use App\Models\ContratLocation;
+use App\Models\DepenseLocation;
 use App\Models\Document;
 use App\Models\Locataire;
 use Illuminate\Http\Request;
@@ -19,11 +20,12 @@ class DocumentController extends Controller
         'gerance' => ContratGerance::class,
         'contrat' => ContratLocation::class,
         'locataire' => Locataire::class,
+        'depense' => DepenseLocation::class,
     ];
 
     public function store(Request $request, string $type, int $id)
     {
-        Gate::authorize('locative.documents');
+        Gate::authorize($type === 'depense' ? 'finance.gerer' : 'locative.documents');
 
         $classe = $this->modeles[$type] ?? abort(404);
         $documentable = $classe::findOrFail($id);
@@ -57,7 +59,7 @@ class DocumentController extends Controller
 
     public function destroy(Document $document)
     {
-        Gate::authorize('locative.documents');
+        Gate::authorize($document->documentable_type === DepenseLocation::class ? 'finance.gerer' : 'locative.documents');
 
         $document->delete();
 

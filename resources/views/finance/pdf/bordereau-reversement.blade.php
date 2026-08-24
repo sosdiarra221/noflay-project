@@ -51,11 +51,17 @@
             <tr>
                 <th>Montant encaissé</th>
                 <th>Frais de gestion</th>
+                @if ($reversement->montant_depenses > 0)
+                    <th>Dépenses déduites</th>
+                @endif
                 <th>Net reversé</th>
             </tr>
             <tr>
                 <td>{{ number_format($reversement->montant_encaisse, 0, ',', ' ') }} FCFA</td>
                 <td>{{ number_format($reversement->montant_frais_gestion, 0, ',', ' ') }} FCFA</td>
+                @if ($reversement->montant_depenses > 0)
+                    <td>{{ number_format($reversement->montant_depenses, 0, ',', ' ') }} FCFA</td>
+                @endif
                 <td>{{ number_format($reversement->montant_net, 0, ',', ' ') }} FCFA</td>
             </tr>
         </table>

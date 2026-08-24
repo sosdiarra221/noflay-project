@@ -8,6 +8,7 @@ use App\Http\Controllers\ReglageController;
 use App\Http\Controllers\Locative\LocativeDashboardController;
 use App\Http\Controllers\Locative\ParametreLocativeController;
 use App\Http\Controllers\Locative\CategorieBienController;
+use App\Http\Controllers\Locative\CategorieDepenseController;
 use App\Http\Controllers\Locative\ModePaiementController;
 use App\Http\Controllers\Locative\BailleurController;
 use App\Http\Controllers\Locative\ContratGeranceController;
@@ -39,6 +40,7 @@ use App\Http\Controllers\Documents\DocumentTemplateController;
 use App\Http\Controllers\Documents\DocumentTemplateVersionController;
 use App\Http\Controllers\Documents\DocumentController as DocumentGenereController;
 use App\Http\Controllers\Finance\CautionController;
+use App\Http\Controllers\Finance\DepenseController;
 use App\Http\Controllers\Finance\FinanceDashboardController;
 use App\Http\Controllers\Finance\JournalCaisseController;
 use App\Http\Controllers\Finance\RevenuController;
@@ -81,6 +83,9 @@ Route::prefix('locative')->name('locative.')->group(function () {
     Route::post('modes-paiement', [ModePaiementController::class, 'store'])->name('modes-paiement.store');
     Route::put('modes-paiement/{mode}', [ModePaiementController::class, 'update'])->name('modes-paiement.update');
     Route::delete('modes-paiement/{mode}', [ModePaiementController::class, 'destroy'])->name('modes-paiement.destroy');
+    Route::post('categories-depense', [CategorieDepenseController::class, 'store'])->name('categories-depense.store');
+    Route::put('categories-depense/{categorieDepense}', [CategorieDepenseController::class, 'update'])->name('categories-depense.update');
+    Route::delete('categories-depense/{categorieDepense}', [CategorieDepenseController::class, 'destroy'])->name('categories-depense.destroy');
 
     Route::get('bailleurs', [BailleurController::class, 'index'])->name('bailleurs.index');
     Route::get('bailleurs/{bailleur}', [BailleurController::class, 'show'])->name('bailleurs.show');
@@ -232,6 +237,19 @@ Route::prefix('finance')->name('finance.')->group(function () {
     Route::post('cautions/{caution}/restituer', [CautionController::class, 'restituer'])->name('cautions.restituer');
 
     Route::get('journal-caisse', [JournalCaisseController::class, 'index'])->name('journal-caisse.index');
+
+    Route::get('depenses', [DepenseController::class, 'index'])->name('depenses.index');
+    Route::get('depenses/creer', [DepenseController::class, 'create'])->name('depenses.create');
+    Route::post('depenses', [DepenseController::class, 'store'])->name('depenses.store');
+    Route::get('depenses/{depense}', [DepenseController::class, 'show'])->name('depenses.show');
+    Route::post('depenses/{depense}/soumettre', [DepenseController::class, 'soumettre'])->name('depenses.soumettre');
+    Route::post('depenses/{depense}/approuver', [DepenseController::class, 'approuver'])->name('depenses.approuver');
+    Route::post('depenses/{depense}/refuser', [DepenseController::class, 'refuser'])->name('depenses.refuser');
+    Route::post('depenses/{depense}/demarrer-intervention', [DepenseController::class, 'demarrerIntervention'])->name('depenses.demarrer-intervention');
+    Route::post('depenses/{depense}/facture-recue', [DepenseController::class, 'factureRecue'])->name('depenses.facture-recue');
+    Route::post('depenses/{depense}/marquer-a-payer', [DepenseController::class, 'marquerAPayer'])->name('depenses.marquer-a-payer');
+    Route::post('depenses/{depense}/payer', [DepenseController::class, 'payer'])->name('depenses.payer');
+    Route::post('depenses/{depense}/cloturer', [DepenseController::class, 'cloturer'])->name('depenses.cloturer');
 });
 
 Route::get('{any}', [DashboardController::class, 'index'])->where('any', '.*'); // Catch-all route for the dashboard.

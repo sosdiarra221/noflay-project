@@ -62,6 +62,25 @@
         </div>
 
         <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="text-danger">{{ number_format($kpis['depenses_agence'], 0, ',', ' ') }}</h3>
+                        <p class="text-muted mb-0">Dépenses à la charge de l'agence ce mois (FCFA)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="text-warning">{{ number_format($kpis['depenses_en_attente'], 0, ',', ' ') }}</h3>
+                        <p class="text-muted mb-0">Dépenses en attente de paiement (FCFA)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
             <div class="col-xl-8">
                 <div class="card">
                     <div class="card-header"><h6 class="mb-0">Encaissements — 12 derniers mois</h6></div>
@@ -87,6 +106,8 @@
                         <a href="{{ route('finance.revenus.index') }}" class="btn btn-light-primary"><i class="bi bi-graph-up-arrow me-1"></i>Voir les revenus</a>
                         <a href="{{ route('finance.reversements.index') }}" class="btn btn-light-warning"><i class="bi bi-arrow-left-right me-1"></i>Gérer les reversements</a>
                         <a href="{{ route('finance.taxes.index') }}" class="btn btn-light-secondary"><i class="bi bi-receipt me-1"></i>Rapport des taxes</a>
+                        <a href="{{ route('finance.depenses.index') }}" class="btn btn-light-danger"><i class="bi bi-tools me-1"></i>Dépenses &amp; travaux</a>
+                        <a href="{{ route('finance.journal-caisse.index') }}" class="btn btn-light-info"><i class="bi bi-journal-text me-1"></i>Journal de caisse</a>
                     </div>
                 </div>
             </div>

@@ -22,6 +22,7 @@ class ReversementBailleur extends Model
         'periode_mois',
         'montant_encaisse',
         'montant_frais_gestion',
+        'montant_depenses',
         'montant_net',
         'statut',
         'date_versement',
@@ -36,6 +37,7 @@ class ReversementBailleur extends Model
     protected $casts = [
         'montant_encaisse' => 'decimal:2',
         'montant_frais_gestion' => 'decimal:2',
+        'montant_depenses' => 'decimal:2',
         'montant_net' => 'decimal:2',
         'date_versement' => 'date',
     ];

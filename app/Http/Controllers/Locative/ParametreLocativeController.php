@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Locative;
 
 use App\Http\Controllers\Controller;
 use App\Models\CategorieBien;
+use App\Models\CategorieDepense;
 use App\Models\ModePaiement;
 use App\Models\Reglage;
 use Illuminate\Http\Request;
@@ -14,9 +15,10 @@ class ParametreLocativeController extends Controller
     {
         $categories = CategorieBien::orderBy('nom')->get();
         $modesPaiement = ModePaiement::orderBy('nom')->get();
+        $categoriesDepense = CategorieDepense::orderBy('nom')->get();
         $reglage = Reglage::courant();
 
-        return view('locative.parametres', compact('categories', 'modesPaiement', 'reglage'));
+        return view('locative.parametres', compact('categories', 'modesPaiement', 'categoriesDepense', 'reglage'));
     }
 
     public function updateTaxes(Request $request)

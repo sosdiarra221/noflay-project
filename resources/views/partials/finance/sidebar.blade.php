@@ -45,6 +45,12 @@
                 </a>
             </li>
             <li class="pe-slide pe-has-sub">
+                <a href="{{ route('finance.depenses.index') }}" class="pe-nav-link">
+                    <i class="bi bi-tools pe-nav-icon"></i>
+                    <span class="pe-nav-content">Dépenses &amp; travaux</span>
+                </a>
+            </li>
+            <li class="pe-slide pe-has-sub">
                 <a href="{{ route('finance.journal-caisse.index') }}" class="pe-nav-link">
                     <i class="bi bi-journal-text pe-nav-icon"></i>
                     <span class="pe-nav-content">Journal de caisse</span>

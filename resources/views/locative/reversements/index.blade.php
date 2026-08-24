@@ -26,6 +26,7 @@
                                         <th>Bailleur</th>
                                         <th>Loyers encaissés</th>
                                         <th>Frais de gestion</th>
+                                        <th>Dépenses déduites</th>
                                         <th>Net à reverser</th>
                                         <th>Actions</th>
                                     </tr>
@@ -36,11 +37,12 @@
                                             <td><a href="{{ route('locative.bailleurs.show', $ligne['bailleur']) }}" class="text-reset fw-medium">{{ $ligne['bailleur']->nom_complet }}</a></td>
                                             <td>{{ number_format($ligne['encaisse'], 0, ',', ' ') }} FCFA</td>
                                             <td class="text-danger">- {{ number_format($ligne['frais_gestion'], 0, ',', ' ') }} FCFA</td>
+                                            <td class="text-danger">{{ $ligne['depenses'] > 0 ? '- '.number_format($ligne['depenses'], 0, ',', ' ').' FCFA' : '—' }}</td>
                                             <td class="fw-semibold">{{ number_format($ligne['net_a_reverser'], 0, ',', ' ') }} FCFA</td>
                                             <td><a href="{{ route('locative.bailleurs.show', $ligne['bailleur']) }}" class="btn btn-light-success icon-btn-sm"><i class="bi bi-eye"></i></a></td>
                                         </tr>
                                     @empty
-                                        <tr><td colspan="5" class="text-center text-muted py-5">Aucun encaissement sur cette période.</td></tr>
+                                        <tr><td colspan="6" class="text-center text-muted py-5">Aucun encaissement sur cette période.</td></tr>
                                     @endforelse
                                 </tbody>
                             </table>
