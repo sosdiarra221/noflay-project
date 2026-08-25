@@ -4,6 +4,10 @@
 @section('title-sub', 'RH')
 @section('pagetitle', 'Sites')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('assets/libs/choices.js/public/assets/styles/choices.min.css') }}">
+@endsection
+
 @section('content')
     <div id="layout-wrapper">
 
@@ -24,11 +28,12 @@
             <div class="card-body p-0">
                 <div class="table-box table-responsive">
                     <table class="table text-nowrap align-middle mb-0">
-                        <thead><tr><th>Nom</th><th>Adresse</th><th>Employés affectés</th><th>Statut</th><th></th></tr></thead>
+                        <thead><tr><th>Nom</th><th>Client</th><th>Adresse</th><th>Employés affectés</th><th>Statut</th><th></th></tr></thead>
                         <tbody>
                             @forelse ($sites as $site)
                                 <tr>
                                     <td class="fw-medium">{{ $site->nom }}</td>
+                                    <td>{{ $site->client->nom_complet ?? '—' }}</td>
                                     <td>{{ $site->adresse ?: '—' }}</td>
                                     <td>{{ $site->employes_count }}</td>
                                     <td>
@@ -43,7 +48,7 @@
                                     </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="5" class="text-center text-muted py-5">Aucun site enregistré.</td></tr>
+                                <tr><td colspan="6" class="text-center text-muted py-5">Aucun site enregistré.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -66,6 +71,15 @@
                         <div class="mb-3">
                             <label class="form-label">Nom<span class="text-danger ms-1">*</span></label>
                             <input type="text" class="form-control" name="nom" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Client <span class="text-muted fs-11">(un client peut avoir plusieurs sites)</span></label>
+                            <select class="form-select select-client-site" name="client_id">
+                                <option value="">Aucun (site interne à l'agence)</option>
+                                @foreach ($clients as $client)
+                                    <option value="{{ $client->id }}">{{ $client->nom_complet }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="mb-0">
                             <label class="form-label">Adresse</label>
@@ -98,6 +112,15 @@
                                 <input type="text" class="form-control" name="nom" value="{{ $site->nom }}" required>
                             </div>
                             <div class="mb-3">
+                                <label class="form-label">Client <span class="text-muted fs-11">(un client peut avoir plusieurs sites)</span></label>
+                                <select class="form-select select-client-site" name="client_id">
+                                    <option value="">Aucun (site interne à l'agence)</option>
+                                    @foreach ($clients as $client)
+                                        <option value="{{ $client->id }}" @selected($site->client_id === $client->id)>{{ $client->nom_complet }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="mb-3">
                                 <label class="form-label">Adresse</label>
                                 <input type="text" class="form-control" name="adresse" value="{{ $site->adresse }}">
                             </div>
@@ -120,5 +143,13 @@
 @endsection
 
 @section('js')
+    <script src="{{ asset('assets/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.select-client-site').forEach(function (select) {
+                new Choices(select, { searchEnabled: true, itemSelectText: '', searchPlaceholderValue: 'Rechercher un client...' });
+            });
+        });
+    </script>
 @endsection

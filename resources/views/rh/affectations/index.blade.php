@@ -19,9 +19,14 @@
         @endif
 
         <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0">Employés <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $employes->count() }}</span></h6>
-                <p class="text-muted fs-12 mb-0">Sélectionnez un employé pour l'affecter à un ou plusieurs sites. L'historique des transferts est conservé.</p>
+            <div class="card-header d-flex justify-content-between align-items-start">
+                <div>
+                    <h6 class="mb-0">Employés <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $employes->count() }}</span></h6>
+                    <p class="text-muted fs-12 mb-0">Sélectionnez un employé pour l'affecter à un ou plusieurs sites. L'historique des transferts est conservé.</p>
+                </div>
+                <button type="button" class="btn btn-light-primary btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#creerSiteModal">
+                    <i class="bi bi-plus-lg me-1"></i>Nouveau site
+                </button>
             </div>
             <div class="card-body p-0">
                 <div class="table-box table-responsive">
@@ -76,6 +81,43 @@
 
     </div>
 
+    <div class="modal fade" id="creerSiteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <form action="{{ route('rh.sites.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title">Nouveau site</h5>
+                        <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Nom<span class="text-danger ms-1">*</span></label>
+                            <input type="text" class="form-control" name="nom" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Client <span class="text-muted fs-11">(un client peut avoir plusieurs sites)</span></label>
+                            <select class="form-select select-client-site" name="client_id">
+                                <option value="">Aucun (site interne à l'agence)</option>
+                                @foreach ($clients as $client)
+                                    <option value="{{ $client->id }}">{{ $client->nom_complet }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label">Adresse</label>
+                            <input type="text" class="form-control" name="adresse">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Créer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     @foreach ($employes as $employe)
         <div class="modal fade" id="affecterModal{{ $employe->id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
@@ -91,7 +133,7 @@
                                 <label class="form-label">Site(s)</label>
                                 <select class="form-select select-sites-affectation" name="sites[]" multiple>
                                     @foreach ($sites as $site)
-                                        <option value="{{ $site->id }}" @selected($employe->sites->contains($site->id))>{{ $site->nom }}</option>
+                                        <option value="{{ $site->id }}" @selected($employe->sites->contains($site->id))>{{ $site->nom }} @if($site->client) — {{ $site->client->nom_complet }} @endif</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -120,6 +162,9 @@
         document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.select-sites-affectation').forEach(function (select) {
                 new Choices(select, { removeItemButton: true, placeholderValue: 'Sélectionner un ou plusieurs sites...' });
+            });
+            document.querySelectorAll('.select-client-site').forEach(function (select) {
+                new Choices(select, { searchEnabled: true, itemSelectText: '', searchPlaceholderValue: 'Rechercher un client...' });
             });
         });
     </script>

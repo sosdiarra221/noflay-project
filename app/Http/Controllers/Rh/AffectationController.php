@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Rh;
 
 use App\Http\Controllers\Controller;
+use App\Models\Facturation\Client;
 use App\Models\Rh\Employe;
 use App\Models\Rh\EmployeAffectation;
 use App\Models\Rh\Site;
@@ -16,10 +17,11 @@ class AffectationController extends Controller
         Gate::authorize('rh.gerer');
 
         $employes = Employe::actifs()->with('departement', 'poste', 'sites')->orderBy('nom')->get();
-        $sites = Site::where('actif', true)->orderBy('nom')->get();
+        $sites = Site::with('client')->where('actif', true)->orderBy('nom')->get();
+        $clients = Client::orderBy('nom_complet')->get();
         $historique = EmployeAffectation::with('employe')->latest('date_affectation')->take(30)->get();
 
-        return view('rh.affectations.index', compact('employes', 'sites', 'historique'));
+        return view('rh.affectations.index', compact('employes', 'sites', 'clients', 'historique'));
     }
 
     public function store(Request $request, Employe $employe)

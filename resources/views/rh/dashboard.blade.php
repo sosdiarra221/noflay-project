@@ -106,16 +106,38 @@
                 <div class="card">
                     <div class="card-header"><h6 class="mb-0">Répartition par département</h6></div>
                     <div class="card-body">
-                        <ul class="list-unstyled mb-0">
-                            @forelse ($repartitionDepartements as $nom => $nombre)
-                                <li class="d-flex justify-content-between border-bottom py-2">
-                                    <span class="text-muted">{{ $nom }}</span>
-                                    <span class="fw-medium">{{ $nombre }}</span>
-                                </li>
-                            @empty
-                                <li class="text-center text-muted py-5">Aucun employé enregistré.</li>
-                            @endforelse
-                        </ul>
+                        @if ($repartitionDepartements->isNotEmpty())
+                            <div id="chartRepartitionDepartements"></div>
+                        @else
+                            <p class="text-center text-muted py-5 mb-0">Aucun employé enregistré.</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header"><h6 class="mb-0">Répartition par sexe</h6></div>
+                    <div class="card-body">
+                        @if ($repartitionSexe->isNotEmpty())
+                            <div id="chartRepartitionSexe"></div>
+                        @else
+                            <p class="text-center text-muted py-5 mb-0">Aucun employé enregistré.</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header"><h6 class="mb-0">Répartition par fonction</h6></div>
+                    <div class="card-body">
+                        @if ($repartitionFonction->isNotEmpty())
+                            <div id="chartRepartitionFonction"></div>
+                        @else
+                            <p class="text-center text-muted py-5 mb-0">Aucun employé enregistré.</p>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -159,5 +181,45 @@
 @endsection
 
 @section('js')
+    <script src="{{ asset('assets/libs/apexcharts/apexcharts.min.js') }}"></script>
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const departementsData = {!! json_encode(['categories' => $repartitionDepartements->keys(), 'series' => $repartitionDepartements->values()]) !!};
+            if (departementsData.categories.length > 0) {
+                new ApexCharts(document.querySelector('#chartRepartitionDepartements'), {
+                    chart: { type: 'bar', height: 280, toolbar: { show: false } },
+                    series: [{ name: 'Employés', data: departementsData.series }],
+                    xaxis: { categories: departementsData.categories },
+                    colors: ['#ff7a1a'],
+                    plotOptions: { bar: { borderRadius: 4, columnWidth: '45%' } },
+                    dataLabels: { enabled: true },
+                }).render();
+            }
+
+            const sexeData = {!! json_encode(['labels' => $repartitionSexe->keys(), 'series' => $repartitionSexe->values()]) !!};
+            if (sexeData.labels.length > 0) {
+                new ApexCharts(document.querySelector('#chartRepartitionSexe'), {
+                    chart: { type: 'donut', height: 280 },
+                    labels: sexeData.labels,
+                    series: sexeData.series,
+                    colors: ['#0d6efd', '#e83e8c', '#adb5bd'],
+                    legend: { position: 'bottom', fontSize: '11px' },
+                    dataLabels: { enabled: true },
+                }).render();
+            }
+
+            const fonctionData = {!! json_encode(['labels' => $repartitionFonction->keys(), 'series' => $repartitionFonction->values()]) !!};
+            if (fonctionData.labels.length > 0) {
+                new ApexCharts(document.querySelector('#chartRepartitionFonction'), {
+                    chart: { type: 'donut', height: 280 },
+                    labels: fonctionData.labels,
+                    series: fonctionData.series,
+                    colors: ['#0ab39c', '#f7b84b', '#ff7a1a'],
+                    legend: { position: 'bottom', fontSize: '11px' },
+                    dataLabels: { enabled: true },
+                }).render();
+            }
+        });
+    </script>
 @endsection
