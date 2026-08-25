@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Devis extends Model
+class Facture extends Model
 {
     use SoftDeletes;
     use Auditable;
@@ -15,17 +15,17 @@ class Devis extends Model
     protected string $moduleJournal = 'facturation';
 
     const STATUTS = [
-        'nouveau' => 'Nouveau',
-        'en_negociation' => 'En négociation',
-        'gagne' => 'Gagné',
-        'perdu' => 'Perdu',
-        'annule' => 'Annulé',
+        'emise' => 'Émise',
+        'payee' => 'Payée',
+        'annulee' => 'Annulée',
     ];
 
     protected $fillable = [
         'numero',
-        'date_devis',
+        'date_facture',
         'client_id',
+        'devis_id',
+        'source',
         'statut',
         'appliquer_tva',
         'taux_tva',
@@ -39,7 +39,7 @@ class Devis extends Model
     ];
 
     protected $casts = [
-        'date_devis' => 'date',
+        'date_facture' => 'date',
         'appliquer_tva' => 'boolean',
         'taux_tva' => 'decimal:2',
         'sous_total_ht' => 'decimal:2',
@@ -52,24 +52,19 @@ class Devis extends Model
         return $this->belongsTo(Client::class);
     }
 
-    public function lignes()
+    public function devisSource()
     {
-        return $this->hasMany(DevisLigne::class)->orderBy('ordre');
+        return $this->belongsTo(Devis::class, 'devis_id');
     }
 
-    public function facture()
+    public function lignes()
     {
-        return $this->hasOne(Facture::class);
+        return $this->hasMany(FactureLigne::class)->orderBy('ordre');
     }
 
     public function creePar()
     {
         return $this->belongsTo(User::class, 'cree_par_id');
-    }
-
-    public function supprimePar()
-    {
-        return $this->belongsTo(User::class, 'supprime_par_id');
     }
 
     public function libelleStatut(): string

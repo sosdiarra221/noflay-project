@@ -46,8 +46,8 @@
                                 <i class="bi bi-check-circle"></i>
                             </div>
                             <div>
-                                <h5 class="mb-2">{{ $stats['accepte'] }}</h5>
-                                <p class="text-muted mb-0 fs-12">Devis acceptés</p>
+                                <h5 class="mb-2">{{ $stats['gagne'] }}</h5>
+                                <p class="text-muted mb-0 fs-12">Devis gagnés</p>
                             </div>
                         </div>
                     </div>
@@ -61,8 +61,8 @@
                                 <i class="bi bi-hourglass-split"></i>
                             </div>
                             <div>
-                                <h5 class="mb-2">{{ $stats['en_attente'] }}</h5>
-                                <p class="text-muted mb-0 fs-12">En attente (brouillon / envoyé)</p>
+                                <h5 class="mb-2">{{ $stats['en_cours'] }}</h5>
+                                <p class="text-muted mb-0 fs-12">En cours (nouveau / négociation)</p>
                             </div>
                         </div>
                     </div>
@@ -84,7 +84,7 @@
                             <table class="table text-nowrap align-middle mb-0">
                                 <thead><tr><th>Numéro</th><th>Client</th><th>Date</th><th>Total TTC</th><th>Statut</th><th></th></tr></thead>
                                 <tbody>
-                                    @php $classesStatut = ['brouillon' => 'secondary', 'envoye' => 'info', 'accepte' => 'success', 'refuse' => 'danger', 'expire' => 'dark']; @endphp
+                                    @php $classesStatut = ['nouveau' => 'secondary', 'en_negociation' => 'warning', 'gagne' => 'success', 'perdu' => 'danger', 'annule' => 'dark']; @endphp
                                     @forelse ($derniersDevis as $devis)
                                         <tr>
                                             <td class="fw-medium">{{ $devis->numero }}</td>

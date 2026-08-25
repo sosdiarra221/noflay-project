@@ -26,6 +26,12 @@
                     <span class="pe-nav-content">Devis</span>
                 </a>
             </li>
+            <li class="pe-slide pe-has-sub">
+                <a href="{{ route('facturation.factures.index') }}" class="pe-nav-link">
+                    <i class="bi bi-file-earmark-check pe-nav-icon"></i>
+                    <span class="pe-nav-content">Factures</span>
+                </a>
+            </li>
             <li class="pe-menu-title">
                 Configuration
             </li>

@@ -68,7 +68,7 @@
                     <table class="table text-nowrap align-middle mb-0">
                         <thead><tr><th>Numéro</th><th>Client</th><th>Date</th><th>Lignes</th><th>Total TTC</th><th>Statut</th><th>Actions</th></tr></thead>
                         <tbody>
-                            @php $classesStatut = ['brouillon' => 'secondary', 'envoye' => 'info', 'accepte' => 'success', 'refuse' => 'danger', 'expire' => 'dark']; @endphp
+                            @php $classesStatut = ['nouveau' => 'secondary', 'en_negociation' => 'warning', 'gagne' => 'success', 'perdu' => 'danger', 'annule' => 'dark']; @endphp
                             @forelse ($devis as $d)
                                 <tr>
                                     <td class="fw-medium"><a href="{{ route('facturation.devis.show', $d) }}" class="text-reset">{{ $d->numero }}</a></td>
@@ -112,7 +112,7 @@
                                 <label class="form-label">Statut<span class="text-danger ms-1">*</span></label>
                                 <select class="form-select" name="statut" required>
                                     @foreach (\App\Models\Facturation\Devis::STATUTS as $valeur => $libelle)
-                                        <option value="{{ $valeur }}" @selected($valeur === 'brouillon')>{{ $libelle }}</option>
+                                        <option value="{{ $valeur }}" @selected($valeur === 'nouveau')>{{ $libelle }}</option>
                                     @endforeach
                                 </select>
                             </div>

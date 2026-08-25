@@ -14,8 +14,8 @@ class FacturationDashboardController extends Controller
         $stats = [
             'total_devis' => $devis->count(),
             'montant_total_ttc' => (float) $devis->sum('total_ttc'),
-            'accepte' => $devis->where('statut', 'accepte')->count(),
-            'en_attente' => $devis->whereIn('statut', ['brouillon', 'envoye'])->count(),
+            'gagne' => $devis->where('statut', 'gagne')->count(),
+            'en_cours' => $devis->whereIn('statut', ['nouveau', 'en_negociation'])->count(),
         ];
 
         $repartitionStatuts = $devis->groupBy('statut')->map->count();

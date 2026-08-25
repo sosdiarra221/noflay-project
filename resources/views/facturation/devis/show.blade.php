@@ -14,7 +14,7 @@
             </div>
         @endif
 
-        @php $classesStatut = ['brouillon' => 'secondary', 'envoye' => 'info', 'accepte' => 'success', 'refuse' => 'danger', 'expire' => 'dark']; @endphp
+        @php $classesStatut = ['nouveau' => 'secondary', 'en_negociation' => 'warning', 'gagne' => 'success', 'perdu' => 'danger', 'annule' => 'dark']; @endphp
 
         <div class="card">
             <div class="card-body">

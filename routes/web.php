@@ -36,6 +36,7 @@ use App\Http\Controllers\Administration\SecuriteController;
 use App\Http\Controllers\Administration\ModuleController;
 use App\Http\Controllers\Facturation\FacturationDashboardController;
 use App\Http\Controllers\Facturation\DevisController;
+use App\Http\Controllers\Facturation\FactureController;
 use App\Http\Controllers\Commercial\CommercialDashboardController;
 use App\Http\Controllers\Commercial\ProspectController;
 use App\Http\Controllers\Commercial\ActiviteController;
@@ -297,6 +298,12 @@ Route::prefix('facturation')->name('facturation.')->middleware('module.actif:fac
     Route::delete('devis/{devis}', [DevisController::class, 'destroy'])->name('devis.destroy');
     Route::get('devis/{devis}/pdf', [DevisController::class, 'pdf'])->name('devis.pdf');
     Route::get('devis/{devis}/apercu', [DevisController::class, 'apercu'])->name('devis.apercu');
+
+    Route::get('factures', [FactureController::class, 'index'])->name('factures.index');
+    Route::get('factures/{facture}', [FactureController::class, 'show'])->name('factures.show');
+    Route::put('factures/{facture}', [FactureController::class, 'update'])->name('factures.update');
+    Route::get('factures/{facture}/pdf', [FactureController::class, 'pdf'])->name('factures.pdf');
+    Route::get('factures/{facture}/apercu', [FactureController::class, 'apercu'])->name('factures.apercu');
 });
 
 // Module Direction & Administration — sous-application avec son propre dashboard et son propre menu.

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Facturation;
 use App\Http\Controllers\Controller;
 use App\Models\Facturation\Client;
 use App\Models\Facturation\Devis;
+use App\Models\Facturation\Facture;
 use App\Models\Reglage;
 use App\Services\Locative\NumeroService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -82,7 +83,7 @@ class DevisController extends Controller
             $totalTtc = round($sousTotalHt + $montantTva, 2);
 
             $devis = Devis::create([
-                'numero' => NumeroService::genererNumero(Devis::class, 'DEV'),
+                'numero' => NumeroService::genererNumeroCourt(Devis::class, 'DEV'),
                 'date_devis' => $data['date_devis'],
                 'client_id' => $client->id,
                 'statut' => $data['statut'],
@@ -111,7 +112,54 @@ class DevisController extends Controller
 
         $devis->update($data);
 
+        // Conversion dynamique en facture dès que le devis passe "Gagné" — une seule fois
+        // (un devis déjà converti ne l'est jamais deux fois, même si on repasse par ce statut).
+        if ($data['statut'] === 'gagne' && ! $devis->facture()->exists()) {
+            $facture = $this->convertirEnFacture($devis);
+
+            return redirect()->route('facturation.factures.show', $facture)
+                ->with('success', 'Devis marqué « Gagné » et converti automatiquement en facture '.$facture->numero.'.');
+        }
+
         return back()->with('success', 'Statut du devis mis à jour avec succès.');
+    }
+
+    /**
+     * Duplique le devis (lignes comprises) en facture, en conservant une référence explicite au
+     * devis d'origine ("source") pour la traçabilité — la facture reste indépendante ensuite :
+     * modifier le devis après coup n'impacte jamais une facture déjà émise.
+     */
+    protected function convertirEnFacture(Devis $devis): Facture
+    {
+        return DB::transaction(function () use ($devis) {
+            $facture = Facture::create([
+                'numero' => NumeroService::genererNumeroCourt(Facture::class, 'FAC'),
+                'date_facture' => now(),
+                'client_id' => $devis->client_id,
+                'devis_id' => $devis->id,
+                'source' => 'Devis '.$devis->numero.' du '.$devis->date_devis->format('d/m/Y'),
+                'statut' => 'emise',
+                'appliquer_tva' => $devis->appliquer_tva,
+                'taux_tva' => $devis->taux_tva,
+                'sous_total_ht' => $devis->sous_total_ht,
+                'montant_tva' => $devis->montant_tva,
+                'total_ttc' => $devis->total_ttc,
+                'notes' => $devis->notes,
+                'cree_par_id' => auth()->id(),
+            ]);
+
+            $facture->lignes()->createMany(
+                $devis->lignes->map(fn ($ligne) => [
+                    'designation' => $ligne->designation,
+                    'quantite' => $ligne->quantite,
+                    'prix_unitaire' => $ligne->prix_unitaire,
+                    'total' => $ligne->total,
+                    'ordre' => $ligne->ordre,
+                ])->all()
+            );
+
+            return $facture;
+        });
     }
 
     public function destroy(Request $request, Devis $devis)
@@ -135,7 +183,7 @@ class DevisController extends Controller
 
         $pdf = Pdf::loadView('facturation.pdf.devis', ['devis' => $devis, 'reglage' => $reglage]);
 
-        return $pdf->download($devis->numero.'.pdf');
+        return $pdf->download(str_replace('/', '-', $devis->numero).'.pdf');
     }
 
     public function apercu(Devis $devis)
@@ -145,6 +193,6 @@ class DevisController extends Controller
 
         $pdf = Pdf::loadView('facturation.pdf.devis', ['devis' => $devis, 'reglage' => $reglage]);
 
-        return $pdf->stream($devis->numero.'.pdf');
+        return $pdf->stream(str_replace('/', '-', $devis->numero).'.pdf');
     }
 }
