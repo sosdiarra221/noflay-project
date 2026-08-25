@@ -58,7 +58,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="mb-3">
+                            <div class="mb-0">
                                 <label class="form-label">Département<span class="text-danger ms-1">*</span></label>
                                 <select class="form-select" name="departement_id" required>
                                     <option value="">Sélectionner...</option>
@@ -66,14 +66,24 @@
                                         <option value="{{ $departement->id }}" @selected(old('departement_id') == $departement->id)>{{ $departement->nom }}</option>
                                     @endforeach
                                 </select>
+                                <p class="text-muted fs-11 mt-1 mb-0">L'affectation à un site se fait ensuite depuis <a href="{{ route('rh.affectations.index') }}" target="_blank">Affectations</a>.</p>
                             </div>
-                            <div class="mb-0">
-                                <label class="form-label">Site(s)</label>
-                                <select class="form-select" name="sites[]" id="selectSites" multiple>
-                                    @foreach ($sites as $site)
-                                        <option value="{{ $site->id }}">{{ $site->nom }}</option>
-                                    @endforeach
-                                </select>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h6 class="card-action-title mb-0">Aptitudes</h6></div>
+                        <div class="card-body">
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" name="permis_conduire" value="1" id="champPermisConduire" @checked(old('permis_conduire'))>
+                                <label class="form-check-label" for="champPermisConduire">Permis de conduire</label>
+                            </div>
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" name="arts_martiaux" value="1" id="champArtsMartiaux" @checked(old('arts_martiaux'))>
+                                <label class="form-check-label" for="champArtsMartiaux">Pratique des arts martiaux</label>
+                            </div>
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" name="service_militaire" value="1" id="champServiceMilitaire" @checked(old('service_militaire'))>
+                                <label class="form-check-label" for="champServiceMilitaire">Service militaire effectué</label>
                             </div>
                         </div>
                     </div>
@@ -127,7 +137,12 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Pièce d'identité</label>
-                                    <input type="text" class="form-control" name="piece_identite_type" value="{{ old('piece_identite_type') }}" placeholder="CNI, Passeport...">
+                                    <select class="form-select" name="piece_identite_type">
+                                        <option value="">—</option>
+                                        @foreach (\App\Models\Rh\Employe::PIECES_IDENTITE as $valeur => $libelle)
+                                            <option value="{{ $valeur }}" @selected(old('piece_identite_type') === $valeur)>{{ $libelle }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Numéro</label>
@@ -182,13 +197,27 @@
                     </div>
 
                     <div class="card">
-                        <div class="card-header"><h6 class="card-action-title mb-0">Diplômes &amp; langues</h6></div>
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="card-action-title mb-0">Diplômes</h6>
+                            <button type="button" class="btn btn-light-primary btn-sm" id="btnAjouterDiplome"><i class="bi bi-plus-lg me-1"></i>Ajouter</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-box table-responsive">
+                                <table class="table align-middle mb-0">
+                                    <thead><tr><th>Intitulé</th><th style="width: 200px;">Niveau</th><th style="width: 140px;">Année</th><th style="width: 40px;"></th></tr></thead>
+                                    <tbody id="corpsDiplomes"></tbody>
+                                </table>
+                            </div>
+                            <p class="text-muted fs-11 mb-0" id="messageAucunDiplome">Aucun diplôme ajouté.</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header"><h6 class="card-action-title mb-0">Langues</h6></div>
                         <div class="card-body">
                             <div class="row g-3">
-                                <div class="col-md-6"><label class="form-label">Niveau d'étude</label><input type="text" class="form-control" name="niveau_etude" value="{{ old('niveau_etude') }}"></div>
-                                <div class="col-md-6"><label class="form-label">Intitulé du diplôme</label><input type="text" class="form-control" name="intitule_diplome" value="{{ old('intitule_diplome') }}"></div>
-                                <div class="col-md-6"><label class="form-label">Langues parlées</label><input type="text" class="form-control" name="langues_parlees" value="{{ old('langues_parlees') }}" placeholder="Français, Wolof..."></div>
-                                <div class="col-md-6"><label class="form-label">Langues lues/écrites</label><input type="text" class="form-control" name="langues_lues" value="{{ old('langues_lues') }}"></div>
+                                <div class="col-md-6"><label class="form-label">Langues parlées</label><input type="text" class="form-control" name="langues_parlees" value="{{ old('langues_parlees', 'Français, Wolof') }}"></div>
+                                <div class="col-md-6"><label class="form-label">Langues lues/écrites</label><input type="text" class="form-control" name="langues_lues" value="{{ old('langues_lues', 'Français, Wolof') }}"></div>
                             </div>
                         </div>
                     </div>
@@ -238,10 +267,6 @@
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            new Choices(document.getElementById('selectSites'), {
-                removeItemButton: true,
-                placeholderValue: 'Sélectionner un ou plusieurs sites...',
-            });
             new Choices(document.getElementById('selectPoste'), { searchEnabled: true, itemSelectText: '' });
 
             document.getElementById('champPhoto').addEventListener('change', function (e) {
@@ -304,8 +329,36 @@
             }
             document.getElementById('btnAjouterEnfant').addEventListener('click', ajouterEnfant);
 
+            // Diplômes
+            const corpsDiplomes = document.getElementById('corpsDiplomes');
+            const messageAucunDiplome = document.getElementById('messageAucunDiplome');
+            let compteurDiplome = 0;
+
+            function synchroniserMessageDiplomes() {
+                messageAucunDiplome.classList.toggle('d-none', corpsDiplomes.children.length > 0);
+            }
+
+            function ajouterDiplome() {
+                const index = compteurDiplome++;
+                const ligne = document.createElement('tr');
+                ligne.innerHTML = `
+                    <td><input type="text" class="form-control" name="diplomes[${index}][intitule]" placeholder="Ex : Licence en gestion" required></td>
+                    <td><input type="text" class="form-control" name="diplomes[${index}][niveau]" placeholder="Ex : Bac +3"></td>
+                    <td><input type="text" class="form-control" name="diplomes[${index}][annee_obtention]" placeholder="2024" maxlength="4"></td>
+                    <td><button type="button" class="btn btn-light-danger icon-btn-sm btn-supprimer-ligne"><i class="ri-delete-bin-line"></i></button></td>
+                `;
+                corpsDiplomes.appendChild(ligne);
+                ligne.querySelector('.btn-supprimer-ligne').addEventListener('click', function () {
+                    ligne.remove();
+                    synchroniserMessageDiplomes();
+                });
+                synchroniserMessageDiplomes();
+            }
+            document.getElementById('btnAjouterDiplome').addEventListener('click', ajouterDiplome);
+
             synchroniserMessageEpouses();
             synchroniserMessageEnfants();
+            synchroniserMessageDiplomes();
         });
     </script>
 @endsection

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Rh;
 
 use App\Http\Controllers\Controller;
+use App\Models\Reglage;
 use App\Models\Rh\ContratTravail;
 use App\Models\Rh\Employe;
 use App\Services\Locative\NumeroService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -19,10 +21,13 @@ class ContratTravailController extends Controller
         $contrats = ContratTravail::with('employe.departement')
             ->when($request->filled('etat'), fn ($q) => $q->where('etat', $request->etat))
             ->when($request->filled('echeance'), fn ($q) => $q->echeanceSous((int) $request->echeance))
+            ->when($request->filled('employe_id'), fn ($q) => $q->where('employe_id', $request->employe_id))
             ->latest('date_debut')
             ->get();
 
-        return view('rh.contrats.index', compact('contrats'));
+        $employes = Employe::orderBy('nom')->get();
+
+        return view('rh.contrats.index', compact('contrats', 'employes'));
     }
 
     public function store(Request $request, Employe $employe)
@@ -100,5 +105,29 @@ class ContratTravailController extends Controller
         abort_unless($contrat->document, 404);
 
         return Storage::disk('public')->response($contrat->document);
+    }
+
+    public function pdf(ContratTravail $contrat)
+    {
+        Gate::authorize('rh.consulter');
+
+        $contrat->load('employe.departement', 'employe.poste');
+        $reglage = Reglage::courant();
+
+        $pdf = Pdf::loadView('rh.pdf.contrat-travail', ['contrat' => $contrat, 'reglage' => $reglage]);
+
+        return $pdf->download(str_replace('/', '-', $contrat->numero).'.pdf');
+    }
+
+    public function apercuPdf(ContratTravail $contrat)
+    {
+        Gate::authorize('rh.consulter');
+
+        $contrat->load('employe.departement', 'employe.poste');
+        $reglage = Reglage::courant();
+
+        $pdf = Pdf::loadView('rh.pdf.contrat-travail', ['contrat' => $contrat, 'reglage' => $reglage]);
+
+        return $pdf->stream(str_replace('/', '-', $contrat->numero).'.pdf');
     }
 }

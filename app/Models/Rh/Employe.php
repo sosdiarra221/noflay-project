@@ -28,6 +28,13 @@ class Employe extends Model
         'veuf' => 'Veuf/Veuve',
     ];
 
+    const PIECES_IDENTITE = [
+        'cni' => 'CNI',
+        'passeport' => 'Passeport',
+        'permis_conduire' => 'Permis de Conduire',
+        'carte_sejour' => 'Carte de séjour',
+    ];
+
     protected $fillable = [
         'matricule',
         'photo',
@@ -39,6 +46,9 @@ class Employe extends Model
         'situation_matrimoniale',
         'piece_identite_type',
         'piece_identite_numero',
+        'permis_conduire',
+        'arts_martiaux',
+        'service_militaire',
         'telephone',
         'whatsapp',
         'email',
@@ -46,8 +56,6 @@ class Employe extends Model
         'categorie_fonction',
         'poste_id',
         'departement_id',
-        'niveau_etude',
-        'intitule_diplome',
         'langues_parlees',
         'langues_lues',
         'banque',
@@ -72,6 +80,9 @@ class Employe extends Model
         'date_embauche' => 'date',
         'date_sortie' => 'date',
         'solde_conges' => 'decimal:2',
+        'permis_conduire' => 'boolean',
+        'arts_martiaux' => 'boolean',
+        'service_militaire' => 'boolean',
     ];
 
     public function departement()
@@ -97,6 +108,11 @@ class Employe extends Model
     public function enfants()
     {
         return $this->hasMany(EmployeEnfant::class);
+    }
+
+    public function diplomes()
+    {
+        return $this->hasMany(EmployeDiplome::class);
     }
 
     public function documents()
@@ -142,6 +158,11 @@ class Employe extends Model
     public function libelleCategorieFonction(): string
     {
         return self::CATEGORIES_FONCTION[$this->categorie_fonction] ?? $this->categorie_fonction;
+    }
+
+    public function libellePieceIdentite(): ?string
+    {
+        return self::PIECES_IDENTITE[$this->piece_identite_type] ?? $this->piece_identite_type;
     }
 
     public function aUnContratActif(): bool

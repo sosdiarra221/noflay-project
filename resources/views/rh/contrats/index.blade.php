@@ -4,6 +4,10 @@
 @section('title-sub', 'RH')
 @section('pagetitle', 'Contrats de travail')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('assets/libs/choices.js/public/assets/styles/choices.min.css') }}">
+@endsection
+
 @section('content')
     <div id="layout-wrapper">
 
@@ -17,6 +21,15 @@
         <div class="card">
             <div class="card-body">
                 <form method="GET" class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label">Employé</label>
+                        <select class="form-select" name="employe_id" id="selectFiltreEmploye" onchange="this.form.submit()">
+                            <option value="">Tous</option>
+                            @foreach ($employes as $employe)
+                                <option value="{{ $employe->id }}" @selected(request('employe_id') == $employe->id)>{{ $employe->nom_complet }} ({{ $employe->matricule }})</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="col-md-3">
                         <label class="form-label">État</label>
                         <select class="form-select" name="etat" onchange="this.form.submit()">
@@ -73,7 +86,12 @@
                                             <span class="badge bg-secondary-subtle text-secondary">Clôturé</span>
                                         @endif
                                     </td>
-                                    <td><a href="{{ route('rh.employes.show', $contrat->employe) }}" class="btn btn-light-success btn-sm">Voir l'employé</a></td>
+                                    <td>
+                                        <div class="hstack gap-2">
+                                            <a href="{{ route('rh.employes.show', $contrat->employe) }}" class="btn btn-light-success btn-sm">Voir l'employé</a>
+                                            <button type="button" class="btn btn-light-info btn-sm" title="Contrat en PDF" onclick="ouvrirApercuContratPdf({{ Js::from(route('rh.contrats.pdf.apercu', $contrat)) }}, {{ Js::from($contrat->numero) }}, {{ Js::from(route('rh.contrats.pdf', $contrat)) }})"><i class="bi bi-file-earmark-pdf"></i></button>
+                                        </div>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr><td colspan="9" class="text-center text-muted py-5">Aucun contrat ne correspond à ces filtres.</td></tr>
@@ -85,9 +103,42 @@
         </div>
 
     </div>
+
+    {{-- Aperçu PDF du contrat --}}
+    <div class="modal fade" id="apercuContratPdfModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="apercuContratPdfTitre">Contrat</h5>
+                    <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
+                </div>
+                <div class="modal-body p-0">
+                    <iframe id="apercuContratPdfFrame" src="" style="width: 100%; height: 70vh; border: 0;"></iframe>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
+                    <a id="apercuContratPdfTelecharger" href="#" class="btn btn-primary"><i class="bi bi-download me-1"></i>Télécharger</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     </main>
 @endsection
 
 @section('js')
+    <script src="{{ asset('assets/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            new Choices(document.getElementById('selectFiltreEmploye'), { searchEnabled: true, itemSelectText: '', searchPlaceholderValue: 'Rechercher un employé...' });
+        });
+
+        function ouvrirApercuContratPdf(urlApercu, numero, urlTelecharger) {
+            document.getElementById('apercuContratPdfTitre').textContent = 'Contrat — ' + numero;
+            document.getElementById('apercuContratPdfFrame').src = urlApercu;
+            document.getElementById('apercuContratPdfTelecharger').href = urlTelecharger;
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('apercuContratPdfModal')).show();
+        }
+    </script>
 @endsection

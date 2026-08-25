@@ -43,6 +43,7 @@ use App\Http\Controllers\Rh\EmployeDocumentController;
 use App\Http\Controllers\Rh\ContratTravailController;
 use App\Http\Controllers\Rh\SiteController;
 use App\Http\Controllers\Rh\PosteController;
+use App\Http\Controllers\Rh\AffectationController;
 use App\Http\Controllers\Commercial\CommercialDashboardController;
 use App\Http\Controllers\Commercial\ProspectController;
 use App\Http\Controllers\Commercial\ActiviteController;
@@ -335,6 +336,8 @@ Route::prefix('rh')->name('rh.')->middleware('module.actif:rh')->group(function 
     Route::post('contrats/{contrat}/renouveler', [ContratTravailController::class, 'renouveler'])->name('contrats.renouveler');
     Route::post('contrats/{contrat}/cloturer', [ContratTravailController::class, 'cloturer'])->name('contrats.cloturer');
     Route::get('contrats/{contrat}/document/apercu', [ContratTravailController::class, 'apercuDocument'])->name('contrats.document.apercu');
+    Route::get('contrats/{contrat}/pdf', [ContratTravailController::class, 'pdf'])->name('contrats.pdf');
+    Route::get('contrats/{contrat}/pdf/apercu', [ContratTravailController::class, 'apercuPdf'])->name('contrats.pdf.apercu');
     Route::get('contrats', [ContratTravailController::class, 'index'])->name('contrats.index');
 
     Route::get('sites', [SiteController::class, 'index'])->name('sites.index');
@@ -344,6 +347,9 @@ Route::prefix('rh')->name('rh.')->middleware('module.actif:rh')->group(function 
     Route::get('postes', [PosteController::class, 'index'])->name('postes.index');
     Route::post('postes', [PosteController::class, 'store'])->name('postes.store');
     Route::put('postes/{poste}', [PosteController::class, 'update'])->name('postes.update');
+
+    Route::get('affectations', [AffectationController::class, 'index'])->name('affectations.index');
+    Route::post('affectations/{employe}', [AffectationController::class, 'store'])->name('affectations.store');
 });
 
 // Module Direction & Administration — sous-application avec son propre dashboard et son propre menu.

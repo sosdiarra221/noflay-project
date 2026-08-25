@@ -32,6 +32,12 @@
                     <span class="pe-nav-content">Contrats de travail</span>
                 </a>
             </li>
+            <li class="pe-slide pe-has-sub">
+                <a href="{{ route('rh.affectations.index') }}" class="pe-nav-link">
+                    <i class="bi bi-signpost-split pe-nav-icon"></i>
+                    <span class="pe-nav-content">Affectations</span>
+                </a>
+            </li>
             <li class="pe-menu-title">
                 Configuration
             </li>

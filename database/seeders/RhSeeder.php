@@ -64,8 +64,7 @@ class RhSeeder extends Seeder
                     'poste_id' => $poste->id,
                     'categorie_fonction' => $profil['categorie'],
                     'departement_id' => $departement->id,
-                    'niveau_etude' => 'Bac +4',
-                    'intitule_diplome' => 'Licence / Master professionnel',
+                    'permis_conduire' => in_array($profil['categorie'], ['agent_terrain', 'superviseur']),
                     'langues_parlees' => 'Français, Wolof',
                     'langues_lues' => 'Français',
                     'banque' => 'Banque Atlantique',
@@ -97,6 +96,11 @@ class RhSeeder extends Seeder
                 for ($i = 0; $i < $profil['enfants']; $i++) {
                     $employe->enfants()->create($enfantsExemples[$i]);
                 }
+
+                $employe->diplomes()->create([
+                    'intitule' => 'Licence / Master professionnel',
+                    'niveau' => 'Bac +4',
+                ]);
 
                 ContratTravail::create([
                     'numero' => NumeroService::genererNumeroCourt(ContratTravail::class, 'CT'),

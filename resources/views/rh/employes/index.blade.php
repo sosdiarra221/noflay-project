@@ -35,11 +35,11 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Fonction</label>
-                        <select class="form-select" name="categorie_fonction">
-                            <option value="">Toutes</option>
-                            @foreach (\App\Models\Rh\Employe::CATEGORIES_FONCTION as $valeur => $libelle)
-                                <option value="{{ $valeur }}" @selected(request('categorie_fonction') === $valeur)>{{ $libelle }}</option>
+                        <label class="form-label">Poste</label>
+                        <select class="form-select" name="poste_id">
+                            <option value="">Tous</option>
+                            @foreach ($postes as $poste)
+                                <option value="{{ $poste->id }}" @selected(request('poste_id') == $poste->id)>{{ $poste->nom }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -115,5 +115,13 @@
 @endsection
 
 @section('js')
+    <script src="{{ asset('assets/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            new Choices(document.querySelector('select[name="departement_id"]'), { searchEnabled: true, itemSelectText: '' });
+            new Choices(document.querySelector('select[name="poste_id"]'), { searchEnabled: true, itemSelectText: '' });
+            new Choices(document.querySelector('select[name="statut"]'), { searchEnabled: false, itemSelectText: '' });
+        });
+    </script>
 @endsection

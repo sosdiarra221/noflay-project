@@ -82,10 +82,21 @@
                                     </div>
                                 </div>
                                 <div class="card">
-                                    <div class="card-header"><h6 class="card-action-title mb-0">Diplômes &amp; langues</h6></div>
+                                    <div class="card-header"><h6 class="card-action-title mb-0">Diplômes</h6></div>
                                     <div class="card-body">
-                                        <div class="row mb-3"><div class="col-5 text-muted">Niveau d'étude</div><div class="col-7 fw-medium">{{ $employe->niveau_etude ?: '—' }}</div></div>
-                                        <div class="row mb-3"><div class="col-5 text-muted">Diplôme</div><div class="col-7 fw-medium">{{ $employe->intitule_diplome ?: '—' }}</div></div>
+                                        @forelse ($employe->diplomes as $diplome)
+                                            <div class="d-flex justify-content-between border-bottom py-2">
+                                                <span>{{ $diplome->intitule }} @if($diplome->niveau) <span class="text-muted fs-12">({{ $diplome->niveau }})</span> @endif</span>
+                                                <span class="text-muted">{{ $diplome->annee_obtention ?: '—' }}</span>
+                                            </div>
+                                        @empty
+                                            <p class="text-muted fs-12 mb-0">Aucun diplôme enregistré.</p>
+                                        @endforelse
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header"><h6 class="card-action-title mb-0">Langues</h6></div>
+                                    <div class="card-body">
                                         <div class="row mb-3"><div class="col-5 text-muted">Langues parlées</div><div class="col-7 fw-medium">{{ $employe->langues_parlees ?: '—' }}</div></div>
                                         <div class="row"><div class="col-5 text-muted">Langues lues</div><div class="col-7 fw-medium">{{ $employe->langues_lues ?: '—' }}</div></div>
                                     </div>
@@ -100,7 +111,12 @@
                                             <div class="row mb-3"><div class="col-5 text-muted">Date de naissance</div><div class="col-7 fw-medium">{{ $employe->date_naissance?->format('d/m/Y') ?: '—' }}</div></div>
                                             <div class="row mb-3"><div class="col-5 text-muted">Lieu de naissance</div><div class="col-7 fw-medium">{{ $employe->lieu_naissance ?: '—' }}</div></div>
                                             <div class="row mb-3"><div class="col-5 text-muted">Situation matrimoniale</div><div class="col-7 fw-medium">{{ \App\Models\Rh\Employe::SITUATIONS_MATRIMONIALES[$employe->situation_matrimoniale] ?? '—' }}</div></div>
-                                            <div class="row"><div class="col-5 text-muted">Pièce d'identité</div><div class="col-7 fw-medium">{{ $employe->piece_identite_type ?: '—' }} {{ $employe->piece_identite_numero }}</div></div>
+                                            <div class="row mb-3"><div class="col-5 text-muted">Pièce d'identité</div><div class="col-7 fw-medium">{{ $employe->libellePieceIdentite() ?: '—' }} {{ $employe->piece_identite_numero }}</div></div>
+                                            <div class="row"><div class="col-5 text-muted">Aptitudes</div><div class="col-7">
+                                                <span class="badge {{ $employe->permis_conduire ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary' }} me-1">Permis {{ $employe->permis_conduire ? '✓' : '✗' }}</span>
+                                                <span class="badge {{ $employe->arts_martiaux ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary' }} me-1">Arts martiaux {{ $employe->arts_martiaux ? '✓' : '✗' }}</span>
+                                                <span class="badge {{ $employe->service_militaire ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary' }}">Service militaire {{ $employe->service_militaire ? '✓' : '✗' }}</span>
+                                            </div></div>
                                         </div>
                                     </div>
                                     <div class="card">
@@ -190,9 +206,12 @@
                                                                 </div>
                                                             @endif
                                                         @endcan
-                                                        @if ($contrat->document)
-                                                            <button type="button" class="btn btn-light-info icon-btn-sm" title="Voir le document" onclick="ouvrirApercuDocument({{ Js::from(route('rh.contrats.document.apercu', $contrat)) }}, {{ Js::from('Contrat '.$contrat->numero) }}, true, {{ Js::from(route('rh.contrats.document.apercu', $contrat)) }})"><i class="bi bi-file-earmark-pdf"></i></button>
-                                                        @endif
+                                                        <div class="hstack gap-2">
+                                                            @if ($contrat->document)
+                                                                <button type="button" class="btn btn-light-info icon-btn-sm" title="Voir le document signé" onclick="ouvrirApercuDocument({{ Js::from(route('rh.contrats.document.apercu', $contrat)) }}, {{ Js::from('Contrat '.$contrat->numero) }}, true, {{ Js::from(route('rh.contrats.document.apercu', $contrat)) }})"><i class="bi bi-file-earmark-check"></i></button>
+                                                            @endif
+                                                            <button type="button" class="btn btn-light-secondary icon-btn-sm" title="Contrat en PDF" onclick="ouvrirApercuDocument({{ Js::from(route('rh.contrats.pdf.apercu', $contrat)) }}, {{ Js::from('Contrat '.$contrat->numero) }}, true, {{ Js::from(route('rh.contrats.pdf', $contrat)) }})"><i class="bi bi-file-earmark-pdf"></i></button>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             @empty
@@ -207,6 +226,12 @@
 
                     <div class="tab-pane fade" id="affectations-pane">
                         <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="card-action-title mb-0">Historique des transferts</h6>
+                                @can('rh.gerer')
+                                    <a href="{{ route('rh.affectations.index') }}" class="btn btn-light-primary btn-sm"><i class="bi bi-geo-alt me-1"></i>Affecter à un site</a>
+                                @endcan
+                            </div>
                             <div class="card-body p-0">
                                 <div class="table-box table-responsive">
                                     <table class="table text-nowrap align-middle mb-0">
