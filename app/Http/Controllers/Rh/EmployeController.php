@@ -55,7 +55,38 @@ class EmployeController extends Controller
 
         $employe->load('departement', 'poste', 'sites', 'epouses', 'enfants', 'diplomes', 'documents.ajoutePar', 'contrats', 'affectations.ancienDepartement', 'affectations.nouveauDepartement');
 
-        return view('rh.employes.show', compact('employe'));
+        $nombreContratsCdd = $employe->contrats->where('type_contrat', 'cdd')->count();
+        $alerteCdd = $nombreContratsCdd >= 2;
+        $presentation = $alerteCdd ? null : $this->construireMiniPresentation($employe);
+
+        return view('rh.employes.show', compact('employe', 'nombreContratsCdd', 'alerteCdd', 'presentation'));
+    }
+
+    /**
+     * Mini bio narrative affichée dans le dossier de l'employé quand il n'y a pas d'alerte CDD
+     * à remonter — donne un aperçu rapide du parcours sans avoir à parcourir tous les onglets.
+     */
+    protected function construireMiniPresentation(Employe $employe): string
+    {
+        $anciennete = $employe->date_embauche->diffForHumans(now(), ['parts' => 2, 'syntax' => \Carbon\CarbonInterface::DIFF_ABSOLUTE]);
+
+        $texte = "{$employe->prenom} {$employe->nom} occupe le poste de ".($employe->poste->nom ?? 'poste non renseigné').
+            ($employe->departement ? " au sein du département {$employe->departement->nom}" : '').
+            ", depuis le {$employe->date_embauche->format('d/m/Y')} (ancienneté : {$anciennete}).";
+
+        $contratActif = $employe->contrats->firstWhere('etat', 'actif');
+        if ($contratActif) {
+            $texte .= " Actuellement sous contrat {$contratActif->libelleType()}".
+                ($contratActif->date_prevu_fin ? " jusqu'au {$contratActif->date_prevu_fin->format('d/m/Y')}" : '').'.';
+        } else {
+            $texte .= ' Aucun contrat actif actuellement.';
+        }
+
+        if ($employe->sites->isNotEmpty()) {
+            $texte .= ' Affecté(e) à '.($employe->sites->count() > 1 ? 'plusieurs sites : ' : 'un site : ').$employe->sites->pluck('nom')->implode(', ').'.';
+        }
+
+        return $texte;
     }
 
     public function edit(Employe $employe)

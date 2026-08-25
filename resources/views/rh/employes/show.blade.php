@@ -70,6 +70,23 @@
 
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="infos-pane">
+                        @if ($alerteCdd)
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning-subtle">
+                                    <h6 class="card-action-title mb-0 text-warning-emphasis"><i class="bi bi-exclamation-triangle me-1"></i>Alerte CDD</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-0">{{ $employe->prenom }} {{ $employe->nom }} a déjà eu <strong>{{ $nombreContratsCdd }} contrats CDD</strong>. Le renouvellement d'un CDD est généralement limité par le code du travail — un passage en CDI est à envisager.</p>
+                                </div>
+                            </div>
+                        @else
+                            <div class="card">
+                                <div class="card-header"><h6 class="card-action-title mb-0">Présentation</h6></div>
+                                <div class="card-body">
+                                    <p class="mb-0">{{ $presentation }}</p>
+                                </div>
+                            </div>
+                        @endif
                         <div class="row g-4">
                             <div class="col-lg-6">
                                 <div class="card">

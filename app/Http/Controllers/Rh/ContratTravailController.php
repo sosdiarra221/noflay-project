@@ -52,9 +52,21 @@ class ContratTravailController extends Controller
         $data['etat'] = 'actif';
         $data['cree_par_id'] = auth()->id();
 
+        // Un employé ne peut avoir qu'un seul contrat actif à la fois : un nouveau contrat
+        // clôture automatiquement celui en cours, exactement comme un renouvellement explicite.
+        $contratActif = $employe->contratActif;
+        if ($contratActif) {
+            $contratActif->update(['etat' => 'cloture', 'date_fin' => $data['date_debut']]);
+            $data['contrat_precedent_id'] = $contratActif->id;
+        }
+
         $employe->contrats()->create($data);
 
-        return back()->with('success', 'Contrat de travail enregistré avec succès.');
+        $message = $contratActif
+            ? "Nouveau contrat enregistré — l'ancien contrat {$contratActif->numero} a été clôturé automatiquement."
+            : 'Contrat de travail enregistré avec succès.';
+
+        return back()->with('success', $message);
     }
 
     public function renouveler(Request $request, ContratTravail $contrat)

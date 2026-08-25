@@ -9,13 +9,23 @@ use Illuminate\Support\Facades\Gate;
 
 class ClientController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         Gate::authorize('rh.gerer');
 
-        $clients = Client::withCount('sites')->orderBy('nom_complet')->get();
+        $tousClients = Client::withCount('sites')->orderBy('nom_complet')->get();
 
-        return view('rh.clients.index', compact('clients'));
+        $clients = $tousClients
+            ->when($request->filled('client_id'), fn ($q) => $q->where('id', (int) $request->client_id));
+
+        $stats = [
+            'total' => $tousClients->count(),
+            'avec_sites' => $tousClients->filter(fn ($c) => $c->sites_count > 0)->count(),
+            'sans_site' => $tousClients->filter(fn ($c) => $c->sites_count === 0)->count(),
+            'total_sites' => $tousClients->sum('sites_count'),
+        ];
+
+        return view('rh.clients.index', compact('clients', 'tousClients', 'stats'));
     }
 
     public function store(Request $request)

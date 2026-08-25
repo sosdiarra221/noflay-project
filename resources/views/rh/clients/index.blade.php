@@ -4,6 +4,10 @@
 @section('title-sub', 'RH')
 @section('pagetitle', 'Clients')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('assets/libs/choices.js/public/assets/styles/choices.min.css') }}">
+@endsection
+
 @section('content')
     <div id="layout-wrapper">
 
@@ -23,6 +27,68 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
+
+        <div class="row g-3 mb-1">
+            <div class="col-md-6 col-xl-3">
+                <div class="card border">
+                    <div class="card-body">
+                        <div class="d-flex gap-4 border-bottom pb-5 mb-5">
+                            <div class="h-50px w-50px bg-primary text-white d-flex align-items-center justify-content-center rounded fs-3"><i class="bi bi-building"></i></div>
+                            <div><h5 class="mb-2">{{ $stats['total'] }}</h5><p class="text-muted mb-0 fs-12">Clients</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="card border">
+                    <div class="card-body">
+                        <div class="d-flex gap-4 border-bottom pb-5 mb-5">
+                            <div class="h-50px w-50px bg-success text-white d-flex align-items-center justify-content-center rounded fs-3"><i class="bi bi-geo-alt"></i></div>
+                            <div><h5 class="mb-2">{{ $stats['avec_sites'] }}</h5><p class="text-muted mb-0 fs-12">Clients avec site(s)</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="card border">
+                    <div class="card-body">
+                        <div class="d-flex gap-4 border-bottom pb-5 mb-5">
+                            <div class="h-50px w-50px bg-secondary text-white d-flex align-items-center justify-content-center rounded fs-3"><i class="bi bi-slash-circle"></i></div>
+                            <div><h5 class="mb-2">{{ $stats['sans_site'] }}</h5><p class="text-muted mb-0 fs-12">Sans site lié</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="card border">
+                    <div class="card-body">
+                        <div class="d-flex gap-4 border-bottom pb-5 mb-5">
+                            <div class="h-50px w-50px bg-info text-white d-flex align-items-center justify-content-center rounded fs-3"><i class="bi bi-diagram-3"></i></div>
+                            <div><h5 class="mb-2">{{ $stats['total_sites'] }}</h5><p class="text-muted mb-0 fs-12">Sites liés au total</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <form method="GET" class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label">Client</label>
+                        <select class="form-select" name="client_id" id="selectFiltreClient" onchange="this.form.submit()">
+                            <option value="">Tous</option>
+                            @foreach ($tousClients as $client)
+                                <option value="{{ $client->id }}" @selected(request('client_id') == $client->id)>{{ $client->nom_complet }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ route('rh.clients.index') }}" class="btn btn-light-danger">Réinitialiser</a>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -47,7 +113,7 @@
                                     <td><span class="badge bg-secondary-subtle text-secondary">{{ $client->sites_count }}</span></td>
                                 </tr>
                             @empty
-                                <tr><td colspan="4" class="text-center text-muted py-5">Aucun client enregistré.</td></tr>
+                                <tr><td colspan="4" class="text-center text-muted py-5">Aucun client ne correspond à ce filtre.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -93,5 +159,11 @@
 @endsection
 
 @section('js')
+    <script src="{{ asset('assets/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            new Choices(document.getElementById('selectFiltreClient'), { searchEnabled: true, itemSelectText: '', searchPlaceholderValue: 'Rechercher un client...' });
+        });
+    </script>
 @endsection
