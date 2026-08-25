@@ -15,12 +15,6 @@ class Employe extends Model
 
     protected string $moduleJournal = 'rh';
 
-    const CATEGORIES_FONCTION = [
-        'agent_terrain' => 'Agent terrain',
-        'superviseur' => 'Superviseur',
-        'staff' => 'Staff',
-    ];
-
     const SITUATIONS_MATRIMONIALES = [
         'celibataire' => 'Célibataire',
         'marie' => 'Marié(e)',
@@ -53,7 +47,6 @@ class Employe extends Model
         'whatsapp',
         'email',
         'adresse',
-        'categorie_fonction',
         'poste_id',
         'departement_id',
         'langues_parlees',
@@ -97,7 +90,7 @@ class Employe extends Model
 
     public function sites()
     {
-        return $this->belongsToMany(Site::class, 'employe_site');
+        return $this->belongsToMany(Site::class, 'employe_site')->withTimestamps();
     }
 
     public function epouses()
@@ -153,11 +146,6 @@ class Employe extends Model
     public function getNomCompletAttribute(): string
     {
         return trim($this->prenom.' '.$this->nom);
-    }
-
-    public function libelleCategorieFonction(): string
-    {
-        return self::CATEGORIES_FONCTION[$this->categorie_fonction] ?? $this->categorie_fonction;
     }
 
     public function libellePieceIdentite(): ?string

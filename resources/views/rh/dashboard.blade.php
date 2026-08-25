@@ -131,10 +131,10 @@
             </div>
             <div class="col-lg-6">
                 <div class="card">
-                    <div class="card-header"><h6 class="mb-0">Répartition par fonction</h6></div>
+                    <div class="card-header"><h6 class="mb-0">Répartition par poste</h6></div>
                     <div class="card-body">
-                        @if ($repartitionFonction->isNotEmpty())
-                            <div id="chartRepartitionFonction"></div>
+                        @if ($repartitionPoste->isNotEmpty())
+                            <div id="chartRepartitionPoste"></div>
                         @else
                             <p class="text-center text-muted py-5 mb-0">Aucun employé enregistré.</p>
                         @endif
@@ -209,13 +209,13 @@
                 }).render();
             }
 
-            const fonctionData = {!! json_encode(['labels' => $repartitionFonction->keys(), 'series' => $repartitionFonction->values()]) !!};
-            if (fonctionData.labels.length > 0) {
-                new ApexCharts(document.querySelector('#chartRepartitionFonction'), {
+            const posteData = {!! json_encode(['labels' => $repartitionPoste->keys(), 'series' => $repartitionPoste->values()]) !!};
+            if (posteData.labels.length > 0) {
+                new ApexCharts(document.querySelector('#chartRepartitionPoste'), {
                     chart: { type: 'donut', height: 280 },
-                    labels: fonctionData.labels,
-                    series: fonctionData.series,
-                    colors: ['#0ab39c', '#f7b84b', '#ff7a1a'],
+                    labels: posteData.labels,
+                    series: posteData.series,
+                    colors: ['#0ab39c', '#f7b84b', '#ff7a1a', '#0d6efd', '#e83e8c', '#6f42c1'],
                     legend: { position: 'bottom', fontSize: '11px' },
                     dataLabels: { enabled: true },
                 }).render();

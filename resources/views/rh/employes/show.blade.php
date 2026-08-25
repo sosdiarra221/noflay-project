@@ -30,7 +30,7 @@
                                         <span class="badge bg-secondary-subtle text-secondary ms-1">Sortie</span>
                                     @endif
                                 </h5>
-                                <p class="text-muted fs-12 mb-0">{{ $employe->matricule }} — {{ $employe->poste->nom ?? '—' }} ({{ $employe->libelleCategorieFonction() }})</p>
+                                <p class="text-muted fs-12 mb-0">{{ $employe->matricule }} — {{ $employe->poste->nom ?? '—' }}</p>
                             </div>
                             <div class="d-flex flex-wrap gap-3">
                                 <span class="badge bg-secondary-subtle text-secondary fs-13 px-3 py-2"><i class="bi bi-diagram-3 me-1"></i>{{ $employe->departement->nom ?? '—' }}</span>

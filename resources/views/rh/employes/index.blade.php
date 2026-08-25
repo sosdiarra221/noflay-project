@@ -80,7 +80,7 @@
                                             {{ $employe->nom_complet }}
                                         </div>
                                     </td>
-                                    <td>{{ $employe->poste->nom ?? '—' }} <span class="badge bg-light-subtle text-body border">{{ $employe->libelleCategorieFonction() }}</span></td>
+                                    <td>{{ $employe->poste->nom ?? '—' }}</td>
                                     <td>{{ $employe->departement->nom ?? '—' }}</td>
                                     <td class="text-muted fs-12">{{ $employe->sites->pluck('nom')->implode(', ') ?: '—' }}</td>
                                     <td>

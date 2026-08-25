@@ -27,6 +27,6 @@ class Site extends Model
 
     public function employes()
     {
-        return $this->belongsToMany(Employe::class, 'employe_site');
+        return $this->belongsToMany(Employe::class, 'employe_site')->withTimestamps();
     }
 }

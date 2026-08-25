@@ -8,6 +8,7 @@ use App\Models\Rh\Employe;
 use App\Models\Rh\EmployeAffectation;
 use App\Models\Rh\Site;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 class AffectationController extends Controller
@@ -16,41 +17,63 @@ class AffectationController extends Controller
     {
         Gate::authorize('rh.gerer');
 
-        $employes = Employe::actifs()->with('departement', 'poste', 'sites')->orderBy('nom')->get();
-        $sites = Site::with('client')->where('actif', true)->orderBy('nom')->get();
+        $sites = Site::with('client')
+            ->withCount('employes')
+            ->orderBy('nom')
+            ->get()
+            ->map(function (Site $site) {
+                $site->derniere_affectation = DB::table('employe_site')->where('site_id', $site->id)->max('created_at');
+
+                return $site;
+            });
+
+        $employes = Employe::actifs()->with('departement', 'poste')->orderBy('nom')->get();
         $clients = Client::orderBy('nom_complet')->get();
         $historique = EmployeAffectation::with('employe')->latest('date_affectation')->take(30)->get();
 
-        return view('rh.affectations.index', compact('employes', 'sites', 'clients', 'historique'));
+        return view('rh.affectations.index', compact('sites', 'employes', 'clients', 'historique'));
     }
 
-    public function store(Request $request, Employe $employe)
+    public function store(Request $request)
     {
         Gate::authorize('rh.gerer');
 
         $data = $request->validate([
-            'sites' => ['nullable', 'array'],
-            'sites.*' => ['exists:rh_sites,id'],
+            'site_id' => ['required', 'exists:rh_sites,id'],
+            'employes' => ['required', 'array', 'min:1'],
+            'employes.*' => ['exists:employes,id'],
             'motif' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $anciensSitesLibelles = $employe->sites->pluck('nom')->implode(', ');
-        $sitesChanges = $employe->sites()->sync($data['sites'] ?? []);
-        $nouveauxSitesLibelles = Site::whereIn('id', $data['sites'] ?? [])->pluck('nom')->implode(', ');
+        $site = Site::findOrFail($data['site_id']);
+        $employes = Employe::whereIn('id', $data['employes'])->get();
+        $nombreAffectes = 0;
 
-        if (! empty($sitesChanges['attached']) || ! empty($sitesChanges['detached'])) {
+        foreach ($employes as $employe) {
+            if ($employe->sites->contains($site->id)) {
+                continue;
+            }
+
+            $anciensSitesLibelles = $employe->sites->pluck('nom')->implode(', ');
+            $employe->sites()->attach($site->id);
+            $nombreAffectes++;
+
             EmployeAffectation::create([
                 'employe_id' => $employe->id,
                 'ancien_departement_id' => $employe->departement_id,
                 'nouveau_departement_id' => $employe->departement_id,
                 'anciens_sites' => $anciensSitesLibelles ?: null,
-                'nouveaux_sites' => $nouveauxSitesLibelles ?: null,
+                'nouveaux_sites' => $employe->sites()->pluck('nom')->implode(', '),
                 'date_affectation' => now(),
                 'motif' => $data['motif'] ?? null,
                 'effectue_par_id' => auth()->id(),
             ]);
         }
 
-        return back()->with('success', 'Affectation mise à jour pour '.$employe->nom_complet.'.');
+        $message = $nombreAffectes > 0
+            ? $nombreAffectes.' employé(s) affecté(s) au site '.$site->nom.'.'
+            : 'Les employés sélectionnés étaient déjà affectés à ce site.';
+
+        return back()->with('success', $message);
     }
 }

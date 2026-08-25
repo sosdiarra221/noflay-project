@@ -207,7 +207,6 @@ class EmployeController extends Controller
             'email' => ['nullable', 'email', 'max:255'],
             'adresse' => ['nullable', 'string', 'max:255'],
             'poste_id' => ['required', 'exists:postes,id'],
-            'categorie_fonction' => ['required', 'string', 'in:'.implode(',', array_keys(Employe::CATEGORIES_FONCTION))],
             'departement_id' => ['required', 'exists:departements,id'],
             'langues_parlees' => ['nullable', 'string', 'max:255'],
             'langues_lues' => ['nullable', 'string', 'max:255'],

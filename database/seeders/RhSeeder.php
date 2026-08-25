@@ -62,7 +62,6 @@ class RhSeeder extends Seeder
                     'email' => strtolower($nomDepartement).'@employes.local',
                     'adresse' => 'Dakar, Sénégal',
                     'poste_id' => $poste->id,
-                    'categorie_fonction' => $profil['categorie'],
                     'departement_id' => $departement->id,
                     'permis_conduire' => in_array($profil['categorie'], ['agent_terrain', 'superviseur']),
                     'langues_parlees' => 'Français, Wolof',

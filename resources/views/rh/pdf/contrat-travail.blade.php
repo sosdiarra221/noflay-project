@@ -27,7 +27,6 @@
     <h2>Poste &amp; rattachement</h2>
     <table class="infos-table">
         <tr><td class="label">Poste</td><td>{{ $contrat->employe->poste->nom ?? '—' }}</td></tr>
-        <tr><td class="label">Fonction</td><td>{{ $contrat->employe->libelleCategorieFonction() }}</td></tr>
         <tr><td class="label">Département</td><td>{{ $contrat->employe->departement->nom ?? '—' }}</td></tr>
     </table>
 

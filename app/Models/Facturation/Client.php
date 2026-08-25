@@ -3,6 +3,7 @@
 namespace App\Models\Facturation;
 
 use App\Models\Commercial\Prospect;
+use App\Models\Rh\Site;
 use Illuminate\Database\Eloquent\Model;
 
 class Client extends Model
@@ -19,6 +20,11 @@ class Client extends Model
     public function devis()
     {
         return $this->hasMany(Devis::class);
+    }
+
+    public function sites()
+    {
+        return $this->hasMany(Site::class);
     }
 
     public function factures()

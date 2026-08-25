@@ -20,7 +20,7 @@ class RhDashboardController extends Controller
             'sans_contrat_actif' => Employe::actifs()->whereDoesntHave('contrats', fn ($q) => $q->where('etat', 'actif'))->count(),
         ];
 
-        $employesActifs = Employe::actifs()->with('departement')->get();
+        $employesActifs = Employe::actifs()->with('departement', 'poste')->get();
 
         $repartitionDepartements = $employesActifs
             ->groupBy(fn ($e) => $e->departement->nom ?? 'Non défini')
@@ -34,14 +34,14 @@ class RhDashboardController extends Controller
             })
             ->map->count();
 
-        $repartitionFonction = $employesActifs
-            ->groupBy(fn ($e) => Employe::CATEGORIES_FONCTION[$e->categorie_fonction] ?? $e->categorie_fonction)
+        $repartitionPoste = $employesActifs
+            ->groupBy(fn ($e) => $e->poste->nom ?? 'Non défini')
             ->map->count();
 
         $contratsEcheanceProche = ContratTravail::with('employe')->echeanceSous(30)->orderBy('date_prevu_fin')->get();
 
         $derniersEmployes = Employe::with('departement', 'poste')->latest()->take(8)->get();
 
-        return view('rh.dashboard', compact('stats', 'repartitionDepartements', 'repartitionSexe', 'repartitionFonction', 'contratsEcheanceProche', 'derniersEmployes'));
+        return view('rh.dashboard', compact('stats', 'repartitionDepartements', 'repartitionSexe', 'repartitionPoste', 'contratsEcheanceProche', 'derniersEmployes'));
     }
 }

@@ -49,15 +49,6 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Fonction<span class="text-danger ms-1">*</span></label>
-                                <select class="form-select" name="categorie_fonction" required>
-                                    <option value="">Sélectionner...</option>
-                                    @foreach (\App\Models\Rh\Employe::CATEGORIES_FONCTION as $valeur => $libelle)
-                                        <option value="{{ $valeur }}" @selected(old('categorie_fonction') === $valeur)>{{ $libelle }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
                             <div class="mb-0">
                                 <label class="form-label">Département<span class="text-danger ms-1">*</span></label>
                                 <select class="form-select" name="departement_id" required>

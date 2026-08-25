@@ -54,6 +54,12 @@
                 </a>
             </li>
             <li class="pe-slide pe-has-sub">
+                <a href="{{ route('rh.clients.index') }}" class="pe-nav-link">
+                    <i class="bi bi-building pe-nav-icon"></i>
+                    <span class="pe-nav-content">Clients</span>
+                </a>
+            </li>
+            <li class="pe-slide pe-has-sub">
                 <a href="{{ url('/') }}" class="pe-nav-link">
                     <i class="bi bi-box-arrow-left pe-nav-icon"></i>
                     <span class="pe-nav-content">Retour à l'application</span>

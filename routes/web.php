@@ -44,6 +44,7 @@ use App\Http\Controllers\Rh\ContratTravailController;
 use App\Http\Controllers\Rh\SiteController;
 use App\Http\Controllers\Rh\PosteController;
 use App\Http\Controllers\Rh\AffectationController;
+use App\Http\Controllers\Rh\ClientController;
 use App\Http\Controllers\Commercial\CommercialDashboardController;
 use App\Http\Controllers\Commercial\ProspectController;
 use App\Http\Controllers\Commercial\ActiviteController;
@@ -342,14 +343,18 @@ Route::prefix('rh')->name('rh.')->middleware('module.actif:rh')->group(function 
 
     Route::get('sites', [SiteController::class, 'index'])->name('sites.index');
     Route::post('sites', [SiteController::class, 'store'])->name('sites.store');
+    Route::get('sites/{site}', [SiteController::class, 'show'])->name('sites.show');
     Route::put('sites/{site}', [SiteController::class, 'update'])->name('sites.update');
 
     Route::get('postes', [PosteController::class, 'index'])->name('postes.index');
     Route::post('postes', [PosteController::class, 'store'])->name('postes.store');
     Route::put('postes/{poste}', [PosteController::class, 'update'])->name('postes.update');
 
+    Route::get('clients', [ClientController::class, 'index'])->name('clients.index');
+    Route::post('clients', [ClientController::class, 'store'])->name('clients.store');
+
     Route::get('affectations', [AffectationController::class, 'index'])->name('affectations.index');
-    Route::post('affectations/{employe}', [AffectationController::class, 'store'])->name('affectations.store');
+    Route::post('affectations', [AffectationController::class, 'store'])->name('affectations.store');
 });
 
 // Module Direction & Administration — sous-application avec son propre dashboard et son propre menu.
