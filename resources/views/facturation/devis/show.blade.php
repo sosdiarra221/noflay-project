@@ -16,77 +16,108 @@
 
         @php $classesStatut = ['nouveau' => 'secondary', 'en_negociation' => 'warning', 'gagne' => 'success', 'perdu' => 'danger', 'annule' => 'dark']; @endphp
 
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
-                    <div>
-                        <h5 class="mb-1">{{ $devis->numero }} <span class="badge bg-{{ $classesStatut[$devis->statut] ?? 'secondary' }}-subtle text-{{ $classesStatut[$devis->statut] ?? 'secondary' }} ms-1">{{ $devis->libelleStatut() }}</span></h5>
-                        <p class="text-muted mb-0">
-                            {{ $devis->client->nom_complet }} — {{ $devis->date_devis->format('d/m/Y') }} — <strong>{{ number_format($devis->total_ttc, 0, ',', ' ') }} FCFA</strong>
-                        </p>
-                    </div>
-                    <div class="d-flex flex-wrap gap-2">
-                        <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#devisPdfModal"><i class="bi bi-file-earmark-pdf me-1"></i>Aperçu / PDF</button>
-                        <button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#statutDevisModal"><i class="bi bi-arrow-repeat me-1"></i>Changer le statut</button>
-                        <button type="button" class="btn btn-light-danger" data-bs-toggle="modal" data-bs-target="#supprimerDevisModal"><i class="bi bi-trash3 me-1"></i>Supprimer</button>
-                    </div>
-                </div>
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-1">
+            <a href="{{ route('facturation.devis.index') }}" class="text-muted fs-13"><i class="bi bi-arrow-left me-1"></i>Retour aux devis</a>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#devisPdfModal"><i class="bi bi-file-earmark-pdf me-1"></i>Aperçu / PDF</button>
+                <button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#statutDevisModal"><i class="bi bi-arrow-repeat me-1"></i>Changer le statut</button>
+                <button type="button" class="btn btn-light-danger" data-bs-toggle="modal" data-bs-target="#supprimerDevisModal"><i class="bi bi-trash3 me-1"></i>Supprimer</button>
             </div>
         </div>
 
-        <div class="row g-4">
-            <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-header"><h6 class="card-action-title mb-0">Client / Prospect</h6></div>
-                    <div class="card-body">
-                        <div class="row mb-3"><div class="col-5 text-muted">Nom complet</div><div class="col-7 fw-medium">{{ $devis->client->nom_complet }}</div></div>
-                        <div class="row mb-3"><div class="col-5 text-muted">Téléphone</div><div class="col-7 fw-medium">{{ $devis->client->telephone ?: '—' }}</div></div>
-                        <div class="row"><div class="col-5 text-muted">Email</div><div class="col-7 fw-medium">{{ $devis->client->email ?: '—' }}</div></div>
+        <div class="card">
+            <div class="card-body">
+                <div class="row justify-content-between mb-8">
+                    <div class="col-6">
+                        <h4 class="mb-1 text-primary">{{ $reglage->nom_societe ?? config('app.name') }}</h4>
+                        <p class="text-muted fs-12 mb-0">{{ $reglage->adresse ?? '' }}</p>
+                        <p class="text-muted fs-12 mb-0">{{ $reglage->telephone ?? '' }} @if($reglage->email) — {{ $reglage->email }} @endif</p>
+                    </div>
+                    <div class="col-5 col-md-3 text-end">
+                        <span class="badge bg-{{ $classesStatut[$devis->statut] ?? 'secondary' }} mb-2">{{ $devis->libelleStatut() }}</span>
+                        <h5 class="mb-0">Devis {{ $devis->numero }}</h5>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-header"><h6 class="card-action-title mb-0">Informations</h6></div>
-                    <div class="card-body">
-                        <div class="row mb-3"><div class="col-5 text-muted">Date</div><div class="col-7 fw-medium">{{ $devis->date_devis->format('d/m/Y') }}</div></div>
-                        <div class="row mb-3"><div class="col-5 text-muted">TVA</div><div class="col-7 fw-medium">{{ $devis->appliquer_tva ? number_format((float) $devis->taux_tva, 2, ',', ' ').' %' : 'Non activée' }}</div></div>
-                        <div class="row"><div class="col-5 text-muted">Créé par</div><div class="col-7 fw-medium">{{ $devis->creePar->name ?? '—' }}</div></div>
+
+                <div class="row g-5 border-bottom border-dashed py-4">
+                    <div class="col-md-5">
+                        <h6 class="mb-3 text-muted text-uppercase fs-11">Client / Prospect</h6>
+                        <p class="mb-1 fw-semibold fs-15">{{ $devis->client->nom_complet }}</p>
+                        <p class="mb-1"><i class="bi bi-telephone me-1 text-muted"></i>{{ $devis->client->telephone ?: '—' }}</p>
+                        <p class="mb-0"><i class="bi bi-envelope me-1 text-muted"></i>{{ $devis->client->email ?: '—' }}</p>
+                        @if ($devis->client->prospect)
+                            <span class="badge bg-info-subtle text-info mt-2"><i class="bi bi-link-45deg me-1"></i>Issu du prospect {{ $devis->client->prospect->numero }}</span>
+                        @endif
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="mb-3 text-muted text-uppercase fs-11">Détails du devis</h6>
+                        <p class="mb-1"><span class="text-muted">Date d'émission :</span> <span class="fw-medium">{{ $devis->date_devis->format('d/m/Y') }}</span></p>
+                        <p class="mb-1"><span class="text-muted">TVA :</span> <span class="fw-medium">{{ $devis->appliquer_tva ? number_format((float) $devis->taux_tva, 2, ',', ' ').' %' : 'Non activée' }}</span></p>
+                        <p class="mb-0"><span class="text-muted">Créé par :</span> <span class="fw-medium">{{ $devis->creePar->name ?? '—' }}</span></p>
+                    </div>
+                    <div class="col-md-3 text-md-end">
+                        <h6 class="mb-3 text-muted text-uppercase fs-11">Montant</h6>
+                        <h3 class="text-primary mb-0">{{ number_format($devis->total_ttc, 0, ',', ' ') }}</h3>
+                        <p class="text-muted mb-0">FCFA TTC</p>
                     </div>
                 </div>
+
+                <div class="py-4">
+                    <h6 class="mb-3">Détail des prestations</h6>
+                    <div class="table-responsive">
+                        <table class="table text-nowrap table-borderless mb-0">
+                            <thead>
+                                <tr class="border-bottom">
+                                    <th class="w-50px">No.</th>
+                                    <th>Désignation</th>
+                                    <th class="text-end">Quantité</th>
+                                    <th class="text-end">Prix unitaire</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($devis->lignes as $ligne)
+                                    <tr>
+                                        <td class="text-muted">{{ $loop->iteration }}.</td>
+                                        <td class="fw-medium">{{ $ligne->designation }}</td>
+                                        <td class="text-end">{{ number_format($ligne->quantite, 2, ',', ' ') }}</td>
+                                        <td class="text-end">{{ number_format($ligne->prix_unitaire, 0, ',', ' ') }} FCFA</td>
+                                        <td class="text-end fw-medium">{{ number_format($ligne->total, 0, ',', ' ') }} FCFA</td>
+                                    </tr>
+                                @endforeach
+                                <tr>
+                                    <td colspan="3"></td>
+                                    <td class="fw-semibold text-end">Sous-total HT</td>
+                                    <td class="fw-semibold text-end">{{ number_format($devis->sous_total_ht, 0, ',', ' ') }} FCFA</td>
+                                </tr>
+                                @if ($devis->appliquer_tva)
+                                    <tr>
+                                        <td colspan="3"></td>
+                                        <td class="fw-semibold text-end">TVA <span class="text-muted fw-normal fs-12">({{ (float) $devis->taux_tva }} %)</span></td>
+                                        <td class="fw-semibold text-end">{{ number_format($devis->montant_tva, 0, ',', ' ') }} FCFA</td>
+                                    </tr>
+                                @endif
+                                <tr class="border-top">
+                                    <td colspan="3"></td>
+                                    <td class="fw-semibold text-end fs-14">Total TTC</td>
+                                    <td class="fw-semibold text-end fs-14 text-primary">{{ number_format($devis->total_ttc, 0, ',', ' ') }} FCFA</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 @if ($devis->notes)
-                    <div class="card">
-                        <div class="card-header"><h6 class="card-action-title mb-0">Notes</h6></div>
-                        <div class="card-body"><p class="mb-0">{{ $devis->notes }}</p></div>
+                    <div class="pt-2">
+                        <h6 class="mb-2 text-muted text-uppercase fs-11">Notes</h6>
+                        <p class="mb-0">{{ $devis->notes }}</p>
                     </div>
                 @endif
-            </div>
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header"><h6 class="mb-0">Lignes du devis <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $devis->lignes->count() }}</span></h6></div>
-                    <div class="card-body p-0">
-                        <div class="table-box table-responsive">
-                            <table class="table align-middle mb-0">
-                                <thead><tr><th>Désignation</th><th class="text-end">Quantité</th><th class="text-end">Prix unitaire</th><th class="text-end">Total</th></tr></thead>
-                                <tbody>
-                                    @foreach ($devis->lignes as $ligne)
-                                        <tr>
-                                            <td>{{ $ligne->designation }}</td>
-                                            <td class="text-end">{{ number_format($ligne->quantite, 2, ',', ' ') }}</td>
-                                            <td class="text-end">{{ number_format($ligne->prix_unitaire, 0, ',', ' ') }} FCFA</td>
-                                            <td class="text-end fw-medium">{{ number_format($ligne->total, 0, ',', ' ') }} FCFA</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="p-4 d-flex justify-content-end">
-                            <div style="min-width: 300px;">
-                                <div class="d-flex justify-content-between py-1"><span class="text-muted">Sous-total HT</span><span class="fw-medium">{{ number_format($devis->sous_total_ht, 0, ',', ' ') }} FCFA</span></div>
-                                @if ($devis->appliquer_tva)
-                                    <div class="d-flex justify-content-between py-1"><span class="text-muted">TVA ({{ (float) $devis->taux_tva }} %)</span><span class="fw-medium">{{ number_format($devis->montant_tva, 0, ',', ' ') }} FCFA</span></div>
-                                @endif
-                                <div class="d-flex justify-content-between py-2 border-top mt-1"><span class="fw-semibold">Total TTC</span><span class="fw-semibold fs-15 text-primary">{{ number_format($devis->total_ttc, 0, ',', ' ') }} FCFA</span></div>
-                            </div>
-                        </div>
+
+                <div class="pt-6">
+                    <div class="p-4 bg-light-subtle rounded text-center">
+                        <p class="mb-1">Ce devis est valable 30 jours à compter de sa date d'émission. Pour toute question, contactez-nous{{ $reglage->email ? ' à '.$reglage->email : '' }}.</p>
+                        <p class="mb-0 text-muted fs-12">Devis généré par {{ config('app.name') }} — {{ now()->format('d/m/Y') }}</p>
                     </div>
                 </div>
             </div>

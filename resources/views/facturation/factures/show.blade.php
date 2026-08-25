@@ -16,80 +16,116 @@
 
         @php $classesStatut = ['emise' => 'info', 'payee' => 'success', 'annulee' => 'danger']; @endphp
 
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-1">
+            <a href="{{ route('facturation.factures.index') }}" class="text-muted fs-13"><i class="bi bi-arrow-left me-1"></i>Retour aux factures</a>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#facturePdfModal"><i class="bi bi-file-earmark-pdf me-1"></i>Aperçu / PDF</button>
+                <button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#statutFactureModal"><i class="bi bi-arrow-repeat me-1"></i>Changer le statut</button>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-body">
-                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
-                    <div>
-                        <h5 class="mb-1">{{ $facture->numero }} <span class="badge bg-{{ $classesStatut[$facture->statut] ?? 'secondary' }}-subtle text-{{ $classesStatut[$facture->statut] ?? 'secondary' }} ms-1">{{ $facture->libelleStatut() }}</span></h5>
-                        <p class="text-muted mb-0">
-                            {{ $facture->client->nom_complet }} — {{ $facture->date_facture->format('d/m/Y') }} — <strong>{{ number_format($facture->total_ttc, 0, ',', ' ') }} FCFA</strong>
-                        </p>
+                <div class="row justify-content-between mb-8">
+                    <div class="col-6">
+                        <h4 class="mb-1 text-primary">{{ $reglage->nom_societe ?? config('app.name') }}</h4>
+                        <p class="text-muted fs-12 mb-0">{{ $reglage->adresse ?? '' }}</p>
+                        <p class="text-muted fs-12 mb-0">{{ $reglage->telephone ?? '' }} @if($reglage->email) — {{ $reglage->email }} @endif</p>
+                    </div>
+                    <div class="col-5 col-md-3 text-end">
+                        <span class="badge bg-{{ $classesStatut[$facture->statut] ?? 'secondary' }} mb-2">{{ $facture->libelleStatut() }}</span>
+                        <h5 class="mb-0">Facture {{ $facture->numero }}</h5>
+                    </div>
+                </div>
+
+                <div class="row g-5 border-bottom border-dashed py-4">
+                    <div class="col-md-5">
+                        <h6 class="mb-3 text-muted text-uppercase fs-11">Client / Prospect</h6>
+                        <p class="mb-1 fw-semibold fs-15">{{ $facture->client->nom_complet }}</p>
+                        <p class="mb-1"><i class="bi bi-telephone me-1 text-muted"></i>{{ $facture->client->telephone ?: '—' }}</p>
+                        <p class="mb-0"><i class="bi bi-envelope me-1 text-muted"></i>{{ $facture->client->email ?: '—' }}</p>
+                        @if ($facture->client->prospect)
+                            <span class="badge bg-info-subtle text-info mt-2"><i class="bi bi-link-45deg me-1"></i>Issu du prospect {{ $facture->client->prospect->numero }}</span>
+                        @endif
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="mb-3 text-muted text-uppercase fs-11">Détails de la facture</h6>
+                        <p class="mb-1"><span class="text-muted">Date d'émission :</span> <span class="fw-medium">{{ $facture->date_facture->format('d/m/Y') }}</span></p>
+                        <p class="mb-1"><span class="text-muted">TVA :</span> <span class="fw-medium">{{ $facture->appliquer_tva ? number_format((float) $facture->taux_tva, 2, ',', ' ').' %' : 'Non activée' }}</span></p>
+                        <p class="mb-1"><span class="text-muted">Créée par :</span> <span class="fw-medium">{{ $facture->creePar->name ?? '—' }}</span></p>
                         @if ($facture->source)
-                            <p class="text-muted fs-12 mb-0">
-                                <i class="bi bi-arrow-return-right me-1"></i>Source :
+                            <p class="mb-0"><span class="text-muted">Source :</span>
                                 @if ($facture->devisSource)
-                                    <a href="{{ route('facturation.devis.show', $facture->devisSource) }}">{{ $facture->source }}</a>
+                                    <a href="{{ route('facturation.devis.show', $facture->devisSource) }}" class="fw-medium">{{ $facture->source }}</a>
                                 @else
-                                    {{ $facture->source }}
+                                    <span class="fw-medium">{{ $facture->source }}</span>
                                 @endif
                             </p>
                         @endif
                     </div>
-                    <div class="d-flex flex-wrap gap-2">
-                        <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#facturePdfModal"><i class="bi bi-file-earmark-pdf me-1"></i>Aperçu / PDF</button>
-                        <button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#statutFactureModal"><i class="bi bi-arrow-repeat me-1"></i>Changer le statut</button>
+                    <div class="col-md-3 text-md-end">
+                        <h6 class="mb-3 text-muted text-uppercase fs-11">Montant</h6>
+                        <h3 class="text-primary mb-0">{{ number_format($facture->total_ttc, 0, ',', ' ') }}</h3>
+                        <p class="text-muted mb-0">FCFA TTC</p>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="row g-4">
-            <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-header"><h6 class="card-action-title mb-0">Client / Prospect</h6></div>
-                    <div class="card-body">
-                        <div class="row mb-3"><div class="col-5 text-muted">Nom complet</div><div class="col-7 fw-medium">{{ $facture->client->nom_complet }}</div></div>
-                        <div class="row mb-3"><div class="col-5 text-muted">Téléphone</div><div class="col-7 fw-medium">{{ $facture->client->telephone ?: '—' }}</div></div>
-                        <div class="row"><div class="col-5 text-muted">Email</div><div class="col-7 fw-medium">{{ $facture->client->email ?: '—' }}</div></div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header"><h6 class="card-action-title mb-0">Informations</h6></div>
-                    <div class="card-body">
-                        <div class="row mb-3"><div class="col-5 text-muted">Date</div><div class="col-7 fw-medium">{{ $facture->date_facture->format('d/m/Y') }}</div></div>
-                        <div class="row mb-3"><div class="col-5 text-muted">TVA</div><div class="col-7 fw-medium">{{ $facture->appliquer_tva ? number_format((float) $facture->taux_tva, 2, ',', ' ').' %' : 'Non activée' }}</div></div>
-                        <div class="row"><div class="col-5 text-muted">Créée par</div><div class="col-7 fw-medium">{{ $facture->creePar->name ?? '—' }}</div></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header"><h6 class="mb-0">Lignes de la facture <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $facture->lignes->count() }}</span></h6></div>
-                    <div class="card-body p-0">
-                        <div class="table-box table-responsive">
-                            <table class="table align-middle mb-0">
-                                <thead><tr><th>Désignation</th><th class="text-end">Quantité</th><th class="text-end">Prix unitaire</th><th class="text-end">Total</th></tr></thead>
-                                <tbody>
-                                    @foreach ($facture->lignes as $ligne)
-                                        <tr>
-                                            <td>{{ $ligne->designation }}</td>
-                                            <td class="text-end">{{ number_format($ligne->quantite, 2, ',', ' ') }}</td>
-                                            <td class="text-end">{{ number_format($ligne->prix_unitaire, 0, ',', ' ') }} FCFA</td>
-                                            <td class="text-end fw-medium">{{ number_format($ligne->total, 0, ',', ' ') }} FCFA</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="p-4 d-flex justify-content-end">
-                            <div style="min-width: 300px;">
-                                <div class="d-flex justify-content-between py-1"><span class="text-muted">Sous-total HT</span><span class="fw-medium">{{ number_format($facture->sous_total_ht, 0, ',', ' ') }} FCFA</span></div>
+                <div class="py-4">
+                    <h6 class="mb-3">Détail des prestations</h6>
+                    <div class="table-responsive">
+                        <table class="table text-nowrap table-borderless mb-0">
+                            <thead>
+                                <tr class="border-bottom">
+                                    <th class="w-50px">No.</th>
+                                    <th>Désignation</th>
+                                    <th class="text-end">Quantité</th>
+                                    <th class="text-end">Prix unitaire</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($facture->lignes as $ligne)
+                                    <tr>
+                                        <td class="text-muted">{{ $loop->iteration }}.</td>
+                                        <td class="fw-medium">{{ $ligne->designation }}</td>
+                                        <td class="text-end">{{ number_format($ligne->quantite, 2, ',', ' ') }}</td>
+                                        <td class="text-end">{{ number_format($ligne->prix_unitaire, 0, ',', ' ') }} FCFA</td>
+                                        <td class="text-end fw-medium">{{ number_format($ligne->total, 0, ',', ' ') }} FCFA</td>
+                                    </tr>
+                                @endforeach
+                                <tr>
+                                    <td colspan="3"></td>
+                                    <td class="fw-semibold text-end">Sous-total HT</td>
+                                    <td class="fw-semibold text-end">{{ number_format($facture->sous_total_ht, 0, ',', ' ') }} FCFA</td>
+                                </tr>
                                 @if ($facture->appliquer_tva)
-                                    <div class="d-flex justify-content-between py-1"><span class="text-muted">TVA ({{ (float) $facture->taux_tva }} %)</span><span class="fw-medium">{{ number_format($facture->montant_tva, 0, ',', ' ') }} FCFA</span></div>
+                                    <tr>
+                                        <td colspan="3"></td>
+                                        <td class="fw-semibold text-end">TVA <span class="text-muted fw-normal fs-12">({{ (float) $facture->taux_tva }} %)</span></td>
+                                        <td class="fw-semibold text-end">{{ number_format($facture->montant_tva, 0, ',', ' ') }} FCFA</td>
+                                    </tr>
                                 @endif
-                                <div class="d-flex justify-content-between py-2 border-top mt-1"><span class="fw-semibold">Total TTC</span><span class="fw-semibold fs-15 text-primary">{{ number_format($facture->total_ttc, 0, ',', ' ') }} FCFA</span></div>
-                            </div>
-                        </div>
+                                <tr class="border-top">
+                                    <td colspan="3"></td>
+                                    <td class="fw-semibold text-end fs-14">Total TTC</td>
+                                    <td class="fw-semibold text-end fs-14 text-primary">{{ number_format($facture->total_ttc, 0, ',', ' ') }} FCFA</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                @if ($facture->notes)
+                    <div class="pt-2">
+                        <h6 class="mb-2 text-muted text-uppercase fs-11">Notes</h6>
+                        <p class="mb-0">{{ $facture->notes }}</p>
+                    </div>
+                @endif
+
+                <div class="pt-6">
+                    <div class="p-4 bg-light-subtle rounded text-center">
+                        <p class="mb-1">Merci pour votre confiance. Pour toute question relative à cette facture, contactez-nous{{ $reglage->email ? ' à '.$reglage->email : '' }}.</p>
+                        <p class="mb-0 text-muted fs-12">Facture générée par {{ config('app.name') }} — {{ now()->format('d/m/Y') }}</p>
                     </div>
                 </div>
             </div>

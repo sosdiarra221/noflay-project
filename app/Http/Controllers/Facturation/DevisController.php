@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Facturation;
 
 use App\Http\Controllers\Controller;
+use App\Models\Commercial\Prospect;
 use App\Models\Facturation\Client;
 use App\Models\Facturation\Devis;
 use App\Models\Facturation\Facture;
@@ -19,28 +20,52 @@ class DevisController extends Controller
         $devis = Devis::with('client', 'lignes')
             ->when($request->filled('statut'), fn ($q) => $q->where('statut', $request->statut))
             ->when($request->filled('client_id'), fn ($q) => $q->where('client_id', $request->client_id))
+            ->when($request->filled('recherche'), function ($q) use ($request) {
+                $terme = $request->recherche;
+                $q->where(fn ($q2) => $q2->where('numero', 'like', "%{$terme}%")
+                    ->orWhereHas('client', fn ($q3) => $q3->where('nom_complet', 'like', "%{$terme}%")));
+            })
             ->latest()
             ->get();
 
         $clients = Client::orderBy('nom_complet')->get();
         $reglage = Reglage::courant();
 
-        return view('facturation.devis.index', compact('devis', 'clients', 'reglage'));
+        $stats = [
+            'total' => Devis::count(),
+            'en_negociation' => Devis::where('statut', 'en_negociation')->count(),
+            'gagne' => Devis::where('statut', 'gagne')->count(),
+            'perdu' => Devis::where('statut', 'perdu')->count(),
+        ];
+
+        return view('facturation.devis.index', compact('devis', 'clients', 'reglage', 'stats'));
+    }
+
+    public function create()
+    {
+        $clients = Client::orderBy('nom_complet')->get();
+        $prospects = Prospect::orderBy('nom')->get();
+        $reglage = Reglage::courant();
+
+        return view('facturation.devis.create', compact('clients', 'prospects', 'reglage'));
     }
 
     public function show(Devis $devis)
     {
-        $devis->load('client', 'lignes', 'creePar');
+        $devis->load('client.prospect', 'lignes', 'creePar');
+        $reglage = Reglage::courant();
 
-        return view('facturation.devis.show', ['devis' => $devis]);
+        return view('facturation.devis.show', ['devis' => $devis, 'reglage' => $reglage]);
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
             'date_devis' => ['required', 'date'],
-            'client_id' => ['nullable', 'exists:facturation_clients,id', 'required_without:nouveau_client_nom'],
-            'nouveau_client_nom' => ['nullable', 'string', 'max:255', 'required_without:client_id'],
+            'mode_client' => ['required', 'string', 'in:existant,prospect,nouveau'],
+            'client_id' => ['nullable', 'required_if:mode_client,existant', 'exists:facturation_clients,id'],
+            'prospect_id' => ['nullable', 'required_if:mode_client,prospect', 'exists:prospects,id'],
+            'nouveau_client_nom' => ['nullable', 'required_if:mode_client,nouveau', 'string', 'max:255'],
             'nouveau_client_telephone' => ['nullable', 'string', 'max:50'],
             'nouveau_client_email' => ['nullable', 'email', 'max:255'],
             'statut' => ['required', 'string', 'in:'.implode(',', array_keys(Devis::STATUTS))],
@@ -54,13 +79,15 @@ class DevisController extends Controller
         ]);
 
         $devis = DB::transaction(function () use ($data) {
-            $client = $data['client_id']
-                ? Client::findOrFail($data['client_id'])
-                : Client::create([
+            $client = match ($data['mode_client']) {
+                'existant' => Client::findOrFail($data['client_id']),
+                'prospect' => Client::depuisProspect(Prospect::findOrFail($data['prospect_id'])),
+                'nouveau' => Client::create([
                     'nom_complet' => $data['nouveau_client_nom'],
                     'telephone' => $data['nouveau_client_telephone'] ?? null,
                     'email' => $data['nouveau_client_email'] ?? null,
-                ]);
+                ]),
+            };
 
             $appliquerTva = ! empty($data['appliquer_tva']);
             $tauxTva = $appliquerTva ? (float) ($data['taux_tva'] ?? 0) : 0;

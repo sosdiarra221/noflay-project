@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Facturation;
 
 use App\Http\Controllers\Controller;
+use App\Models\Commercial\Prospect;
+use App\Models\Facturation\Client;
 use App\Models\Facturation\Facture;
 use App\Models\Reglage;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -14,17 +16,33 @@ class FactureController extends Controller
     {
         $factures = Facture::with('client', 'lignes')
             ->when($request->filled('statut'), fn ($q) => $q->where('statut', $request->statut))
+            ->when($request->filled('recherche'), function ($q) use ($request) {
+                $terme = $request->recherche;
+                $q->where(fn ($q2) => $q2->where('numero', 'like', "%{$terme}%")
+                    ->orWhereHas('client', fn ($q3) => $q3->where('nom_complet', 'like', "%{$terme}%")));
+            })
             ->latest()
             ->get();
 
-        return view('facturation.factures.index', compact('factures'));
+        $clients = Client::withCount('devis', 'factures')->with('prospect')->orderBy('nom_complet')->get();
+        $prospects = Prospect::withCount('activites')->orderByDesc('created_at')->get();
+
+        $stats = [
+            'total' => Facture::count(),
+            'emise' => Facture::where('statut', 'emise')->count(),
+            'payee' => Facture::where('statut', 'payee')->count(),
+            'annulee' => Facture::where('statut', 'annulee')->count(),
+        ];
+
+        return view('facturation.factures.index', compact('factures', 'clients', 'prospects', 'stats'));
     }
 
     public function show(Facture $facture)
     {
-        $facture->load('client', 'lignes', 'devisSource', 'creePar');
+        $facture->load('client.prospect', 'lignes', 'devisSource', 'creePar');
+        $reglage = Reglage::courant();
 
-        return view('facturation.factures.show', compact('facture'));
+        return view('facturation.factures.show', compact('facture', 'reglage'));
     }
 
     public function update(Request $request, Facture $facture)

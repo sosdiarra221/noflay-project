@@ -37,6 +37,10 @@ use App\Http\Controllers\Administration\ModuleController;
 use App\Http\Controllers\Facturation\FacturationDashboardController;
 use App\Http\Controllers\Facturation\DevisController;
 use App\Http\Controllers\Facturation\FactureController;
+use App\Http\Controllers\Rh\RhDashboardController;
+use App\Http\Controllers\Rh\EmployeController;
+use App\Http\Controllers\Rh\ContratTravailController;
+use App\Http\Controllers\Rh\SiteController;
 use App\Http\Controllers\Commercial\CommercialDashboardController;
 use App\Http\Controllers\Commercial\ProspectController;
 use App\Http\Controllers\Commercial\ActiviteController;
@@ -292,6 +296,7 @@ Route::prefix('facturation')->name('facturation.')->middleware('module.actif:fac
     Route::get('/', [FacturationDashboardController::class, 'index'])->name('dashboard');
 
     Route::get('devis', [DevisController::class, 'index'])->name('devis.index');
+    Route::get('devis/creer', [DevisController::class, 'create'])->name('devis.create');
     Route::get('devis/{devis}', [DevisController::class, 'show'])->name('devis.show');
     Route::post('devis', [DevisController::class, 'store'])->name('devis.store');
     Route::put('devis/{devis}', [DevisController::class, 'update'])->name('devis.update');
@@ -304,6 +309,29 @@ Route::prefix('facturation')->name('facturation.')->middleware('module.actif:fac
     Route::put('factures/{facture}', [FactureController::class, 'update'])->name('factures.update');
     Route::get('factures/{facture}/pdf', [FactureController::class, 'pdf'])->name('factures.pdf');
     Route::get('factures/{facture}/apercu', [FactureController::class, 'apercu'])->name('factures.apercu');
+});
+
+// Module RH — employés, contrats de travail, avec son propre dashboard et son propre menu.
+Route::prefix('rh')->name('rh.')->middleware('module.actif:rh')->group(function () {
+    Route::get('/', [RhDashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('employes', [EmployeController::class, 'index'])->name('employes.index');
+    Route::get('employes/creer', [EmployeController::class, 'create'])->name('employes.create');
+    Route::post('employes', [EmployeController::class, 'store'])->name('employes.store');
+    Route::get('employes/{employe}', [EmployeController::class, 'show'])->name('employes.show');
+    Route::get('employes/{employe}/modifier', [EmployeController::class, 'edit'])->name('employes.edit');
+    Route::put('employes/{employe}', [EmployeController::class, 'update'])->name('employes.update');
+    Route::post('employes/{employe}/archiver', [EmployeController::class, 'archiver'])->name('employes.archiver');
+    Route::post('employes/{employe}/reactiver', [EmployeController::class, 'reactiver'])->name('employes.reactiver');
+
+    Route::post('employes/{employe}/contrats', [ContratTravailController::class, 'store'])->name('contrats.store');
+    Route::post('contrats/{contrat}/renouveler', [ContratTravailController::class, 'renouveler'])->name('contrats.renouveler');
+    Route::post('contrats/{contrat}/cloturer', [ContratTravailController::class, 'cloturer'])->name('contrats.cloturer');
+    Route::get('contrats', [ContratTravailController::class, 'index'])->name('contrats.index');
+
+    Route::get('sites', [SiteController::class, 'index'])->name('sites.index');
+    Route::post('sites', [SiteController::class, 'store'])->name('sites.store');
+    Route::put('sites/{site}', [SiteController::class, 'update'])->name('sites.update');
 });
 
 // Module Direction & Administration — sous-application avec son propre dashboard et son propre menu.
