@@ -27,7 +27,7 @@ class AffectationController extends Controller
                 return $site;
             });
 
-        $employes = Employe::actifs()->with('departement', 'poste')->orderBy('nom')->get();
+        $employes = Employe::actifs()->with('departement', 'poste', 'sites', 'contratActif')->orderBy('nom')->get();
         $clients = Client::orderBy('nom_complet')->get();
         $historique = EmployeAffectation::with('employe')->latest('date_affectation')->take(30)->get();
 

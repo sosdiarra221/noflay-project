@@ -100,7 +100,7 @@
 
     {{-- Nouvelle Affectation --}}
     <div class="modal fade" id="nouvelleAffectationModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
             <div class="modal-content">
                 <form action="{{ route('rh.affectations.store') }}" method="POST">
                     @csrf
@@ -109,26 +109,36 @@
                         <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
                     </div>
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Employé(s)<span class="text-danger ms-1">*</span></label>
-                            <select class="form-select select-employes-affectation" name="employes[]" multiple required>
-                                @foreach ($employes as $employe)
-                                    <option value="{{ $employe->id }}">{{ $employe->nom_complet }} ({{ $employe->matricule }}) — {{ $employe->poste->nom ?? '—' }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Site<span class="text-danger ms-1">*</span></label>
-                            <select class="form-select select-site-affectation" name="site_id" required>
-                                <option value="">Sélectionner...</option>
-                                @foreach ($sites as $site)
-                                    <option value="{{ $site->id }}">{{ $site->nom }} @if($site->client) — {{ $site->client->nom_complet }} @endif</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-0">
-                            <label class="form-label">Motif</label>
-                            <input type="text" class="form-control" name="motif" placeholder="Ex : nouvelle mission, renfort...">
+                        <div class="row g-4">
+                            <div class="col-lg-7">
+                                <div class="mb-3">
+                                    <label class="form-label">Employé(s)<span class="text-danger ms-1">*</span></label>
+                                    <select class="form-select select-employes-affectation" name="employes[]" multiple required>
+                                        @foreach ($employes as $employe)
+                                            <option value="{{ $employe->id }}">{{ $employe->nom_complet }} ({{ $employe->matricule }}) — {{ $employe->poste->nom ?? '—' }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Site<span class="text-danger ms-1">*</span></label>
+                                    <select class="form-select select-site-affectation" name="site_id" required>
+                                        <option value="">Sélectionner...</option>
+                                        @foreach ($sites as $site)
+                                            <option value="{{ $site->id }}">{{ $site->nom }} @if($site->client) — {{ $site->client->nom_complet }} @endif</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="mb-0">
+                                    <label class="form-label">Motif</label>
+                                    <input type="text" class="form-control" name="motif" placeholder="Ex : nouvelle mission, renfort...">
+                                </div>
+                            </div>
+                            <div class="col-lg-5">
+                                <label class="form-label">Aperçu des employés sélectionnés</label>
+                                <div id="apercuEmployesSelectionnes" class="bg-light-subtle rounded p-3" style="max-height: 360px; overflow-y: auto;">
+                                    <p class="text-muted fs-12 text-center py-5 mb-0">Sélectionnez un ou plusieurs employés pour voir leurs informations ici.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -186,15 +196,46 @@
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.select-employes-affectation').forEach(function (select) {
-                new Choices(select, { removeItemButton: true, placeholderValue: 'Sélectionner un ou plusieurs employés...', searchPlaceholderValue: 'Rechercher...' });
-            });
             document.querySelectorAll('.select-site-affectation').forEach(function (select) {
                 new Choices(select, { searchEnabled: true, itemSelectText: '' });
             });
             document.querySelectorAll('.select-client-site').forEach(function (select) {
                 new Choices(select, { searchEnabled: true, itemSelectText: '', searchPlaceholderValue: 'Rechercher un client...' });
             });
+
+            const employesData = {!! json_encode($employes->map(fn ($e) => [
+                'id' => (string) $e->id,
+                'nom' => $e->nom_complet,
+                'matricule' => $e->matricule,
+                'poste' => $e->poste->nom ?? '—',
+                'departement' => $e->departement->nom ?? '—',
+                'sites' => $e->sites->pluck('nom')->implode(', ') ?: 'Aucun site',
+                'contrat' => $e->contratActif ? $e->contratActif->libelleType() : 'Sans contrat actif',
+            ])) !!};
+
+            const selectEmployes = document.querySelector('.select-employes-affectation');
+            const apercu = document.getElementById('apercuEmployesSelectionnes');
+
+            function actualiserApercuEmployes() {
+                const idsSelectionnes = Array.from(selectEmployes.selectedOptions).map(o => o.value);
+                if (idsSelectionnes.length === 0) {
+                    apercu.innerHTML = '<p class="text-muted fs-12 text-center py-5 mb-0">Sélectionnez un ou plusieurs employés pour voir leurs informations ici.</p>';
+                    return;
+                }
+                apercu.innerHTML = idsSelectionnes.map(function (id) {
+                    const e = employesData.find(function (x) { return x.id === id; });
+                    if (!e) return '';
+                    return '<div class="border rounded p-2 mb-2 bg-white">'
+                        + '<div class="fw-medium">' + e.nom + ' <span class="text-muted fs-11">(' + e.matricule + ')</span></div>'
+                        + '<div class="fs-12 text-muted">' + e.poste + ' — ' + e.departement + '</div>'
+                        + '<div class="fs-12 text-muted">Site(s) actuel(s) : ' + e.sites + '</div>'
+                        + '<div class="fs-12 text-muted">Contrat : ' + e.contrat + '</div>'
+                        + '</div>';
+                }).join('');
+            }
+
+            new Choices(selectEmployes, { removeItemButton: true, placeholderValue: 'Sélectionner un ou plusieurs employés...', searchPlaceholderValue: 'Rechercher...' });
+            selectEmployes.addEventListener('change', actualiserApercuEmployes);
         });
     </script>
 @endsection
