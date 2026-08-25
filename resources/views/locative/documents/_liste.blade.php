@@ -34,6 +34,7 @@
                             <td>{{ $document->created_at->format('d/m/Y') }}</td>
                             <td>
                                 <div class="hstack gap-2">
+                                    <button type="button" class="btn btn-light-success icon-btn-sm" title="Voir" onclick="ouvrirApercuDocument({{ Js::from(route('locative.documents.apercu', $document)) }}, {{ Js::from($document->titre ?: $document->nom_original) }}, {{ Js::from($document->estPrevisualisable()) }}, {{ Js::from(route('locative.documents.telecharger', $document)) }})"><i class="bi bi-eye"></i></button>
                                     <a href="{{ route('locative.documents.telecharger', $document) }}" class="btn btn-light-info icon-btn-sm"><i class="bi bi-download"></i></a>
                                     @can(in_array($typeDocument, ['depense', 'caution']) ? 'finance.gerer' : 'locative.documents')
                                         <form action="{{ route('locative.documents.destroy', $document) }}" method="POST" onsubmit="return confirm('Supprimer ce document ?');">
@@ -94,3 +95,47 @@
         </div>
     </div>
 @endcan
+
+{{-- Aperçu d'un document (iframe pour PDF/images, sinon repli sur le téléchargement) --}}
+<div class="modal fade" id="apercuDocumentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="apercuDocumentTitre">Document</h5>
+                <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe id="apercuDocumentFrame" src="" style="width: 100%; height: 70vh; border: 0;" class="d-none"></iframe>
+                <div id="apercuDocumentIndisponible" class="text-center text-muted py-8 d-none">
+                    <i class="bi bi-file-earmark-x" style="font-size: 2.5rem;"></i>
+                    <p class="mt-3 mb-0">Aperçu non disponible pour ce type de fichier — téléchargez-le pour le consulter.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
+                <a id="apercuDocumentTelecharger" href="#" class="btn btn-primary"><i class="bi bi-download me-1"></i>Télécharger</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function ouvrirApercuDocument(urlApercu, titre, previsualisable, urlTelecharger) {
+        document.getElementById('apercuDocumentTitre').textContent = titre;
+        document.getElementById('apercuDocumentTelecharger').href = urlTelecharger;
+
+        const iframe = document.getElementById('apercuDocumentFrame');
+        const indisponible = document.getElementById('apercuDocumentIndisponible');
+        if (previsualisable) {
+            iframe.src = urlApercu;
+            iframe.classList.remove('d-none');
+            indisponible.classList.add('d-none');
+        } else {
+            iframe.src = '';
+            iframe.classList.add('d-none');
+            indisponible.classList.remove('d-none');
+        }
+
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('apercuDocumentModal')).show();
+    }
+</script>

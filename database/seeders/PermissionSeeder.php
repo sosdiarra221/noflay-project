@@ -35,6 +35,10 @@ class PermissionSeeder extends Seeder
             ['cle' => 'finance.gerer', 'libelle' => 'Gérer le module Finance', 'module' => 'Finance', 'roles' => [Role::ADMINISTRATEUR, Role::DIRECTEUR, Role::COMPTABLE]],
 
             ['cle' => 'administration.gerer', 'libelle' => 'Gérer Direction & Administration', 'module' => 'Administration', 'roles' => [Role::ADMINISTRATEUR, Role::DIRECTEUR]],
+
+            ['cle' => 'rh.consulter', 'libelle' => "Consulter l'annuaire RH", 'module' => 'RH', 'roles' => [Role::ADMINISTRATEUR, Role::DIRECTEUR, Role::ASSISTANT]],
+            ['cle' => 'rh.gerer', 'libelle' => 'Gérer le module RH (employés, contrats)', 'module' => 'RH', 'roles' => [Role::ADMINISTRATEUR, Role::DIRECTEUR, Role::ASSISTANT]],
+            ['cle' => 'rh.donnees-sensibles', 'libelle' => 'Consulter les données sensibles (identité, RIB, famille)', 'module' => 'RH', 'roles' => [Role::ADMINISTRATEUR, Role::DIRECTEUR]],
         ];
 
         foreach ($permissions as $definition) {

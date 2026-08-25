@@ -61,6 +61,11 @@ class DocumentController extends Controller
         return Storage::disk('public')->download($document->chemin, $document->nom_original);
     }
 
+    public function apercu(Document $document)
+    {
+        return Storage::disk('public')->response($document->chemin, $document->nom_original);
+    }
+
     public function destroy(Document $document)
     {
         $estFinance = in_array($document->documentable_type, [DepenseLocation::class, Caution::class], true);

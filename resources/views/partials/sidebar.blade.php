@@ -362,6 +362,16 @@
                     </a>
                 </li>
             @endif
+            @can('rh.consulter')
+                @if (\App\Models\Module::estActif('rh'))
+                    <li class="pe-slide pe-has-sub">
+                        <a href="{{ route('rh.dashboard') }}" class="pe-nav-link">
+                            <i class="bi bi-person-vcard pe-nav-icon"></i>
+                            <span class="pe-nav-content">Module RH</span>
+                        </a>
+                    </li>
+                @endif
+            @endcan
             @can('administration.gerer')
                 <li class="pe-slide pe-has-sub">
                     <a href="{{ route('administration.dashboard') }}" class="pe-nav-link">

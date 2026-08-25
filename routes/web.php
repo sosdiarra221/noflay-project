@@ -39,8 +39,10 @@ use App\Http\Controllers\Facturation\DevisController;
 use App\Http\Controllers\Facturation\FactureController;
 use App\Http\Controllers\Rh\RhDashboardController;
 use App\Http\Controllers\Rh\EmployeController;
+use App\Http\Controllers\Rh\EmployeDocumentController;
 use App\Http\Controllers\Rh\ContratTravailController;
 use App\Http\Controllers\Rh\SiteController;
+use App\Http\Controllers\Rh\PosteController;
 use App\Http\Controllers\Commercial\CommercialDashboardController;
 use App\Http\Controllers\Commercial\ProspectController;
 use App\Http\Controllers\Commercial\ActiviteController;
@@ -184,6 +186,7 @@ Route::prefix('locative')->name('locative.')->middleware('module.actif:locative'
 
     Route::post('documents/{type}/{id}', [DocumentController::class, 'store'])->name('documents.store');
     Route::get('documents/{document}/telecharger', [DocumentController::class, 'telecharger'])->name('documents.telecharger');
+    Route::get('documents/{document}/apercu', [DocumentController::class, 'apercu'])->name('documents.apercu');
     Route::delete('documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
 });
 
@@ -324,14 +327,23 @@ Route::prefix('rh')->name('rh.')->middleware('module.actif:rh')->group(function 
     Route::post('employes/{employe}/archiver', [EmployeController::class, 'archiver'])->name('employes.archiver');
     Route::post('employes/{employe}/reactiver', [EmployeController::class, 'reactiver'])->name('employes.reactiver');
 
+    Route::post('employes/{employe}/documents', [EmployeDocumentController::class, 'store'])->name('employes.documents.store');
+    Route::get('documents/{document}/apercu', [EmployeDocumentController::class, 'apercu'])->name('employes.documents.apercu');
+    Route::delete('documents/{document}', [EmployeDocumentController::class, 'destroy'])->name('employes.documents.destroy');
+
     Route::post('employes/{employe}/contrats', [ContratTravailController::class, 'store'])->name('contrats.store');
     Route::post('contrats/{contrat}/renouveler', [ContratTravailController::class, 'renouveler'])->name('contrats.renouveler');
     Route::post('contrats/{contrat}/cloturer', [ContratTravailController::class, 'cloturer'])->name('contrats.cloturer');
+    Route::get('contrats/{contrat}/document/apercu', [ContratTravailController::class, 'apercuDocument'])->name('contrats.document.apercu');
     Route::get('contrats', [ContratTravailController::class, 'index'])->name('contrats.index');
 
     Route::get('sites', [SiteController::class, 'index'])->name('sites.index');
     Route::post('sites', [SiteController::class, 'store'])->name('sites.store');
     Route::put('sites/{site}', [SiteController::class, 'update'])->name('sites.update');
+
+    Route::get('postes', [PosteController::class, 'index'])->name('postes.index');
+    Route::post('postes', [PosteController::class, 'store'])->name('postes.store');
+    Route::put('postes/{poste}', [PosteController::class, 'update'])->name('postes.update');
 });
 
 // Module Direction & Administration — sous-application avec son propre dashboard et son propre menu.

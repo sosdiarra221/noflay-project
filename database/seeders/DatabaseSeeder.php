@@ -39,6 +39,7 @@ class DatabaseSeeder extends Seeder
             DocumentTemplateSeeder::class,
             PermissionSeeder::class,
             ModuleSeeder::class,
+            RhSeeder::class,
         ]);
     }
 }

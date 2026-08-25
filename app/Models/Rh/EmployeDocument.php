@@ -1,36 +1,32 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Rh;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Document extends Model
+class EmployeDocument extends Model
 {
-    use SoftDeletes;
-
-    const TYPES = ['Papier Juridique', 'Reçu', 'Papier Administrative', 'Facture', 'Quittance de loyer', 'État des lieux', 'Devis', 'Photo'];
+    protected $table = 'employe_documents';
 
     protected $fillable = [
-        'documentable_type',
-        'documentable_id',
-        'titre',
-        'nom_original',
-        'chemin',
+        'employe_id',
+        'type_document',
+        'nom_fichier',
+        'chemin_fichier',
         'type_mime',
         'taille',
-        'categorie',
-        'uploaded_by_id',
+        'ajoute_par_id',
     ];
 
-    public function documentable()
+    public function employe()
     {
-        return $this->morphTo();
+        return $this->belongsTo(Employe::class);
     }
 
-    public function uploadePar()
+    public function ajoutePar()
     {
-        return $this->belongsTo(User::class, 'uploaded_by_id');
+        return $this->belongsTo(User::class, 'ajoute_par_id');
     }
 
     public function estPrevisualisable(): bool

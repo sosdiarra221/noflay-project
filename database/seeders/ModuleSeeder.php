@@ -15,7 +15,8 @@ class ModuleSeeder extends Seeder
             ['cle' => 'commercial', 'nom' => 'Module Commercial', 'description' => 'Prospection, suivi des demandes clients, partenaires et conversion en location.', 'icone' => 'bi-bullseye', 'ordre' => 3],
             ['cle' => 'documents', 'nom' => 'Gestion Document', 'description' => 'Modèles de contrats et documents générés automatiquement pour les autres modules.', 'icone' => 'bi-file-earmark-text', 'ordre' => 4],
             ['cle' => 'facturation', 'nom' => 'Module Facturation', 'description' => 'Création de devis, gestion des clients/prospects et suivi de la facturation.', 'icone' => 'bi-receipt', 'ordre' => 5],
-            ['cle' => 'administration', 'nom' => 'Direction & Administration', 'description' => 'Utilisateurs, rôles et permissions, sécurité, réglages généraux de la société.', 'icone' => 'bi-shield-lock', 'ordre' => 6],
+            ['cle' => 'rh', 'nom' => 'Module RH', 'description' => 'Fiches employés, situation familiale, contrats de travail et affectations.', 'icone' => 'bi-person-vcard', 'ordre' => 6],
+            ['cle' => 'administration', 'nom' => 'Direction & Administration', 'description' => 'Utilisateurs, rôles et permissions, sécurité, réglages généraux de la société.', 'icone' => 'bi-shield-lock', 'ordre' => 7],
         ];
 
         foreach ($modules as $module) {
