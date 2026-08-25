@@ -33,6 +33,9 @@ use App\Http\Controllers\Administration\AdministrationDashboardController;
 use App\Http\Controllers\Administration\UtilisateurController;
 use App\Http\Controllers\Administration\RoleController;
 use App\Http\Controllers\Administration\SecuriteController;
+use App\Http\Controllers\Administration\ModuleController;
+use App\Http\Controllers\Facturation\FacturationDashboardController;
+use App\Http\Controllers\Facturation\DevisController;
 use App\Http\Controllers\Commercial\CommercialDashboardController;
 use App\Http\Controllers\Commercial\ProspectController;
 use App\Http\Controllers\Commercial\ActiviteController;
@@ -86,7 +89,7 @@ Route::put('departements/{departement}', [DepartementController::class, 'update'
 Route::delete('departements/{departement}', [DepartementController::class, 'destroy'])->name('departements.destroy');
 
 // Module Locative — sous-application avec son propre dashboard et son propre menu.
-Route::prefix('locative')->name('locative.')->group(function () {
+Route::prefix('locative')->name('locative.')->middleware('module.actif:locative')->group(function () {
     Route::get('/', [LocativeDashboardController::class, 'index'])->name('dashboard');
 
     Route::get('parametres', [ParametreLocativeController::class, 'index'])->name('parametres.index');
@@ -180,9 +183,9 @@ Route::prefix('locative')->name('locative.')->group(function () {
 });
 
 // Module Commercial — CRM léger avec son propre dashboard (dashboard-commercial) et son propre menu.
-Route::get('dashboard-commercial', [CommercialDashboardController::class, 'index'])->name('commercial.dashboard');
+Route::get('dashboard-commercial', [CommercialDashboardController::class, 'index'])->name('commercial.dashboard')->middleware('module.actif:commercial');
 
-Route::prefix('commercial')->name('commercial.')->group(function () {
+Route::prefix('commercial')->name('commercial.')->middleware('module.actif:commercial')->group(function () {
     Route::get('prospects', [ProspectController::class, 'index'])->name('prospects.index');
     Route::get('prospects/{prospect}', [ProspectController::class, 'show'])->name('prospects.show');
     Route::post('prospects', [ProspectController::class, 'store'])->name('prospects.store');
@@ -219,7 +222,7 @@ Route::prefix('commercial')->name('commercial.')->group(function () {
 
 // Module Gestion Document — sous-application avec son propre dashboard et son propre menu.
 // Moteur de modèles et de génération de documents (contrats, mandats...).
-Route::prefix('gestion-documents')->name('documents.')->group(function () {
+Route::prefix('gestion-documents')->name('documents.')->middleware('module.actif:documents')->group(function () {
     Route::get('/', [DocumentsDashboardController::class, 'index'])->name('dashboard');
 
     Route::get('modeles', [DocumentTemplateController::class, 'index'])->name('modeles.index');
@@ -245,7 +248,7 @@ Route::prefix('gestion-documents')->name('documents.')->group(function () {
 });
 
 // Module Finance — sous-application avec son propre dashboard et son propre menu.
-Route::prefix('finance')->name('finance.')->group(function () {
+Route::prefix('finance')->name('finance.')->middleware('module.actif:finance')->group(function () {
     Route::get('/', [FinanceDashboardController::class, 'index'])->name('dashboard');
 
     Route::get('revenus', [RevenuController::class, 'index'])->name('revenus.index');
@@ -283,9 +286,25 @@ Route::prefix('finance')->name('finance.')->group(function () {
     Route::get('bailleurs/{bailleur}', [BailleurFinanceController::class, 'show'])->name('bailleurs.show');
 });
 
+// Module Facturation — devis, clients/prospects, avec son propre dashboard et son propre menu.
+Route::prefix('facturation')->name('facturation.')->middleware('module.actif:facturation')->group(function () {
+    Route::get('/', [FacturationDashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('devis', [DevisController::class, 'index'])->name('devis.index');
+    Route::get('devis/{devis}', [DevisController::class, 'show'])->name('devis.show');
+    Route::post('devis', [DevisController::class, 'store'])->name('devis.store');
+    Route::put('devis/{devis}', [DevisController::class, 'update'])->name('devis.update');
+    Route::delete('devis/{devis}', [DevisController::class, 'destroy'])->name('devis.destroy');
+    Route::get('devis/{devis}/pdf', [DevisController::class, 'pdf'])->name('devis.pdf');
+    Route::get('devis/{devis}/apercu', [DevisController::class, 'apercu'])->name('devis.apercu');
+});
+
 // Module Direction & Administration — sous-application avec son propre dashboard et son propre menu.
 Route::prefix('administration')->name('administration.')->group(function () {
     Route::get('/', [AdministrationDashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('modules', [ModuleController::class, 'index'])->name('modules.index');
+    Route::post('modules/{module}/toggle', [ModuleController::class, 'toggle'])->name('modules.toggle');
 
     Route::get('utilisateurs', [UtilisateurController::class, 'index'])->name('utilisateurs.index');
     Route::get('utilisateurs/creer', [UtilisateurController::class, 'create'])->name('utilisateurs.create');

@@ -318,34 +318,50 @@
             <li class="pe-menu-title">
                 Métier
             </li>
-            <li class="pe-slide pe-has-sub">
-                <a href="{{ route('locative.dashboard') }}" class="pe-nav-link">
-                    <i class="bi bi-building pe-nav-icon"></i>
-                    <span class="pe-nav-content">Gestion Locative</span>
-                </a>
-            </li>
-            <li class="pe-slide pe-has-sub">
-                <a href="{{ route('commercial.dashboard') }}" class="pe-nav-link">
-                    <i class="bi bi-bullseye pe-nav-icon"></i>
-                    <span class="pe-nav-content">Gestion Commercial</span>
-                </a>
-            </li>
-            @can('documents.gerer')
+            @if (\App\Models\Module::estActif('locative'))
                 <li class="pe-slide pe-has-sub">
-                    <a href="{{ route('documents.dashboard') }}" class="pe-nav-link">
-                        <i class="bi bi-file-earmark-text pe-nav-icon"></i>
-                        <span class="pe-nav-content">Gestion Document</span>
+                    <a href="{{ route('locative.dashboard') }}" class="pe-nav-link">
+                        <i class="bi bi-building pe-nav-icon"></i>
+                        <span class="pe-nav-content">Gestion Locative</span>
                     </a>
                 </li>
+            @endif
+            @if (\App\Models\Module::estActif('commercial'))
+                <li class="pe-slide pe-has-sub">
+                    <a href="{{ route('commercial.dashboard') }}" class="pe-nav-link">
+                        <i class="bi bi-bullseye pe-nav-icon"></i>
+                        <span class="pe-nav-content">Gestion Commercial</span>
+                    </a>
+                </li>
+            @endif
+            @can('documents.gerer')
+                @if (\App\Models\Module::estActif('documents'))
+                    <li class="pe-slide pe-has-sub">
+                        <a href="{{ route('documents.dashboard') }}" class="pe-nav-link">
+                            <i class="bi bi-file-earmark-text pe-nav-icon"></i>
+                            <span class="pe-nav-content">Gestion Document</span>
+                        </a>
+                    </li>
+                @endif
             @endcan
             @can('finance.consulter')
+                @if (\App\Models\Module::estActif('finance'))
+                    <li class="pe-slide pe-has-sub">
+                        <a href="{{ route('finance.dashboard') }}" class="pe-nav-link">
+                            <i class="bi bi-cash-coin pe-nav-icon"></i>
+                            <span class="pe-nav-content">Finance</span>
+                        </a>
+                    </li>
+                @endif
+            @endcan
+            @if (\App\Models\Module::estActif('facturation'))
                 <li class="pe-slide pe-has-sub">
-                    <a href="{{ route('finance.dashboard') }}" class="pe-nav-link">
-                        <i class="bi bi-cash-coin pe-nav-icon"></i>
-                        <span class="pe-nav-content">Finance</span>
+                    <a href="{{ route('facturation.dashboard') }}" class="pe-nav-link">
+                        <i class="bi bi-receipt pe-nav-icon"></i>
+                        <span class="pe-nav-content">Gestion Facturation</span>
                     </a>
                 </li>
-            @endcan
+            @endif
             @can('administration.gerer')
                 <li class="pe-slide pe-has-sub">
                     <a href="{{ route('administration.dashboard') }}" class="pe-nav-link">

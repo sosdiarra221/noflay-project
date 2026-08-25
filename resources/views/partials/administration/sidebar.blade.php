@@ -38,6 +38,12 @@
                     <span class="pe-nav-content">Sécurité &amp; session</span>
                 </a>
             </li>
+            <li class="pe-slide pe-has-sub">
+                <a href="{{ route('administration.modules.index') }}" class="pe-nav-link">
+                    <i class="bi bi-grid pe-nav-icon"></i>
+                    <span class="pe-nav-content">Modules</span>
+                </a>
+            </li>
             <li class="pe-menu-title">
                 Paramétrage général
             </li>

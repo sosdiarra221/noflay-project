@@ -38,6 +38,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             DocumentTemplateSeeder::class,
             PermissionSeeder::class,
+            ModuleSeeder::class,
         ]);
     }
 }
