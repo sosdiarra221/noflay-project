@@ -59,7 +59,13 @@ class EmployeController extends Controller
         $alerteCdd = $nombreContratsCdd >= 2;
         $presentation = $alerteCdd ? null : $this->construireMiniPresentation($employe);
 
-        return view('rh.employes.show', compact('employe', 'nombreContratsCdd', 'alerteCdd', 'presentation'));
+        $congesStats = [
+            'jours_consommes' => (float) $employe->absences->where('statut', 'validee')->sum('nombre_jours'),
+            'jours_en_attente' => (float) $employe->absences->where('statut', 'en_attente')->sum('nombre_jours'),
+            'demandes_en_attente' => $employe->absences->where('statut', 'en_attente')->count(),
+        ];
+
+        return view('rh.employes.show', compact('employe', 'nombreContratsCdd', 'alerteCdd', 'presentation', 'congesStats'));
     }
 
     /**
