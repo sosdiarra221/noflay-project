@@ -53,7 +53,7 @@ class EmployeController extends Controller
     {
         Gate::authorize('rh.consulter');
 
-        $employe->load('departement', 'poste', 'sites', 'epouses', 'enfants', 'diplomes', 'documents.ajoutePar', 'contrats', 'affectations.ancienDepartement', 'affectations.nouveauDepartement');
+        $employe->load('departement', 'poste', 'sites', 'epouses', 'enfants', 'diplomes', 'documents.ajoutePar', 'contrats', 'affectations.ancienDepartement', 'affectations.nouveauDepartement', 'absences.typeAbsence');
 
         $nombreContratsCdd = $employe->contrats->where('type_contrat', 'cdd')->count();
         $alerteCdd = $nombreContratsCdd >= 2;
@@ -189,6 +189,23 @@ class EmployeController extends Controller
         });
 
         return redirect()->route('rh.employes.show', $employe)->with('success', 'Employé mis à jour avec succès.');
+    }
+
+    public function ajusterSoldeConges(Request $request, Employe $employe)
+    {
+        Gate::authorize('rh.gerer');
+
+        $data = $request->validate([
+            'ajustement' => ['required', 'numeric', 'not_in:0'],
+            'motif' => ['required', 'string', 'max:255'],
+        ]);
+
+        $employe->motifAction = $data['motif'];
+        $employe->update(['solde_conges' => $employe->solde_conges + $data['ajustement']]);
+
+        $signe = $data['ajustement'] > 0 ? '+' : '';
+
+        return back()->with('success', "Solde de congé ajusté de {$signe}{$data['ajustement']} j — nouveau solde : {$employe->solde_conges} j.");
     }
 
     public function archiver(Request $request, Employe $employe)

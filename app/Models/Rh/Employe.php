@@ -118,6 +118,11 @@ class Employe extends Model
         return $this->hasMany(EmployeAffectation::class)->orderByDesc('date_affectation');
     }
 
+    public function absences()
+    {
+        return $this->hasMany(Absence::class)->orderByDesc('date_debut');
+    }
+
     public function contrats()
     {
         return $this->hasMany(ContratTravail::class)->orderByDesc('date_debut');

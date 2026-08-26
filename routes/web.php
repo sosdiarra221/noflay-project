@@ -329,6 +329,7 @@ Route::prefix('rh')->name('rh.')->middleware('module.actif:rh')->group(function 
     Route::get('employes/{employe}', [EmployeController::class, 'show'])->name('employes.show');
     Route::get('employes/{employe}/modifier', [EmployeController::class, 'edit'])->name('employes.edit');
     Route::put('employes/{employe}', [EmployeController::class, 'update'])->name('employes.update');
+    Route::post('employes/{employe}/solde-conges', [EmployeController::class, 'ajusterSoldeConges'])->name('employes.solde-conges');
     Route::post('employes/{employe}/archiver', [EmployeController::class, 'archiver'])->name('employes.archiver');
     Route::post('employes/{employe}/reactiver', [EmployeController::class, 'reactiver'])->name('employes.reactiver');
 
