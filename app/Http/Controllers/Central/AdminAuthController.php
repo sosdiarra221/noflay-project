@@ -11,7 +11,7 @@ class AdminAuthController extends Controller
     public function showLogin()
     {
         if (Auth::guard('admin')->check()) {
-            return redirect()->route('central.societes.index');
+            return redirect()->route('central.dashboard');
         }
 
         return view('central.login');
@@ -30,7 +30,7 @@ class AdminAuthController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('central.societes.index'));
+        return redirect()->intended(route('central.dashboard'));
     }
 
     public function logout(Request $request)

@@ -33,6 +33,7 @@
                     </button>
                 </div>
                 @include('partials.notifications-bell')
+                @include('partials.licence-alerte-modal')
                 <div class="dropdown pe-dropdown-mega d-none d-md-block">
                     <button class="header-profile-btn btn gap-1 text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="header-btn btn position-relative">

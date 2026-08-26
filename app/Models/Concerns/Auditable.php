@@ -3,6 +3,7 @@
 namespace App\Models\Concerns;
 
 use App\Models\JournalActivite;
+use App\Models\User;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 trait Auditable
@@ -51,8 +52,18 @@ trait Auditable
 
     protected function journaliser(string $action, ?array $avant, ?array $apres, ?string $motif = null): void
     {
+        // auth()->id() peut renvoyer un identifiant provenant d'un autre contexte (ex. l'admin
+        // central authentifié pendant le provisioning automatique d'une nouvelle société, qui
+        // n'existe pas dans la base tenant fraîchement créée) — on ne l'utilise que s'il
+        // correspond réellement à un utilisateur de la base courante, sous peine de violer la
+        // contrainte de clé étrangère de journaux_activite.
+        $userId = auth()->id();
+        if ($userId && ! User::whereKey($userId)->exists()) {
+            $userId = null;
+        }
+
         JournalActivite::create([
-            'user_id' => auth()->id(),
+            'user_id' => $userId,
             'action' => $action,
             'module' => property_exists($this, 'moduleJournal') ? $this->moduleJournal : 'locative',
             'entity_type' => class_basename($this),
