@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Central;
 
 use App\Http\Controllers\Controller;
+use App\Models\Departement;
 use App\Models\Licence;
 use App\Models\Package;
 use App\Models\Role;
@@ -78,6 +79,7 @@ class SocieteController extends Controller
                 'email' => $data['utilisateur_email'],
                 'password' => Hash::make($data['utilisateur_password']),
                 'role_id' => Role::where('nom', Role::ADMINISTRATEUR)->value('id'),
+                'departement_id' => Departement::where('nom', 'Direction')->value('id'),
                 'statut' => 'actif',
             ]);
         });

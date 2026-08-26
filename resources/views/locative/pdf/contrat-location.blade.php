@@ -11,9 +11,31 @@
         .infos-table { width: 100%; }
         .infos-table td { border: none; padding: 3px 0; }
         .infos-table td.label { color: #777; width: 200px; }
+        .entete-agence { width: 100%; border-bottom: 2px solid #ccc; padding-bottom: 8px; margin-bottom: 12px; }
+        .entete-agence td { vertical-align: middle; }
+        .entete-agence .logo-agence { max-height: 50px; }
+        .entete-agence .coord-agence { text-align: right; font-size: 10px; color: #555; }
     </style>
 </head>
 <body>
+    @if ($reglage->nom_societe || $reglage->logo)
+        <table class="entete-agence">
+            <tr>
+                <td>
+                    @if ($reglage->logo && file_exists(public_path($reglage->logo)))
+                        <img class="logo-agence" src="{{ public_path($reglage->logo) }}" alt="Logo">
+                    @endif
+                    <strong>{{ $reglage->nom_societe ?: config('app.name') }}</strong>
+                </td>
+                <td class="coord-agence">
+                    @if ($reglage->adresse)<div>{{ $reglage->adresse }}</div>@endif
+                    @if ($reglage->telephone)<div>{{ $reglage->telephone }}</div>@endif
+                    @if ($reglage->email)<div>{{ $reglage->email }}</div>@endif
+                </td>
+            </tr>
+        </table>
+    @endif
+
     <h1>Contrat de location {{ $contrat->numero }}</h1>
     <p class="muted">Généré le {{ now()->format('d/m/Y à H:i') }}</p>
 

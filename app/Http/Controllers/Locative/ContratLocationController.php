@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Locative;
 use App\Http\Controllers\Controller;
 use App\Models\ContratLocation;
 use App\Models\Documents\Document as DocumentGenere;
+use App\Models\Locative\ParametreLocative;
 use App\Models\ModePaiement;
 use App\Services\Documents\DocumentGenerationService;
 use App\Services\Locative\EcheanceLoyerService;
@@ -183,8 +184,9 @@ class ContratLocationController extends Controller
     public function pdf(ContratLocation $contrat)
     {
         $contrat->load(['bien', 'bailleur', 'location.locataire']);
+        $reglage = ParametreLocative::courant();
 
-        $pdf = Pdf::loadView('locative.pdf.contrat-location', compact('contrat'));
+        $pdf = Pdf::loadView('locative.pdf.contrat-location', compact('contrat', 'reglage'));
 
         return $pdf->download($contrat->numero.'.pdf');
     }
@@ -192,8 +194,9 @@ class ContratLocationController extends Controller
     public function apercu(ContratLocation $contrat)
     {
         $contrat->load(['bien', 'bailleur', 'location.locataire']);
+        $reglage = ParametreLocative::courant();
 
-        $pdf = Pdf::loadView('locative.pdf.contrat-location', compact('contrat'));
+        $pdf = Pdf::loadView('locative.pdf.contrat-location', compact('contrat', 'reglage'));
 
         return $pdf->stream($contrat->numero.'.pdf');
     }

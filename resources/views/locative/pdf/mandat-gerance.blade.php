@@ -8,6 +8,7 @@
         .conteneur { padding: 6px 4px; }
 
         .entete-titre { text-align: center; border-bottom: 2px solid #1a3c8c; padding-bottom: 10px; margin-bottom: 4px; }
+        .entete-titre img.logo-agence { max-height: 40px; margin-bottom: 6px; }
         .entete-titre h1 { font-size: 18px; color: #1a3c8c; margin: 0 0 4px 0; text-transform: uppercase; }
         .entete-titre p { font-size: 10px; color: #666; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
 
@@ -36,6 +37,9 @@
 <body>
     <div class="conteneur">
         <div class="entete-titre">
+            @if ($reglage->logo && file_exists(public_path($reglage->logo)))
+                <img class="logo-agence" src="{{ public_path($reglage->logo) }}" alt="Logo">
+            @endif
             <h1>Mandat de gérance immobilière</h1>
             <p>Document contractuel — N&deg; {{ $gerance->numero }}</p>
         </div>

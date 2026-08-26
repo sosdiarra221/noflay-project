@@ -48,7 +48,7 @@
                 Paramétrage général
             </li>
             <li class="pe-slide pe-has-sub">
-                <a href="{{ route('reglages.index') }}" class="pe-nav-link">
+                <a href="{{ route('administration.reglages.index') }}" class="pe-nav-link">
                     <i class="bi bi-gear pe-nav-icon"></i>
                     <span class="pe-nav-content">Réglages de la société</span>
                 </a>
@@ -60,7 +60,7 @@
                 </a>
             </li>
             <li class="pe-slide pe-has-sub">
-                <a href="{{ route('reglages.index') }}#devise-tab-pane" class="pe-nav-link">
+                <a href="{{ route('administration.reglages.index') }}#devise-tab-pane" class="pe-nav-link">
                     <i class="bi bi-cash-coin pe-nav-icon"></i>
                     <span class="pe-nav-content">Devises</span>
                 </a>

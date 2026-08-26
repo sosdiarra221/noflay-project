@@ -38,6 +38,11 @@
                                 type="button" role="tab" aria-controls="depenses-tab-pane"
                                 aria-selected="false">Catégories de dépenses</button>
                         </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="agence-tab" data-bs-toggle="tab" data-bs-target="#agence-tab-pane"
+                                type="button" role="tab" aria-controls="agence-tab-pane"
+                                aria-selected="false">Agence</button>
+                        </li>
                     </ul>
                 </div>
 
@@ -289,6 +294,54 @@
                                             en régime <strong>HT</strong>, la TVA à 18 % s'ajoute (10 000 → 11 800 FCFA TTC) ;
                                             en régime <strong>TTC</strong>, la TVA est déjà incluse dans les 10 000 FCFA (TVA = 10 000 × 18/118 ≈ 1 525 FCFA, commission HT ≈ 8 475 FCFA).
                                         </p>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Onglet Agence --}}
+                    <div class="tab-pane fade" id="agence-tab-pane" role="tabpanel" aria-labelledby="agence-tab" tabindex="0">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0 fw-semibold">Informations de l'agence — module Locative</h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">
+                                    Nom, logo et coordonnées utilisés sur tous les documents générés par ce module (contrats de location, mandats de gérance, quittances, fiches proforma). Indépendant des réglages généraux utilisés par les autres modules.
+                                </p>
+                                <form action="{{ route('locative.parametres.agence') }}" method="POST" enctype="multipart/form-data" class="row g-4">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="col-lg-4">
+                                        <label class="form-label">Nom de l'agence<span class="text-danger ms-1">*</span></label>
+                                        <input type="text" class="form-control" name="nom_societe" value="{{ old('nom_societe', $agence->nom_societe) }}" required>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <label class="form-label">Téléphone</label>
+                                        <input type="text" class="form-control" name="telephone" value="{{ old('telephone', $agence->telephone) }}">
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" name="email" value="{{ old('email', $agence->email) }}">
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <label class="form-label">Site web</label>
+                                        <input type="text" class="form-control" name="site_web" value="{{ old('site_web', $agence->site_web) }}">
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <label class="form-label">Logo</label>
+                                        <input type="file" class="form-control" name="logo" accept="image/*">
+                                        @if ($agence->logo)
+                                            <img src="{{ asset($agence->logo) }}" alt="Logo actuel" class="mt-2" height="40">
+                                        @endif
+                                    </div>
+                                    <div class="col-lg-8">
+                                        <label class="form-label">Adresse</label>
+                                        <input type="text" class="form-control" name="adresse" value="{{ old('adresse', $agence->adresse) }}">
                                     </div>
                                     <div class="col-12">
                                         <button type="submit" class="btn btn-primary">Enregistrer</button>

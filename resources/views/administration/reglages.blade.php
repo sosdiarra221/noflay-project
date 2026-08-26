@@ -1,8 +1,8 @@
-@extends('partials.layouts.master')
+@extends('partials.layouts.master-administration')
 
-@section('title', 'Réglages | Takha CRM Admin & Dashboards Template')
-@section('title-sub', 'Réglages')
-@section('pagetitle', 'Configuration')
+@section('title', 'Réglages | Administration')
+@section('title-sub', 'Administration')
+@section('pagetitle', 'Réglages')
 
 @section('content')
 
@@ -110,7 +110,7 @@
                         aria-labelledby="societe-tab" tabindex="0">
                         <div class="card">
                             <div class="card-body p-6">
-                                <form action="{{ route('reglages.update-general') }}" method="POST"
+                                <form action="{{ route('administration.reglages.update-general') }}" method="POST"
                                     enctype="multipart/form-data" class="py-4">
                                     @csrf
                                     @method('PUT')
@@ -326,7 +326,7 @@
                         tabindex="0">
                         <div class="card">
                             <div class="card-body p-6">
-                                <form action="{{ route('reglages.update-smtp') }}" method="POST" class="py-4">
+                                <form action="{{ route('administration.reglages.update-smtp') }}" method="POST" class="py-4">
                                     @csrf
                                     @method('PUT')
                                     <div class="row g-5">

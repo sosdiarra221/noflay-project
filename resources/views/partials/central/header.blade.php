@@ -4,11 +4,12 @@
         <div class="d-flex align-items-center">
             <div class="me-auto">
                 <div class="d-inline-flex align-items-center gap-5">
+                    @php($reglageEditeur = \App\Models\ReglageEditeur::courant())
                     <a href="{{ route('central.dashboard') }}" class="fs-18 fw-semibold">
-                        <img height="30" class="header-sidebar-logo-default d-none" alt="Logo" src="{{ asset('assets/images/logo-dark.png') }}">
-                        <img height="30" class="header-sidebar-logo-light d-none" alt="Logo" src="{{ asset('assets/images/logo-light.png') }}">
-                        <img height="30" class="header-sidebar-logo-small d-none" alt="Logo" src="{{ asset('assets/images/logo-md.png') }}">
-                        <img height="30" class="header-sidebar-logo-small-light d-none" alt="Logo" src="{{ asset('assets/images/logo-md-light.png') }}">
+                        <img height="30" class="header-sidebar-logo-default d-none" alt="Logo" src="{{ $reglageEditeur->logo ? asset($reglageEditeur->logo) : asset('assets/images/logo-dark.png') }}">
+                        <img height="30" class="header-sidebar-logo-light d-none" alt="Logo" src="{{ $reglageEditeur->logo ? asset($reglageEditeur->logo) : asset('assets/images/logo-light.png') }}">
+                        <img height="30" class="header-sidebar-logo-small d-none" alt="Logo" src="{{ $reglageEditeur->logo ? asset($reglageEditeur->logo) : asset('assets/images/logo-md.png') }}">
+                        <img height="30" class="header-sidebar-logo-small-light d-none" alt="Logo" src="{{ $reglageEditeur->logo ? asset($reglageEditeur->logo) : asset('assets/images/logo-md-light.png') }}">
                     </a>
                     <button type="button" class="vertical-toggle btn btn-light-light text-muted icon-btn fs-5 rounded-pill" id="toggleSidebar">
                         <i class="bi bi-arrow-bar-left header-icon"></i>

@@ -8,6 +8,53 @@
     <div id="layout-wrapper">
 
         <div class="row">
+            <div class="col-lg-7">
+                <div class="card">
+                    <div class="card-header"><h6 class="mb-0">Licence en cours</h6></div>
+                    <div class="card-body">
+                        @if ($licence)
+                            <div class="d-flex flex-wrap align-items-center gap-4">
+                                <div>
+                                    <p class="text-muted mb-1 fs-12">Package</p>
+                                    <h6 class="mb-0">{{ $licence->package->nom ?? '—' }}</h6>
+                                </div>
+                                <div>
+                                    <p class="text-muted mb-1 fs-12">Valide jusqu'au</p>
+                                    <h6 class="mb-0">{{ $licence->date_fin->format('d/m/Y') }}</h6>
+                                </div>
+                                <div>
+                                    <p class="text-muted mb-1 fs-12">Statut</p>
+                                    @if ($licence->estExpiree())
+                                        <span class="badge bg-danger-subtle text-danger">Expirée</span>
+                                    @elseif ($licence->joursRestants() <= 5)
+                                        <span class="badge bg-warning-subtle text-warning">{{ $licence->joursRestants() }} j. restants</span>
+                                    @else
+                                        <span class="badge bg-success-subtle text-success">Valide</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <p class="text-muted fs-12 mb-0 mt-3">Pour renouveler ou changer de package, contactez l'éditeur du logiciel.</p>
+                        @else
+                            <p class="text-muted mb-0">Aucune information de licence disponible.</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">Modules souscrits</h6>
+                        <a href="{{ route('administration.modules.index') }}" class="fs-12">Voir le détail</a>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="mb-0">{{ $modulesActifsCount }} <span class="fs-14 text-muted fw-normal">/ {{ $modulesCatalogue->count() }} + Administration</span></h3>
+                        <p class="text-muted mb-0 fs-12">modules actifs pour votre société</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">

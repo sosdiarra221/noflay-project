@@ -1,23 +1,29 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Administration;
 
+use App\Http\Controllers\Controller;
 use App\Models\Devise;
 use App\Models\Reglage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ReglageController extends Controller
 {
     public function index()
     {
+        Gate::authorize('administration.gerer');
+
         $reglage = Reglage::courant();
         $devises = Devise::orderBy('nom')->get();
 
-        return view('reglages', compact('reglage', 'devises'));
+        return view('administration.reglages', compact('reglage', 'devises'));
     }
 
     public function updateGeneral(Request $request)
     {
+        Gate::authorize('administration.gerer');
+
         $reglage = Reglage::courant();
 
         $data = $request->validate([
@@ -51,6 +57,8 @@ class ReglageController extends Controller
 
     public function updateSmtp(Request $request)
     {
+        Gate::authorize('administration.gerer');
+
         $reglage = Reglage::courant();
 
         $data = $request->validate([

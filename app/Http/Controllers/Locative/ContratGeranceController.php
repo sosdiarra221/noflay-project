@@ -11,7 +11,7 @@ use App\Models\Documents\Document as DocumentGenere;
 use App\Models\EcheanceLoyer;
 use App\Models\FicheLocative;
 use App\Models\Paiement;
-use App\Models\Reglage;
+use App\Models\Locative\ParametreLocative;
 use App\Services\Locative\NumeroService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -166,7 +166,7 @@ class ContratGeranceController extends Controller
     {
         $gerance->load(['bailleur', 'biens.categorie']);
 
-        $reglage = Reglage::courant();
+        $reglage = ParametreLocative::courant();
         $ville = $reglage->adresse ? trim(explode(',', $reglage->adresse)[0]) : 'Dakar';
 
         $pdf = Pdf::loadView('locative.pdf.mandat-gerance', compact('gerance', 'reglage', 'ville'));
@@ -178,7 +178,7 @@ class ContratGeranceController extends Controller
     {
         $gerance->load(['bailleur', 'biens.categorie']);
 
-        $reglage = Reglage::courant();
+        $reglage = ParametreLocative::courant();
         $ville = $reglage->adresse ? trim(explode(',', $reglage->adresse)[0]) : 'Dakar';
 
         $pdf = Pdf::loadView('locative.pdf.mandat-gerance', compact('gerance', 'reglage', 'ville'));

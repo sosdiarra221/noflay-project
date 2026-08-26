@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ContratLocation;
 use App\Models\EcheanceLoyer;
 use App\Models\FicheLocative;
-use App\Models\Reglage;
+use App\Models\Locative\ParametreLocative;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -101,7 +101,7 @@ class FicheLocativeController extends Controller
         $fiche->load('contratLocation.bien', 'contratLocation.location.locataire');
         $contrat = $fiche->contratLocation;
 
-        $reglage = Reglage::courant();
+        $reglage = ParametreLocative::courant();
         $ville = $reglage->adresse ? trim(explode(',', $reglage->adresse)[0]) : 'Dakar';
 
         return [$reglage, $ville, $contrat];

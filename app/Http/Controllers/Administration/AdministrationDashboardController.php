@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Administration;
 
 use App\Http\Controllers\Controller;
+use App\Models\Licence;
+use App\Models\Module;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
@@ -27,6 +29,13 @@ class AdministrationDashboardController extends Controller
 
         $parRole = User::with('role')->get()->groupBy(fn (User $u) => $u->role->libelle ?? '—')->map->count();
 
-        return view('administration.dashboard', compact('kpis', 'derniersConnectes', 'parRole'));
+        $licence = tenant()
+            ? Licence::with('package')->where('tenant_id', tenant('id'))->orderByDesc('date_fin')->first()
+            : null;
+
+        $modulesCatalogue = collect(config('modules'))->keys()->reject(fn ($cle) => $cle === 'administration');
+        $modulesActifsCount = $modulesCatalogue->filter(fn ($cle) => Module::estActif($cle))->count();
+
+        return view('administration.dashboard', compact('kpis', 'derniersConnectes', 'parRole', 'licence', 'modulesCatalogue', 'modulesActifsCount'));
     }
 }

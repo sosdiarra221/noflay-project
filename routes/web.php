@@ -3,6 +3,7 @@
 use App\Http\Controllers\Central\AdminAuthController;
 use App\Http\Controllers\Central\CentralDashboardController;
 use App\Http\Controllers\Central\PackageController;
+use App\Http\Controllers\Central\ReglageController as CentralReglageController;
 use App\Http\Controllers\Central\SocieteController;
 use Illuminate\Support\Facades\Route;
 
@@ -34,4 +35,9 @@ Route::prefix('admin')->name('central.')->middleware('auth:admin')->group(functi
     Route::post('packages', [PackageController::class, 'store'])->name('packages.store');
     Route::put('packages/{package}', [PackageController::class, 'update'])->name('packages.update');
     Route::post('packages/{package}/toggle', [PackageController::class, 'toggle'])->name('packages.toggle');
+
+    Route::get('reglages', [CentralReglageController::class, 'index'])->name('reglages.index');
+    Route::put('reglages/general', [CentralReglageController::class, 'updateGeneral'])->name('reglages.update-general');
+    Route::put('reglages/smtp', [CentralReglageController::class, 'updateSmtp'])->name('reglages.update-smtp');
+    Route::put('reglages/integrations', [CentralReglageController::class, 'updateIntegrations'])->name('reglages.update-integrations');
 });

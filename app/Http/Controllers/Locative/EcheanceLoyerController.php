@@ -8,7 +8,7 @@ use App\Models\EcheanceLoyer;
 use App\Models\Locataire;
 use App\Models\Paiement;
 use App\Events\PaiementRecu;
-use App\Models\Reglage;
+use App\Models\Locative\ParametreLocative;
 use App\Services\Finance\VentilationService;
 use App\Services\Locative\EcheanceLoyerService;
 use App\Services\Locative\NumeroService;
@@ -128,7 +128,7 @@ class EcheanceLoyerController extends Controller
 
     protected function donneesQuittance(): array
     {
-        $reglage = Reglage::courant();
+        $reglage = ParametreLocative::courant();
         $ville = $reglage->adresse ? trim(explode(',', $reglage->adresse)[0]) : 'Dakar';
 
         return [$reglage, $ville];

@@ -6,7 +6,6 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartementController;
 use App\Http\Controllers\DeviseController;
-use App\Http\Controllers\ReglageController;
 use App\Http\Controllers\Locative\LocativeDashboardController;
 use App\Http\Controllers\Locative\ParametreLocativeController;
 use App\Http\Controllers\Locative\CategorieBienController;
@@ -38,6 +37,7 @@ use App\Http\Controllers\Administration\SecuriteController;
 use App\Http\Controllers\Administration\ModuleController;
 use App\Http\Controllers\Administration\JourFerieController;
 use App\Http\Controllers\Administration\TypeAbsenceController;
+use App\Http\Controllers\Administration\ReglageController as AdministrationReglageController;
 use App\Http\Controllers\Facturation\FacturationDashboardController;
 use App\Http\Controllers\Facturation\DevisController;
 use App\Http\Controllers\Facturation\FactureController;
@@ -98,10 +98,6 @@ Route::get('/', function () {
     return view('index');
 });
 
-Route::get('reglages', [ReglageController::class, 'index'])->name('reglages.index');
-Route::put('reglages/general', [ReglageController::class, 'updateGeneral'])->name('reglages.update-general');
-Route::put('reglages/smtp', [ReglageController::class, 'updateSmtp'])->name('reglages.update-smtp');
-
 Route::post('devises', [DeviseController::class, 'store'])->name('devises.store');
 Route::put('devises/{devise}', [DeviseController::class, 'update'])->name('devises.update');
 Route::delete('devises/{devise}', [DeviseController::class, 'destroy'])->name('devises.destroy');
@@ -117,6 +113,7 @@ Route::prefix('locative')->name('locative.')->middleware('module.actif:locative'
 
     Route::get('parametres', [ParametreLocativeController::class, 'index'])->name('parametres.index');
     Route::put('parametres/taxes', [ParametreLocativeController::class, 'updateTaxes'])->name('parametres.taxes');
+    Route::put('parametres/agence', [ParametreLocativeController::class, 'updateAgence'])->name('parametres.agence');
     Route::post('categories-biens', [CategorieBienController::class, 'store'])->name('categories-biens.store');
     Route::put('categories-biens/{categorie}', [CategorieBienController::class, 'update'])->name('categories-biens.update');
     Route::delete('categories-biens/{categorie}', [CategorieBienController::class, 'destroy'])->name('categories-biens.destroy');
@@ -408,6 +405,10 @@ Route::prefix('administration')->name('administration.')->group(function () {
     Route::get('types-absence', [TypeAbsenceController::class, 'index'])->name('types-absence.index');
     Route::post('types-absence', [TypeAbsenceController::class, 'store'])->name('types-absence.store');
     Route::put('types-absence/{typesAbsence}', [TypeAbsenceController::class, 'update'])->name('types-absence.update');
+
+    Route::get('reglages', [AdministrationReglageController::class, 'index'])->name('reglages.index');
+    Route::put('reglages/general', [AdministrationReglageController::class, 'updateGeneral'])->name('reglages.update-general');
+    Route::put('reglages/smtp', [AdministrationReglageController::class, 'updateSmtp'])->name('reglages.update-smtp');
 });
 
 Route::prefix('notifications')->name('notifications.')->group(function () {
