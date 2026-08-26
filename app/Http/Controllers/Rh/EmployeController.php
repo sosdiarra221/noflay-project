@@ -211,7 +211,7 @@ class EmployeController extends Controller
 
         $signe = $data['ajustement'] > 0 ? '+' : '';
 
-        return back()->with('success', "Solde de congé ajusté de {$signe}{$data['ajustement']} j — nouveau solde : {$employe->solde_conges} j.");
+        return back()->with('success', "Solde de congé ajusté de {$signe}{$data['ajustement']} j — nouveau solde : {$employe->solde_conges_formate} j.");
     }
 
     public function archiver(Request $request, Employe $employe)

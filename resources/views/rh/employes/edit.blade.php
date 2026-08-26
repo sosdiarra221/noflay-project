@@ -89,7 +89,7 @@
                         <div class="card-body">
                             <label class="form-label">Date d'embauche<span class="text-danger ms-1">*</span></label>
                             <input type="date" class="form-control" name="date_embauche" value="{{ old('date_embauche', $employe->date_embauche->format('Y-m-d')) }}" required>
-                            <p class="text-muted fs-11 mt-2 mb-0">Matricule : <strong>{{ $employe->matricule }}</strong> — Solde de congés : <strong>{{ number_format($employe->solde_conges, 1) }} j</strong></p>
+                            <p class="text-muted fs-11 mt-2 mb-0">Matricule : <strong>{{ $employe->matricule }}</strong> — Solde de congés : <strong>{{ $employe->solde_conges_formate }} j</strong></p>
                         </div>
                     </div>
                 </div>

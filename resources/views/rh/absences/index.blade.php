@@ -118,7 +118,7 @@
                                     <td>{{ $absence->typeAbsence->nom ?? '—' }}</td>
                                     <td>{{ $absence->date_debut->format('d/m/Y') }}</td>
                                     <td>{{ $absence->date_retour->format('d/m/Y') }}</td>
-                                    <td>{{ rtrim(rtrim(number_format($absence->nombre_jours, 2, ',', ' '), '0'), ',') }}</td>
+                                    <td>{{ \App\Models\Rh\Employe::formaterJours($absence->nombre_jours) }}</td>
                                     <td><span class="badge bg-{{ $classesStatut[$absence->statut] ?? 'secondary' }}-subtle text-{{ $classesStatut[$absence->statut] ?? 'secondary' }}">{{ $absence->libelleStatut() }}</span></td>
                                     <td>
                                         @if ($absence->document)
@@ -225,7 +225,7 @@
                                 <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
                             </div>
                             <div class="modal-body">
-                                <p class="text-muted fs-12">{{ $absence->employe->nom_complet ?? '—' }} — {{ $absence->typeAbsence->nom ?? '—' }} — {{ $absence->date_debut->format('d/m/Y') }} au {{ $absence->date_retour->format('d/m/Y') }} ({{ rtrim(rtrim(number_format($absence->nombre_jours, 2, ',', ' '), '0'), ',') }} j)</p>
+                                <p class="text-muted fs-12">{{ $absence->employe->nom_complet ?? '—' }} — {{ $absence->typeAbsence->nom ?? '—' }} — {{ $absence->date_debut->format('d/m/Y') }} au {{ $absence->date_retour->format('d/m/Y') }} ({{ \App\Models\Rh\Employe::formaterJours($absence->nombre_jours) }} j)</p>
                                 <div class="alert alert-info fs-12">Passer au statut « Validée » déduit automatiquement les jours du solde de congé de l'employé. Un retour en arrière depuis « Validée » les recrédite.</div>
                                 <div class="mb-3">
                                     <label class="form-label">Statut<span class="text-danger ms-1">*</span></label>
@@ -292,7 +292,7 @@
                 'matricule' => $e->matricule,
                 'poste' => $e->poste->nom ?? '—',
                 'departement' => $e->departement->nom ?? '—',
-                'solde' => rtrim(rtrim(number_format((float) $e->solde_conges, 2, ',', ' '), '0'), ','),
+                'solde' => \App\Models\Rh\Employe::formaterJours($e->solde_conges),
             ])) !!};
 
             const selectEmploye = document.getElementById('selectEmployeAbsence');

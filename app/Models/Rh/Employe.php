@@ -163,6 +163,21 @@ class Employe extends Model
         return $this->contrats()->where('etat', 'actif')->exists();
     }
 
+    public function getSoldeCongesFormateAttribute(): string
+    {
+        return self::formaterJours($this->solde_conges);
+    }
+
+    /**
+     * Affichage RH uniformisé pour un nombre de jours (solde, jours consommés, durée d'une
+     * demande...) : toujours un entier, jamais de virgule/décimale à l'écran — le stockage
+     * (decimal:2) reste précis, seul l'affichage est arrondi pour rester lisible.
+     */
+    public static function formaterJours($valeur): string
+    {
+        return number_format((float) $valeur, 0, ',', ' ');
+    }
+
     public function scopeActifs($query)
     {
         return $query->where('statut', 'actif');

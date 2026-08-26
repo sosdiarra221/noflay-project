@@ -21,6 +21,10 @@
                         <div class="flex-shrink-0">
                             <img src="{{ $employe->photo ? asset('storage/'.$employe->photo) : asset('assets/images/avatar/avatar-10.jpg') }}" class="rounded-circle border border-4 border-white shadow-lg" width="110" height="110" style="object-fit: cover;">
                         </div>
+                        <div class="flex-shrink-0 text-center bg-info-subtle rounded p-3" style="width: 110px;">
+                            <div class="text-info fs-24 fw-bold lh-1">{{ $employe->solde_conges_formate }}</div>
+                            <div class="text-info fs-11 fw-medium mt-1">j. de congé</div>
+                        </div>
                         <div class="flex-grow-1">
                             <div class="mb-2">
                                 <h5 class="mb-1">{{ $employe->nom_complet }}
@@ -35,7 +39,6 @@
                             <div class="d-flex flex-wrap gap-3">
                                 <span class="badge bg-secondary-subtle text-secondary fs-13 px-3 py-2"><i class="bi bi-diagram-3 me-1"></i>{{ $employe->departement->nom ?? '—' }}</span>
                                 <span class="badge bg-secondary-subtle text-secondary fs-13 px-3 py-2"><i class="bi bi-geo-alt me-1"></i>{{ $employe->sites->pluck('nom')->implode(', ') ?: 'Aucun site' }}</span>
-                                <span class="badge bg-info-subtle text-info fs-13 px-3 py-2"><i class="bi bi-calendar-check me-1"></i>{{ number_format($employe->solde_conges, 1) }} j de congés</span>
                             </div>
                         </div>
                         @can('rh.gerer')
@@ -102,7 +105,6 @@
 @endsection
 
 @section('js')
-    <script src="{{ asset('assets/libs/apexcharts/apexcharts.min.js') }}"></script>
     <script type="module" src="{{ asset('assets/js/app.js') }}"></script>
     <script>
         function ouvrirApercuDocument(urlApercu, titre, previsualisable, urlTelecharger) {
@@ -123,32 +125,5 @@
 
             bootstrap.Modal.getOrCreateInstance(document.getElementById('apercuDocumentModal')).show();
         }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            // Le graphique du solde de congé vit dans un onglet masqué au chargement (largeur 0) :
-            // on ne le rend qu'à l'ouverture effective de l'onglet "Congés", une seule fois.
-            let chartSoldeCongesRendu = false;
-            const boutonOngletConges = document.querySelector('[data-bs-target="#conges-pane"]');
-            if (boutonOngletConges) {
-                boutonOngletConges.addEventListener('shown.bs.tab', function () {
-                    if (chartSoldeCongesRendu) return;
-                    const conteneur = document.querySelector('#chartSoldeConges');
-                    if (!conteneur) return;
-                    chartSoldeCongesRendu = true;
-
-                    const solde = {{ (float) $employe->solde_conges }};
-                    const consomme = {{ (float) $congesStats['jours_consommes'] }};
-
-                    new ApexCharts(conteneur, {
-                        chart: { type: 'donut', height: 180 },
-                        labels: ['Solde disponible', 'Jours consommés'],
-                        series: [Math.max(solde, 0), consomme],
-                        colors: ['#0ab39c', '#adb5bd'],
-                        legend: { position: 'bottom', fontSize: '11px' },
-                        dataLabels: { enabled: true },
-                    }).render();
-                });
-            }
-        });
     </script>
 @endsection

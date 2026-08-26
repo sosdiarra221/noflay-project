@@ -33,7 +33,7 @@
                         <button type="button" class="btn-close icon-btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="ri-close-large-line fw-semibold"></i></button>
                     </div>
                     <div class="modal-body">
-                        <p class="text-muted fs-12">Solde actuel : <strong>{{ number_format($employe->solde_conges, 1) }} j</strong>. Saisissez une valeur positive pour créditer, négative pour débiter.</p>
+                        <p class="text-muted fs-12">Solde actuel : <strong>{{ $employe->solde_conges_formate }} j</strong>. Saisissez une valeur positive pour créditer, négative pour débiter.</p>
                         <div class="mb-3">
                             <label class="form-label">Ajustement (jours)<span class="text-danger ms-1">*</span></label>
                             <input type="number" step="0.5" class="form-control" name="ajustement" placeholder="Ex : 3 ou -2" required>
