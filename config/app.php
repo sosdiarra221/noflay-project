@@ -15,6 +15,10 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    // Domaine racine sous lequel chaque PME reçoit son sous-domaine (id.tenant_domain_suffix) —
+    // ".takha.test" en local, ".takha.com" une fois déployé chez o2switch.
+    'tenant_domain_suffix' => env('TENANT_DOMAIN_SUFFIX', 'takha.test'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

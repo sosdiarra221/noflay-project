@@ -40,6 +40,13 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // Guard de l'espace central "Administrateur du logiciel" (routes/web.php, préfixe
+        // /admin) — complètement séparé des utilisateurs des PME (guard `web`, base tenant).
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admins',
+        ],
     ],
 
     /*
@@ -63,6 +70,11 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
+        ],
+
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Admin::class,
         ],
 
         // 'users' => [

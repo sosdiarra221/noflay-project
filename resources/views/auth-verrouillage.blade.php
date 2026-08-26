@@ -5,9 +5,9 @@
 @section('content')
 
     <div>
-        <img src="assets/images/auth/login_bg.jpg" alt="Auth Background"
+        <img src="{{ asset('assets/images/auth/login_bg.jpg') }}" alt="Auth Background"
             class="auth-bg light w-full h-full opacity-60 position-absolute top-0">
-        <img src="assets/images/auth/auth_bg_dark.jpg" alt="Auth Background" class="auth-bg d-none dark">
+        <img src="{{ asset('assets/images/auth/auth_bg_dark.jpg') }}" alt="Auth Background" class="auth-bg d-none dark">
         <div class="container">
             <div class="row justify-content-center align-items-center min-vh-100 py-10">
                 <div class="col-12 col-md-8 col-lg-6 col-xl-5">

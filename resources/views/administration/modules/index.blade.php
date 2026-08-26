@@ -16,8 +16,8 @@
 
         <div class="card">
             <div class="card-header">
-                <h6 class="mb-0">Modules de l'application</h6>
-                <p class="text-muted fs-12 mb-0">Activez ou désactivez chaque module. Un module désactivé disparaît du menu principal et devient inaccessible.</p>
+                <h6 class="mb-0">Modules souscrits</h6>
+                <p class="text-muted fs-12 mb-0">Aperçu des modules disponibles pour votre société. L'activation ou la désactivation d'un module dépend de votre abonnement et est gérée par l'éditeur du logiciel — contactez-le pour toute modification.</p>
             </div>
             <div class="card-body">
                 <div class="row g-4">
@@ -31,13 +31,6 @@
                                         </div>
                                         @if ($module->cle === 'administration')
                                             <span class="badge bg-secondary-subtle text-secondary">Toujours actif</span>
-                                        @else
-                                            <form action="{{ route('administration.modules.toggle', $module) }}" method="POST">
-                                                @csrf
-                                                <div class="form-check form-switch mb-0">
-                                                    <input class="form-check-input" type="checkbox" role="switch" onchange="this.form.submit()" {{ $module->actif ? 'checked' : '' }} style="width: 2.5em; height: 1.4em;">
-                                                </div>
-                                            </form>
                                         @endif
                                     </div>
                                     <h6 class="mb-1">{{ $module->nom }}</h6>
@@ -45,7 +38,7 @@
                                     @if ($module->actif)
                                         <span class="badge bg-success-subtle text-success"><i class="bi bi-check-circle me-1"></i>Actif</span>
                                     @else
-                                        <span class="badge bg-danger-subtle text-danger"><i class="bi bi-x-circle me-1"></i>Désactivé</span>
+                                        <span class="badge bg-danger-subtle text-danger"><i class="bi bi-x-circle me-1"></i>Non souscrit</span>
                                     @endif
                                 </div>
                             </div>

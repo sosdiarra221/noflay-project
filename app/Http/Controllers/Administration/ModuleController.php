@@ -4,24 +4,28 @@ namespace App\Http\Controllers\Administration;
 
 use App\Http\Controllers\Controller;
 use App\Models\Module;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class ModuleController extends Controller
 {
+    /**
+     * Aperçu en lecture seule des modules souscrits par la société. L'activation/désactivation
+     * n'est plus faite ici : elle appartient exclusivement à l'espace central "Administrateur
+     * du logiciel", selon l'abonnement de la PME (voir Module::estActif()).
+     */
     public function index()
-    {
-        $modules = Module::orderBy('ordre')->get();
-
-        return view('administration.modules.index', compact('modules'));
-    }
-
-    public function toggle(Request $request, Module $module)
     {
         Gate::authorize('administration.gerer');
 
-        $module->update(['actif' => ! $module->actif]);
+        $modules = Module::orderBy('ordre')->get()
+            ->map(fn (Module $module) => (object) [
+                'cle' => $module->cle,
+                'nom' => $module->nom,
+                'description' => $module->description,
+                'icone' => $module->icone,
+                'actif' => Module::estActif($module->cle),
+            ]);
 
-        return back()->with('success', $module->nom.' a été '.($module->actif ? 'activé' : 'désactivé').'.');
+        return view('administration.modules.index', compact('modules'));
     }
 }

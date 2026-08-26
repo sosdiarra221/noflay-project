@@ -14,7 +14,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'inactivite' => \App\Http\Middleware\VerifierInactivite::class,
             'module.actif' => \App\Http\Middleware\EnsureModuleActif::class,
+            'tenant.actif' => \App\Http\Middleware\EnsureTenantActif::class,
         ]);
+
+        // Deux guards, deux pages de connexion : /admin/* (espace éditeur, guard `admin`) doit
+        // rediriger vers central.login, tout le reste (PME, guard `web`) vers login (tenant).
+        $middleware->redirectGuestsTo(fn ($request) => $request->is('admin', 'admin/*')
+            ? route('central.login')
+            : route('login'));
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

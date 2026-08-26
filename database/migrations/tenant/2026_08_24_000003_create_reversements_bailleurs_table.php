@@ -28,7 +28,7 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            $table->unique(['bailleur_id', 'periode_annee', 'periode_mois']);
+            $table->unique(['bailleur_id', 'periode_annee', 'periode_mois'], 'reversements_bailleurs_periode_unique');
         });
     }
 
