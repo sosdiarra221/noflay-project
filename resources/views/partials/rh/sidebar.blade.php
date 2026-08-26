@@ -38,6 +38,12 @@
                     <span class="pe-nav-content">Affectations</span>
                 </a>
             </li>
+            <li class="pe-slide pe-has-sub">
+                <a href="{{ route('rh.absences.index') }}" class="pe-nav-link">
+                    <i class="bi bi-calendar2-week pe-nav-icon"></i>
+                    <span class="pe-nav-content">Congés &amp; Absences</span>
+                </a>
+            </li>
             <li class="pe-menu-title">
                 Configuration
             </li>

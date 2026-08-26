@@ -34,6 +34,8 @@ use App\Http\Controllers\Administration\UtilisateurController;
 use App\Http\Controllers\Administration\RoleController;
 use App\Http\Controllers\Administration\SecuriteController;
 use App\Http\Controllers\Administration\ModuleController;
+use App\Http\Controllers\Administration\JourFerieController;
+use App\Http\Controllers\Administration\TypeAbsenceController;
 use App\Http\Controllers\Facturation\FacturationDashboardController;
 use App\Http\Controllers\Facturation\DevisController;
 use App\Http\Controllers\Facturation\FactureController;
@@ -45,6 +47,7 @@ use App\Http\Controllers\Rh\SiteController;
 use App\Http\Controllers\Rh\PosteController;
 use App\Http\Controllers\Rh\AffectationController;
 use App\Http\Controllers\Rh\ClientController;
+use App\Http\Controllers\Rh\AbsenceController;
 use App\Http\Controllers\Commercial\CommercialDashboardController;
 use App\Http\Controllers\Commercial\ProspectController;
 use App\Http\Controllers\Commercial\ActiviteController;
@@ -355,6 +358,11 @@ Route::prefix('rh')->name('rh.')->middleware('module.actif:rh')->group(function 
 
     Route::get('affectations', [AffectationController::class, 'index'])->name('affectations.index');
     Route::post('affectations', [AffectationController::class, 'store'])->name('affectations.store');
+
+    Route::get('absences', [AbsenceController::class, 'index'])->name('absences.index');
+    Route::post('absences', [AbsenceController::class, 'store'])->name('absences.store');
+    Route::put('absences/{absence}/statut', [AbsenceController::class, 'changerStatut'])->name('absences.statut');
+    Route::get('absences/{absence}/document/apercu', [AbsenceController::class, 'apercuDocument'])->name('absences.document.apercu');
 });
 
 // Module Direction & Administration — sous-application avec son propre dashboard et son propre menu.
@@ -380,6 +388,15 @@ Route::prefix('administration')->name('administration.')->group(function () {
 
     Route::get('securite', [SecuriteController::class, 'index'])->name('securite.index');
     Route::put('securite', [SecuriteController::class, 'update'])->name('securite.update');
+
+    Route::get('jours-feries', [JourFerieController::class, 'index'])->name('jours-feries.index');
+    Route::post('jours-feries', [JourFerieController::class, 'store'])->name('jours-feries.store');
+    Route::put('jours-feries/{joursFerie}', [JourFerieController::class, 'update'])->name('jours-feries.update');
+    Route::delete('jours-feries/{joursFerie}', [JourFerieController::class, 'destroy'])->name('jours-feries.destroy');
+
+    Route::get('types-absence', [TypeAbsenceController::class, 'index'])->name('types-absence.index');
+    Route::post('types-absence', [TypeAbsenceController::class, 'store'])->name('types-absence.store');
+    Route::put('types-absence/{typesAbsence}', [TypeAbsenceController::class, 'update'])->name('types-absence.update');
 });
 
 Route::prefix('notifications')->name('notifications.')->group(function () {

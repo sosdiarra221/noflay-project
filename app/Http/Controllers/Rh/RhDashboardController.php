@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Rh;
 
 use App\Http\Controllers\Controller;
+use App\Models\Rh\Absence;
 use App\Models\Rh\ContratTravail;
 use App\Models\Rh\Employe;
 use Illuminate\Support\Facades\Gate;
@@ -19,6 +20,15 @@ class RhDashboardController extends Controller
             'contrats_actifs' => ContratTravail::actifs()->count(),
             'sans_contrat_actif' => Employe::actifs()->whereDoesntHave('contrats', fn ($q) => $q->where('etat', 'actif'))->count(),
         ];
+
+        $statsConges = [
+            'en_attente' => Absence::where('statut', 'en_attente')->count(),
+            'validees_mois' => Absence::where('statut', 'validee')->whereMonth('date_debut', now()->month)->whereYear('date_debut', now()->year)->count(),
+            'en_cours' => Absence::enCours()->count(),
+            'solde_moyen' => round((float) Employe::actifs()->avg('solde_conges'), 1),
+        ];
+
+        $absencesEnCours = Absence::enCours()->with('employe', 'typeAbsence')->orderBy('date_retour')->get();
 
         $employesActifs = Employe::actifs()->with('departement', 'poste')->get();
 
@@ -42,6 +52,6 @@ class RhDashboardController extends Controller
 
         $derniersEmployes = Employe::with('departement', 'poste')->latest()->take(8)->get();
 
-        return view('rh.dashboard', compact('stats', 'repartitionDepartements', 'repartitionSexe', 'repartitionPoste', 'contratsEcheanceProche', 'derniersEmployes'));
+        return view('rh.dashboard', compact('stats', 'statsConges', 'absencesEnCours', 'repartitionDepartements', 'repartitionSexe', 'repartitionPoste', 'contratsEcheanceProche', 'derniersEmployes'));
     }
 }

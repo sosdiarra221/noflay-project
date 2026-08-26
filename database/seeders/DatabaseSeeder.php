@@ -40,6 +40,8 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             ModuleSeeder::class,
             RhSeeder::class,
+            TypeAbsenceSeeder::class,
+            JourFerieSeeder::class,
         ]);
     }
 }

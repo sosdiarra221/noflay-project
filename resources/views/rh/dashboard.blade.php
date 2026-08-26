@@ -143,6 +143,81 @@
             </div>
         </div>
 
+        <div class="row g-3 mb-1">
+            <div class="col-12"><h6 class="text-muted fs-13 text-uppercase mb-0">Congés &amp; absences</h6></div>
+            <div class="col-md-6 col-xl-3">
+                <div class="card border">
+                    <div class="card-body">
+                        <div class="d-flex gap-4 border-bottom pb-5 mb-5">
+                            <div class="h-50px w-50px bg-warning text-white d-flex align-items-center justify-content-center rounded fs-3"><i class="bi bi-hourglass-split"></i></div>
+                            <div><h5 class="mb-2">{{ $statsConges['en_attente'] }}</h5><p class="text-muted mb-0 fs-12">Demandes en attente</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="card border">
+                    <div class="card-body">
+                        <div class="d-flex gap-4 border-bottom pb-5 mb-5">
+                            <div class="h-50px w-50px bg-success text-white d-flex align-items-center justify-content-center rounded fs-3"><i class="bi bi-check-circle"></i></div>
+                            <div><h5 class="mb-2">{{ $statsConges['validees_mois'] }}</h5><p class="text-muted mb-0 fs-12">Validées ce mois-ci</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="card border">
+                    <div class="card-body">
+                        <div class="d-flex gap-4 border-bottom pb-5 mb-5">
+                            <div class="h-50px w-50px bg-info text-white d-flex align-items-center justify-content-center rounded fs-3"><i class="bi bi-person-walking"></i></div>
+                            <div><h5 class="mb-2">{{ $statsConges['en_cours'] }}</h5><p class="text-muted mb-0 fs-12">Actuellement absents</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="card border">
+                    <div class="card-body">
+                        <div class="d-flex gap-4 border-bottom pb-5 mb-5">
+                            <div class="h-50px w-50px bg-secondary text-white d-flex align-items-center justify-content-center rounded fs-3"><i class="bi bi-calendar2-check"></i></div>
+                            <div><h5 class="mb-2">{{ $statsConges['solde_moyen'] }} j</h5><p class="text-muted mb-0 fs-12">Solde moyen de congé</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">Employés actuellement absents <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $absencesEnCours->count() }}</span></h6>
+                        <a href="{{ route('rh.absences.index') }}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-calendar2-week me-1"></i>Congés &amp; Absences
+                        </a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-box table-responsive">
+                            <table class="table text-nowrap align-middle mb-0">
+                                <thead><tr><th>Employé</th><th>Type</th><th>Retour prévu</th></tr></thead>
+                                <tbody>
+                                    @forelse ($absencesEnCours as $absence)
+                                        <tr>
+                                            <td class="fw-medium">{{ $absence->employe->nom_complet ?? '—' }}</td>
+                                            <td>{{ $absence->typeAbsence->nom ?? '—' }}</td>
+                                            <td>{{ $absence->date_retour->format('d/m/Y') }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr><td colspan="3" class="text-center text-muted py-5">Aucun employé absent actuellement.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row g-4">
             <div class="col-12">
                 <div class="card">

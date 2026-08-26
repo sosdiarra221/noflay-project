@@ -69,6 +69,18 @@
                 Configuration
             </li>
             <li class="pe-slide pe-has-sub">
+                <a href="{{ route('administration.jours-feries.index') }}" class="pe-nav-link">
+                    <i class="bi bi-calendar-x pe-nav-icon"></i>
+                    <span class="pe-nav-content">Jours fériés</span>
+                </a>
+            </li>
+            <li class="pe-slide pe-has-sub">
+                <a href="{{ route('administration.types-absence.index') }}" class="pe-nav-link">
+                    <i class="bi bi-card-list pe-nav-icon"></i>
+                    <span class="pe-nav-content">Types d'absence</span>
+                </a>
+            </li>
+            <li class="pe-slide pe-has-sub">
                 <a href="{{ url('/') }}" class="pe-nav-link">
                     <i class="bi bi-box-arrow-left pe-nav-icon"></i>
                     <span class="pe-nav-content">Retour à l'application</span>

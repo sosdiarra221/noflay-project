@@ -13,3 +13,6 @@ Artisan::command('inspire', function () {
 // tourne réellement (`php artisan schedule:work` en développement, ou une tâche planifiée
 // Windows/cron appelant `php artisan schedule:run` chaque minute en production).
 Schedule::command('notifications:verifier-evenements-planifies')->dailyAt('07:00');
+
+// Crédite chaque employé actif sous contrat CDI/CDD de 2 jours de congé, le 1er de chaque mois.
+Schedule::command('rh:incrementer-soldes-conges')->monthlyOn(1, '00:05');
