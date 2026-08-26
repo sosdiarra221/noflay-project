@@ -18,6 +18,39 @@
             </div>
         @endif
 
+        <div class="row g-3 mb-1">
+            <div class="col-md-4">
+                <div class="card border">
+                    <div class="card-body">
+                        <div class="d-flex gap-4 border-bottom pb-5 mb-5">
+                            <div class="h-50px w-50px bg-primary text-white d-flex align-items-center justify-content-center rounded fs-3"><i class="bi bi-people"></i></div>
+                            <div><h5 class="mb-2">{{ $stats['total'] }}</h5><p class="text-muted mb-0 fs-12">Employés (filtre courant)</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border">
+                    <div class="card-body">
+                        <div class="d-flex gap-4 border-bottom pb-5 mb-5">
+                            <div class="h-50px w-50px bg-info text-white d-flex align-items-center justify-content-center rounded fs-3"><i class="bi bi-person"></i></div>
+                            <div><h5 class="mb-2">{{ $stats['hommes_sous_contrat'] }}</h5><p class="text-muted mb-0 fs-12">Hommes sous contrat</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border">
+                    <div class="card-body">
+                        <div class="d-flex gap-4 border-bottom pb-5 mb-5">
+                            <div class="h-50px w-50px bg-danger text-white d-flex align-items-center justify-content-center rounded fs-3"><i class="bi bi-person-dress"></i></div>
+                            <div><h5 class="mb-2">{{ $stats['femmes_sous_contrat'] }}</h5><p class="text-muted mb-0 fs-12">Femmes sous contrat</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-body">
                 <form method="GET" class="row g-3 align-items-end">
@@ -59,7 +92,7 @@
 
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">Employés <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $employes->count() }}</span></h6>
+                <h6 class="mb-0">Employés <span class="badge bg-secondary-subtle text-secondary ms-1">{{ $employes->total() }}</span></h6>
                 @can('rh.gerer')
                     <a href="{{ route('rh.employes.create') }}" class="btn btn-primary">
                         <i class="bi bi-plus-lg me-1"></i>Nouvel employé
@@ -107,6 +140,11 @@
                         </tbody>
                     </table>
                 </div>
+                @if ($employes->hasPages())
+                    <div class="p-4">
+                        {{ $employes->links('pagination::bootstrap-5') }}
+                    </div>
+                @endif
             </div>
         </div>
 

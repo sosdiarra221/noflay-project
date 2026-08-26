@@ -19,7 +19,27 @@ class EmployeController extends Controller
     {
         Gate::authorize('rh.consulter');
 
-        $employes = Employe::with('departement', 'poste', 'sites', 'contratActif')
+        $requete = $this->filtrerEmployes($request);
+
+        // Comptés à chaque chargement sur la même base filtrée que la liste (donc toujours à
+        // jour), avant pagination — un count() sur une requête paginée ne compterait que la page.
+        $stats = [
+            'total' => (clone $requete)->count(),
+            'hommes_sous_contrat' => (clone $requete)->where('sexe', 'homme')->whereHas('contratActif')->count(),
+            'femmes_sous_contrat' => (clone $requete)->where('sexe', 'femme')->whereHas('contratActif')->count(),
+        ];
+
+        $employes = $requete->orderBy('nom')->paginate(15)->withQueryString();
+
+        $departements = Departement::orderBy('nom')->get();
+        $postes = Poste::orderBy('nom')->get();
+
+        return view('rh.employes.index', compact('employes', 'departements', 'postes', 'stats'));
+    }
+
+    protected function filtrerEmployes(Request $request)
+    {
+        return Employe::with('departement', 'poste', 'sites', 'contratActif')
             ->when($request->filled('recherche'), function ($q) use ($request) {
                 $terme = $request->recherche;
                 $q->where(fn ($q2) => $q2->where('nom', 'like', "%{$terme}%")
@@ -29,14 +49,7 @@ class EmployeController extends Controller
             })
             ->when($request->filled('departement_id'), fn ($q) => $q->where('departement_id', $request->departement_id))
             ->when($request->filled('poste_id'), fn ($q) => $q->where('poste_id', $request->poste_id))
-            ->when($request->filled('statut'), fn ($q) => $q->where('statut', $request->statut), fn ($q) => $q->where('statut', 'actif'))
-            ->orderBy('nom')
-            ->get();
-
-        $departements = Departement::orderBy('nom')->get();
-        $postes = Poste::orderBy('nom')->get();
-
-        return view('rh.employes.index', compact('employes', 'departements', 'postes'));
+            ->when($request->filled('statut'), fn ($q) => $q->where('statut', $request->statut), fn ($q) => $q->where('statut', 'actif'));
     }
 
     public function create()
