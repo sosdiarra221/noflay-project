@@ -52,6 +52,21 @@
                     </div>
                 </div>
             </div>
+            @if (! is_null($soldeTresorerie))
+                <div class="col-lg-12">
+                    <div class="card bg-dark-subtle">
+                        <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <div>
+                                <p class="text-muted mb-1 fs-12">Solde de trésorerie global (temps réel)</p>
+                                <h3 class="mb-0">{{ number_format($soldeTresorerie, 0, ',', ' ') }} FCFA</h3>
+                            </div>
+                            <a href="{{ route('finance.comptabilite.index') }}" class="btn btn-dark">
+                                <i class="bi bi-calculator me-1"></i>Comptabilité générale
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
 
         <div class="row">

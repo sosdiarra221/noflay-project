@@ -66,6 +66,7 @@ use App\Http\Controllers\Documents\DocumentTemplateVersionController;
 use App\Http\Controllers\Documents\DocumentController as DocumentGenereController;
 use App\Http\Controllers\Finance\BailleurFinanceController;
 use App\Http\Controllers\Finance\CautionController;
+use App\Http\Controllers\Finance\ComptabiliteController;
 use App\Http\Controllers\Finance\DepenseController;
 use App\Http\Controllers\Finance\FinanceDashboardController;
 use App\Http\Controllers\Finance\LocataireFinanceController;
@@ -90,13 +91,11 @@ Route::post('connexion-pin', [AuthController::class, 'loginParPin'])->name('logi
 Route::get('verrouillage', [AuthController::class, 'showVerrouillage'])->name('verrouillage');
 Route::post('verrouillage', [AuthController::class, 'deverrouiller'])->name('verrouillage.store');
 
+Route::get('/', [AuthController::class, 'accueil'])->name('accueil');
+
 Route::middleware(['auth', 'inactivite'])->group(function () {
 
 Route::post('deconnexion', [AuthController::class, 'logout'])->name('logout');
-
-Route::get('/', function () {
-    return view('index');
-});
 
 Route::post('devises', [DeviseController::class, 'store'])->name('devises.store');
 Route::put('devises/{devise}', [DeviseController::class, 'update'])->name('devises.update');
@@ -273,6 +272,10 @@ Route::prefix('finance')->name('finance.')->middleware('module.actif:finance')->
     Route::get('/', [FinanceDashboardController::class, 'index'])->name('dashboard');
 
     Route::get('revenus', [RevenuController::class, 'index'])->name('revenus.index');
+
+    Route::get('comptabilite', [ComptabiliteController::class, 'index'])->name('comptabilite.index');
+    Route::get('comptabilite/detail/{type}/{id}', [ComptabiliteController::class, 'detail'])->name('comptabilite.detail');
+    Route::get('comptabilite/rapport', [ComptabiliteController::class, 'rapportPdf'])->name('comptabilite.rapport');
 
     Route::get('reversements', [ReversementFinanceController::class, 'index'])->name('reversements.index');
     Route::post('reversements/marquer-verse', [ReversementFinanceController::class, 'marquerVerse'])->name('reversements.marquer-verse');

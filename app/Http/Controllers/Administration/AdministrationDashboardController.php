@@ -7,11 +7,12 @@ use App\Models\Licence;
 use App\Models\Module;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\Finance\ComptabiliteService;
 use Illuminate\Support\Facades\Gate;
 
 class AdministrationDashboardController extends Controller
 {
-    public function index()
+    public function index(ComptabiliteService $comptabiliteService)
     {
         Gate::authorize('administration.gerer');
 
@@ -36,6 +37,8 @@ class AdministrationDashboardController extends Controller
         $modulesCatalogue = collect(config('modules'))->keys()->reject(fn ($cle) => $cle === 'administration');
         $modulesActifsCount = $modulesCatalogue->filter(fn ($cle) => Module::estActif($cle))->count();
 
-        return view('administration.dashboard', compact('kpis', 'derniersConnectes', 'parRole', 'licence', 'modulesCatalogue', 'modulesActifsCount'));
+        $soldeTresorerie = Gate::allows('finance.comptabilite') ? $comptabiliteService->soldeGlobal() : null;
+
+        return view('administration.dashboard', compact('kpis', 'derniersConnectes', 'parRole', 'licence', 'modulesCatalogue', 'modulesActifsCount', 'soldeTresorerie'));
     }
 }

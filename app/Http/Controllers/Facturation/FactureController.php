@@ -9,12 +9,17 @@ use App\Models\Facturation\Facture;
 use App\Models\Reglage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class FactureController extends Controller
 {
     public function index(Request $request)
     {
         $factures = Facture::with('client', 'lignes')
+            ->when(! Gate::allows('facturation.factures.voir-tout'), function ($q) {
+                Gate::authorize('facturation.factures.voir-siens');
+                $q->where('cree_par_id', auth()->id());
+            })
             ->when($request->filled('statut'), fn ($q) => $q->where('statut', $request->statut))
             ->when($request->filled('recherche'), function ($q) use ($request) {
                 $terme = $request->recherche;
@@ -39,6 +44,8 @@ class FactureController extends Controller
 
     public function show(Facture $facture)
     {
+        $this->autoriserVoir($facture);
+
         $facture->load('client.prospect', 'lignes', 'devisSource', 'creePar');
         $reglage = Reglage::courant();
 
@@ -47,6 +54,8 @@ class FactureController extends Controller
 
     public function update(Request $request, Facture $facture)
     {
+        Gate::authorize('facturation.factures.statut');
+
         $data = $request->validate([
             'statut' => ['required', 'string', 'in:'.implode(',', array_keys(Facture::STATUTS))],
         ]);
@@ -58,6 +67,8 @@ class FactureController extends Controller
 
     public function pdf(Facture $facture)
     {
+        $this->autoriserVoir($facture);
+
         $facture->load('client', 'lignes');
         $reglage = Reglage::courant();
 
@@ -68,11 +79,21 @@ class FactureController extends Controller
 
     public function apercu(Facture $facture)
     {
+        $this->autoriserVoir($facture);
+
         $facture->load('client', 'lignes');
         $reglage = Reglage::courant();
 
         $pdf = Pdf::loadView('facturation.pdf.facture', compact('facture', 'reglage'));
 
         return $pdf->stream(str_replace('/', '-', $facture->numero).'.pdf');
+    }
+
+    protected function autoriserVoir(Facture $facture): void
+    {
+        if (! Gate::allows('facturation.factures.voir-tout')) {
+            Gate::authorize('facturation.factures.voir-siens');
+            abort_unless($facture->cree_par_id === auth()->id(), 403);
+        }
     }
 }

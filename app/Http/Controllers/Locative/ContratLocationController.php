@@ -35,6 +35,8 @@ class ContratLocationController extends Controller
 
     public function update(Request $request, ContratLocation $contrat)
     {
+        Gate::authorize('locative.contrats.modifier');
+
         $data = $request->validate([
             'date_fin' => ['nullable', 'date', 'after:date_debut'],
             'loyer_mensuel' => ['required', 'numeric', 'min:0'],
@@ -60,6 +62,8 @@ class ContratLocationController extends Controller
      */
     public function suspendre(ContratLocation $contrat)
     {
+        Gate::authorize('locative.contrats.statut');
+
         if ($contrat->statut === 'suspendu') {
             $contrat->update(['statut' => 'actif']);
 
@@ -79,6 +83,8 @@ class ContratLocationController extends Controller
      */
     public function resilier(Request $request, ContratLocation $contrat)
     {
+        Gate::authorize('locative.contrats.statut');
+
         $data = $request->validate([
             'date_fin' => ['required', 'date'],
             'motif_resiliation' => ['required', 'string'],
@@ -102,6 +108,8 @@ class ContratLocationController extends Controller
      */
     public function renouveler(Request $request, ContratLocation $contrat, EcheanceLoyerService $echeanceService, DocumentGenerationService $documentGenerationService)
     {
+        Gate::authorize('locative.contrats.statut');
+
         $data = $request->validate([
             'date_debut' => ['required', 'date'],
             'date_fin' => ['nullable', 'date', 'after:date_debut'],
@@ -148,7 +156,7 @@ class ContratLocationController extends Controller
 
     public function destroy(Request $request, ContratLocation $contrat)
     {
-        Gate::authorize('locative.operations-sensibles');
+        Gate::authorize('locative.contrats.supprimer');
 
         $request->validate([
             'motif_suppression' => ['required', 'string', 'max:255'],
@@ -166,6 +174,8 @@ class ContratLocationController extends Controller
 
     public function genererLoyers(Request $request, ContratLocation $contrat, EcheanceLoyerService $service)
     {
+        Gate::authorize('locative.contrats.modifier');
+
         $data = $request->validate([
             'annee' => ['required', 'integer', 'min:2000', 'max:2100'],
             'mois' => ['required', 'array', 'min:1'],

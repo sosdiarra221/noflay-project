@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Module;
+use App\Models\Reglage;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,10 +14,26 @@ class AuthController extends Controller
 {
     const COOKIE_VERROUILLAGE = 'verrouillage_user';
 
+    /**
+     * Page d'accueil de la société (domaine tenant) : redirige un utilisateur déjà connecté
+     * vers son tableau de bord, sinon affiche une page de présentation avec un bouton de
+     * connexion.
+     */
+    public function accueil()
+    {
+        if (Auth::check()) {
+            return redirect($this->redirectionTableauDeBord(Auth::user()));
+        }
+
+        $reglage = Reglage::courant();
+
+        return view('landing', compact('reglage'));
+    }
+
     public function showLogin()
     {
         if (Auth::check()) {
-            return redirect()->route('locative.dashboard');
+            return redirect($this->redirectionTableauDeBord(Auth::user()));
         }
 
         return view('auth-signin');
@@ -47,7 +65,7 @@ class AuthController extends Controller
         $utilisateur->update(['derniere_activite_at' => now()]);
         Cookie::queue(Cookie::forget(self::COOKIE_VERROUILLAGE));
 
-        return redirect()->intended(route('locative.dashboard'));
+        return redirect()->intended($this->redirectionTableauDeBord($utilisateur));
     }
 
     /**
@@ -76,7 +94,7 @@ class AuthController extends Controller
         $utilisateur->update(['derniere_activite_at' => now()]);
         Cookie::queue(Cookie::forget(self::COOKIE_VERROUILLAGE));
 
-        return redirect()->intended(route('locative.dashboard'));
+        return redirect()->intended($this->redirectionTableauDeBord($utilisateur));
     }
 
     /**
@@ -125,7 +143,7 @@ class AuthController extends Controller
         $utilisateur->update(['derniere_activite_at' => now()]);
         Cookie::queue(Cookie::forget(self::COOKIE_VERROUILLAGE));
 
-        return redirect()->route('locative.dashboard');
+        return redirect($this->redirectionTableauDeBord($utilisateur));
     }
 
     public function logout(Request $request)
@@ -142,5 +160,49 @@ class AuthController extends Controller
     protected function trouverUtilisateur(string $identifiant): ?User
     {
         return User::where('email', $identifiant)->orWhere('identifiant', $identifiant)->first();
+    }
+
+    /**
+     * Détermine le tableau de bord "par défaut" d'un utilisateur : le premier module, dans
+     * l'ordre du catalogue (config/modules.php), à la fois actif pour la société (abonnement)
+     * et accessible à son rôle. Reproduit le comportement historique (tout le monde atterrissait
+     * sur Locative) pour un utilisateur ayant accès à tout, tout en redirigeant un utilisateur
+     * plus spécialisé (ex. RH seul) directement vers le module qu'il utilise réellement.
+     */
+    protected function redirectionTableauDeBord(User $utilisateur): string
+    {
+        $tableauxDeBord = [
+            'locative' => 'locative.dashboard',
+            'finance' => 'finance.dashboard',
+            'commercial' => 'commercial.dashboard',
+            'documents' => 'documents.dashboard',
+            'facturation' => 'facturation.dashboard',
+            'rh' => 'rh.dashboard',
+            'administration' => 'administration.dashboard',
+        ];
+
+        // Modules sans permission dédiée (locative, commercial, facturation) : on se fie
+        // uniquement à l'activation du module pour la société, comme le fait aujourd'hui
+        // chacun de ces tableaux de bord (aucun Gate::authorize() sur leur contrôleur).
+        $abilites = [
+            'rh' => 'rh.consulter',
+            'finance' => 'finance.consulter',
+            'documents' => 'documents.gerer',
+            'administration' => 'administration.gerer',
+        ];
+
+        foreach ($tableauxDeBord as $module => $nomRoute) {
+            if (! Module::estActif($module)) {
+                continue;
+            }
+
+            if (isset($abilites[$module]) && ! $utilisateur->can($abilites[$module])) {
+                continue;
+            }
+
+            return route($nomRoute);
+        }
+
+        return route('profil.index');
     }
 }

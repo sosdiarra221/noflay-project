@@ -20,9 +20,11 @@ class DepenseController extends Controller
 {
     public function index(Request $request)
     {
-        Gate::authorize('finance.consulter');
-
         $depenses = DepenseLocation::with(['bien', 'bailleur', 'locataire', 'categorie', 'contratLocation'])
+            ->when(! Gate::allows('finance.depenses.voir-tout'), function ($q) {
+                Gate::authorize('finance.depenses.voir-siens');
+                $q->where('cree_par_id', auth()->id());
+            })
             ->when($request->filled('bien_id'), fn ($q) => $q->where('bien_id', $request->bien_id))
             ->when($request->filled('bailleur_id'), fn ($q) => $q->where('bailleur_id', $request->bailleur_id))
             ->when($request->filled('statut'), fn ($q) => $q->where('statut', $request->statut))
@@ -50,7 +52,7 @@ class DepenseController extends Controller
 
     public function create()
     {
-        Gate::authorize('finance.gerer');
+        Gate::authorize('finance.depenses.ajouter');
 
         $biens = Bien::with('bailleur')->orderBy('titre')->get();
         $categories = CategorieDepense::where('actif', true)->orderBy('nom')->get();
@@ -70,7 +72,7 @@ class DepenseController extends Controller
 
     public function store(Request $request)
     {
-        Gate::authorize('finance.gerer');
+        Gate::authorize('finance.depenses.ajouter');
 
         $data = $request->validate([
             'bien_id' => ['required', 'exists:biens,id'],
@@ -122,7 +124,10 @@ class DepenseController extends Controller
 
     public function show(DepenseLocation $depense)
     {
-        Gate::authorize('finance.consulter');
+        if (! Gate::allows('finance.depenses.voir-tout')) {
+            Gate::authorize('finance.depenses.voir-siens');
+            abort_unless($depense->cree_par_id === auth()->id(), 403);
+        }
 
         $depense->load(['bien', 'bailleur', 'locataire', 'categorie', 'contratLocation', 'responsableFinancier', 'creePar', 'modePaiement']);
         $modesPaiement = ModePaiement::where('actif', true)->orderBy('nom')->get();
@@ -132,7 +137,7 @@ class DepenseController extends Controller
 
     public function soumettre(DepenseLocation $depense)
     {
-        Gate::authorize('finance.gerer');
+        Gate::authorize('finance.depenses.statut');
         $this->verifierStatut($depense, [DepenseLocation::STATUT_BROUILLON]);
 
         $depense->update(['statut' => DepenseLocation::STATUT_EN_ATTENTE]);
@@ -142,7 +147,7 @@ class DepenseController extends Controller
 
     public function approuver(DepenseLocation $depense)
     {
-        Gate::authorize('finance.gerer');
+        Gate::authorize('finance.depenses.statut');
         $this->verifierStatut($depense, [DepenseLocation::STATUT_EN_ATTENTE]);
 
         $depense->update(['statut' => DepenseLocation::STATUT_APPROUVEE, 'date_validation' => now()]);
@@ -152,7 +157,7 @@ class DepenseController extends Controller
 
     public function refuser(Request $request, DepenseLocation $depense)
     {
-        Gate::authorize('finance.gerer');
+        Gate::authorize('finance.depenses.statut');
         $this->verifierStatut($depense, [DepenseLocation::STATUT_EN_ATTENTE]);
 
         $data = $request->validate(['motif_refus' => ['required', 'string']]);
@@ -168,7 +173,7 @@ class DepenseController extends Controller
 
     public function demarrerIntervention(DepenseLocation $depense)
     {
-        Gate::authorize('finance.gerer');
+        Gate::authorize('finance.depenses.statut');
         $this->verifierStatut($depense, [DepenseLocation::STATUT_APPROUVEE]);
 
         $depense->update(['statut' => DepenseLocation::STATUT_INTERVENTION]);
@@ -180,7 +185,7 @@ class DepenseController extends Controller
 
     public function factureRecue(Request $request, DepenseLocation $depense)
     {
-        Gate::authorize('finance.gerer');
+        Gate::authorize('finance.depenses.statut');
         $this->verifierStatut($depense, [DepenseLocation::STATUT_INTERVENTION, DepenseLocation::STATUT_APPROUVEE]);
 
         $data = $request->validate(['montant_final' => ['required', 'numeric', 'min:0']]);
@@ -192,7 +197,7 @@ class DepenseController extends Controller
 
     public function marquerAPayer(DepenseLocation $depense)
     {
-        Gate::authorize('finance.gerer');
+        Gate::authorize('finance.depenses.statut');
         $this->verifierStatut($depense, [DepenseLocation::STATUT_FACTURE_RECUE]);
 
         $depense->update(['statut' => DepenseLocation::STATUT_A_PAYER]);
@@ -207,7 +212,7 @@ class DepenseController extends Controller
      */
     public function payer(Request $request, DepenseLocation $depense)
     {
-        Gate::authorize('finance.gerer');
+        Gate::authorize('finance.depenses.statut');
         $this->verifierStatut($depense, [DepenseLocation::STATUT_A_PAYER]);
 
         $data = $request->validate([
@@ -226,7 +231,7 @@ class DepenseController extends Controller
 
     public function cloturer(DepenseLocation $depense)
     {
-        Gate::authorize('finance.gerer');
+        Gate::authorize('finance.depenses.statut');
         $this->verifierStatut($depense, [DepenseLocation::STATUT_PAYEE, DepenseLocation::STATUT_REFUSEE]);
 
         $depense->update(['statut' => DepenseLocation::STATUT_CLOTUREE]);

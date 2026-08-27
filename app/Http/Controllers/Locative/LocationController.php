@@ -18,6 +18,7 @@ use App\Services\Locative\EcheanceLoyerService;
 use App\Services\Locative\NumeroService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
 class LocationController extends Controller
@@ -39,6 +40,8 @@ class LocationController extends Controller
 
     public function create()
     {
+        Gate::authorize('locative.contrats.ajouter');
+
         $locataires = Locataire::where('statut', 'actif')->orderBy('nom')->get();
         $biensDisponibles = Bien::with(['bailleur', 'categorie'])
             ->where('type_exploitation', 'location')
@@ -128,6 +131,8 @@ class LocationController extends Controller
 
     public function store(Request $request, EcheanceLoyerService $echeanceService, DocumentGenerationService $documentGenerationService)
     {
+        Gate::authorize('locative.contrats.ajouter');
+
         $data = $request->validate([
             'type_location' => ['required', 'in:habitation,commercial'],
             'locataire_id' => ['required', 'exists:locataires,id'],

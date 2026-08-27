@@ -16,9 +16,11 @@ class AbsenceController extends Controller
 {
     public function index(Request $request)
     {
-        Gate::authorize('rh.consulter');
-
         $absences = Absence::with('employe', 'typeAbsence')
+            ->when(! Gate::allows('rh.absences.voir-tout'), function ($q) {
+                Gate::authorize('rh.absences.voir-siens');
+                $q->where('employe_id', auth()->user()->employe?->id ?? 0);
+            })
             ->when($request->filled('statut'), fn ($q) => $q->where('statut', $request->statut))
             ->when($request->filled('employe_id'), fn ($q) => $q->where('employe_id', $request->employe_id))
             ->when($request->filled('type_absence_id'), fn ($q) => $q->where('type_absence_id', $request->type_absence_id))
@@ -39,7 +41,7 @@ class AbsenceController extends Controller
 
     public function store(Request $request)
     {
-        Gate::authorize('rh.gerer');
+        Gate::authorize('rh.absences.ajouter');
 
         $data = $request->validate([
             'employe_id' => ['required', 'exists:employes,id'],
@@ -77,7 +79,7 @@ class AbsenceController extends Controller
 
     public function changerStatut(Request $request, Absence $absence)
     {
-        Gate::authorize('rh.gerer');
+        Gate::authorize('rh.absences.statut');
 
         $data = $request->validate([
             'statut' => ['required', 'string', 'in:'.implode(',', array_keys(Absence::STATUTS))],
@@ -107,7 +109,10 @@ class AbsenceController extends Controller
 
     public function apercuDocument(Absence $absence)
     {
-        Gate::authorize('rh.consulter');
+        if (! Gate::allows('rh.absences.voir-tout')) {
+            Gate::authorize('rh.absences.voir-siens');
+            abort_unless($absence->employe_id === auth()->user()->employe?->id, 403);
+        }
 
         abort_unless($absence->document, 404);
 

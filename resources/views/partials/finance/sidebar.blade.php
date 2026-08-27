@@ -68,6 +68,14 @@
                     <span class="pe-nav-content">Journal de caisse</span>
                 </a>
             </li>
+            @can('finance.comptabilite')
+                <li class="pe-slide pe-has-sub">
+                    <a href="{{ route('finance.comptabilite.index') }}" class="pe-nav-link">
+                        <i class="bi bi-calculator pe-nav-icon"></i>
+                        <span class="pe-nav-content">Comptabilité générale</span>
+                    </a>
+                </li>
+            @endcan
             <li class="pe-menu-title">
                 Configuration
             </li>

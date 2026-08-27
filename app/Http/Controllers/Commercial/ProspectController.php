@@ -20,6 +20,10 @@ class ProspectController extends Controller
     public function index(Request $request)
     {
         $prospects = Prospect::with(['typeDemande', 'source', 'partenaire', 'commercial', 'activites'])
+            ->when(! Gate::allows('commercial.prospects.voir-tout'), function ($q) {
+                Gate::authorize('commercial.prospects.voir-siens');
+                $q->where('commercial_id', auth()->id());
+            })
             ->when($request->filled('recherche'), function ($q) use ($request) {
                 $terme = $request->recherche;
                 $q->where(fn ($q2) => $q2->where('nom', 'like', "%{$terme}%")
@@ -42,6 +46,11 @@ class ProspectController extends Controller
 
     public function show(Prospect $prospect)
     {
+        if (! Gate::allows('commercial.prospects.voir-tout')) {
+            Gate::authorize('commercial.prospects.voir-siens');
+            abort_unless($prospect->commercial_id === auth()->id(), 403);
+        }
+
         $prospect->load(['typeDemande', 'source', 'commercial', 'activites.utilisateur', 'historiqueStatuts.utilisateur']);
 
         return view('commercial.prospects.show', compact('prospect'));
@@ -49,6 +58,8 @@ class ProspectController extends Controller
 
     public function store(Request $request)
     {
+        Gate::authorize('commercial.prospects.ajouter');
+
         $data = $this->valider($request);
 
         if (! $request->boolean('forcer_creation')) {
@@ -85,6 +96,8 @@ class ProspectController extends Controller
 
     public function update(Request $request, Prospect $prospect)
     {
+        Gate::authorize('commercial.prospects.modifier');
+
         $data = $this->valider($request);
 
         $prospect->update($data);
@@ -94,7 +107,7 @@ class ProspectController extends Controller
 
     public function destroy(Request $request, Prospect $prospect)
     {
-        Gate::authorize('commercial.operations-sensibles');
+        Gate::authorize('commercial.prospects.supprimer');
 
         $request->validate([
             'motif_suppression' => ['required', 'string', 'max:255'],
@@ -110,6 +123,8 @@ class ProspectController extends Controller
 
     public function changerStatut(Request $request, Prospect $prospect)
     {
+        Gate::authorize('commercial.prospects.statut');
+
         $data = $request->validate([
             'nouveau_statut' => ['required', 'string', 'in:'.implode(',', Prospect::STATUTS)],
             'commentaire' => ['nullable', 'string', 'max:500'],
@@ -135,6 +150,8 @@ class ProspectController extends Controller
 
     public function convertirEnLocation(Prospect $prospect)
     {
+        Gate::authorize('commercial.prospects.statut');
+
         if ($prospect->statut !== 'gagne') {
             return back()->with('success', 'Seul un prospect gagné peut être converti.');
         }

@@ -12,12 +12,17 @@ use App\Services\Locative\NumeroService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class DevisController extends Controller
 {
     public function index(Request $request)
     {
         $devis = Devis::with('client', 'lignes')
+            ->when(! Gate::allows('facturation.devis.voir-tout'), function ($q) {
+                Gate::authorize('facturation.devis.voir-siens');
+                $q->where('cree_par_id', auth()->id());
+            })
             ->when($request->filled('statut'), fn ($q) => $q->where('statut', $request->statut))
             ->when($request->filled('client_id'), fn ($q) => $q->where('client_id', $request->client_id))
             ->when($request->filled('recherche'), function ($q) use ($request) {
@@ -43,6 +48,8 @@ class DevisController extends Controller
 
     public function create()
     {
+        Gate::authorize('facturation.devis.ajouter');
+
         $clients = Client::orderBy('nom_complet')->get();
         $prospects = Prospect::orderBy('nom')->get();
         $reglage = Reglage::courant();
@@ -52,6 +59,8 @@ class DevisController extends Controller
 
     public function show(Devis $devis)
     {
+        $this->autoriserVoir($devis);
+
         $devis->load('client.prospect', 'lignes', 'creePar');
         $reglage = Reglage::courant();
 
@@ -60,6 +69,8 @@ class DevisController extends Controller
 
     public function store(Request $request)
     {
+        Gate::authorize('facturation.devis.ajouter');
+
         $data = $request->validate([
             'date_devis' => ['required', 'date'],
             'mode_client' => ['required', 'string', 'in:existant,prospect,nouveau'],
@@ -133,6 +144,8 @@ class DevisController extends Controller
 
     public function update(Request $request, Devis $devis)
     {
+        Gate::authorize('facturation.devis.statut');
+
         $data = $request->validate([
             'statut' => ['required', 'string', 'in:'.implode(',', array_keys(Devis::STATUTS))],
         ]);
@@ -191,6 +204,8 @@ class DevisController extends Controller
 
     public function destroy(Request $request, Devis $devis)
     {
+        Gate::authorize('facturation.devis.supprimer');
+
         $request->validate([
             'motif_suppression' => ['required', 'string', 'max:255'],
         ]);
@@ -205,6 +220,8 @@ class DevisController extends Controller
 
     public function pdf(Devis $devis)
     {
+        $this->autoriserVoir($devis);
+
         $devis->load('client', 'lignes');
         $reglage = Reglage::courant();
 
@@ -215,11 +232,21 @@ class DevisController extends Controller
 
     public function apercu(Devis $devis)
     {
+        $this->autoriserVoir($devis);
+
         $devis->load('client', 'lignes');
         $reglage = Reglage::courant();
 
         $pdf = Pdf::loadView('facturation.pdf.devis', ['devis' => $devis, 'reglage' => $reglage]);
 
         return $pdf->stream(str_replace('/', '-', $devis->numero).'.pdf');
+    }
+
+    protected function autoriserVoir(Devis $devis): void
+    {
+        if (! Gate::allows('facturation.devis.voir-tout')) {
+            Gate::authorize('facturation.devis.voir-siens');
+            abort_unless($devis->cree_par_id === auth()->id(), 403);
+        }
     }
 }
